@@ -27,15 +27,14 @@ exports.handler = async function (event) {
 Translate this text into natural English.
 
 Return ONLY valid JSON.
-Do not include markdown.
-Do not include explanations.
+Do NOT include markdown.
 
 Text:
 ${text}
 
 Format:
 {
-  "main": "best natural English translation",
+  "main": "best translation",
   "options": [
     { "label": "Natural", "text": "..." },
     { "label": "Polite", "text": "..." },
@@ -70,17 +69,22 @@ Format:
       };
     }
 
-    const outputText = data.output_text;
+    // ✅ 正确读取返回内容（关键修复）
+    const outputText =
+      data.output_text ||
+      data.output?.[0]?.content?.[0]?.text;
 
     if (!outputText) {
       return {
         statusCode: 500,
         body: JSON.stringify({
-          error: "No output from OpenAI"
+          error: "No output from OpenAI",
+          detail: JSON.stringify(data)
         })
       };
     }
 
+    // 清理 markdown
     const cleaned = outputText
       .replace(/```json/g, "")
       .replace(/```/g, "")
@@ -95,6 +99,7 @@ Format:
       },
       body: JSON.stringify(parsed)
     };
+
   } catch (error) {
     return {
       statusCode: 500,
