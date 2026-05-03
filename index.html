@@ -75,17 +75,18 @@ textarea {
   outline: none;
   resize: none;
   padding: 22px;
-  font-size: 22px;
+  font-size: 21px;
   line-height: 1.55;
 }
 
 .result {
   min-height: 230px;
   padding: 22px;
-  font-size: 22px;
+  font-size: 21px;
   line-height: 1.55;
   cursor: pointer;
   background: #fbfdff;
+  position: relative;
 }
 
 .placeholder {
@@ -121,52 +122,52 @@ textarea {
   color: #334155;
 }
 
-.options-wrap {
-  margin-top: 18px;
+.dropdown {
   display: none;
-}
-
-.options-title {
-  font-size: 15px;
-  font-weight: 800;
-  margin-bottom: 10px;
-  color: #374151;
-}
-
-.option-card {
-  display: grid;
-  grid-template-columns: 90px 1fr 1fr;
-  gap: 12px;
-  align-items: center;
+  position: absolute;
+  left: 22px;
+  top: 72px;
+  width: min(520px, calc(100% - 44px));
   background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
+  border: 1px solid #d0d5dd;
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.16);
+  overflow: hidden;
+  z-index: 20;
+}
+
+.dropdown-item {
   padding: 12px 14px;
-  margin-bottom: 10px;
+  border-bottom: 1px solid #eef2f7;
   cursor: pointer;
 }
 
-.option-card:hover,
-.option-card.active {
-  background: #eaf2ff;
-  border-color: #2563eb;
+.dropdown-item:last-child {
+  border-bottom: none;
 }
 
-.option-label {
+.dropdown-item:hover,
+.dropdown-item.active {
+  background: #eaf2ff;
+}
+
+.dropdown-label {
   color: #2563eb;
   font-size: 12px;
   font-weight: 900;
+  margin-bottom: 5px;
 }
 
-.option-en {
+.dropdown-text {
   font-size: 15px;
   line-height: 1.45;
+  margin-bottom: 5px;
 }
 
-.option-cn {
+.dropdown-meaning {
   font-size: 13px;
-  line-height: 1.45;
   color: #667085;
+  line-height: 1.45;
 }
 
 .status {
@@ -181,6 +182,10 @@ textarea {
   gap: 10px;
 }
 
+.error {
+  color: #b00020;
+}
+
 @media (max-width: 800px) {
   .translator {
     grid-template-columns: 1fr;
@@ -192,9 +197,8 @@ textarea {
     font-size: 18px;
   }
 
-  .option-card {
-    grid-template-columns: 1fr;
-    gap: 6px;
+  .dropdown {
+    top: 64px;
   }
 }
 </style>
@@ -211,10 +215,10 @@ textarea {
     <div class="panel">
       <div class="panel-head">
         <span>输入</span>
-        <span>Auto Detect</span>
+        <span id="detectedLang">Auto Detect</span>
       </div>
 
-      <textarea id="input" placeholder="输入中文，例如：你好呀。你现在在做什么？"></textarea>
+      <textarea id="input" placeholder="输入中文或英文，系统会自动判断翻译方向"></textarea>
 
       <div class="panel-foot">
         <span id="count">0 字符</span>
@@ -224,28 +228,24 @@ textarea {
 
     <div class="panel">
       <div class="panel-head">
-        <span>英文翻译</span>
-        <span>点击结果展开表达</span>
+        <span id="targetLang">翻译结果</span>
+        <span>点击结果选择表达</span>
       </div>
 
-      <div id="mainText" class="result" onclick="toggleOptions()">
-        <span class="placeholder">英文翻译会显示在这里</span>
+      <div id="mainText" class="result" onclick="toggleDropdown(event)">
+        <span class="placeholder">翻译会显示在这里</span>
+        <div id="dropdown" class="dropdown"></div>
       </div>
 
       <div class="panel-foot">
         <span id="status">等待输入</span>
-        <button class="btn copy" onclick="copyText()">Copy</button>
+        <button class="btn copy" onclick="copyText(event)">Copy</button>
       </div>
     </div>
   </section>
 
-  <section id="optionsWrap" class="options-wrap">
-    <div class="options-title">不同英文表达</div>
-    <div id="options"></div>
-  </section>
-
   <div class="footer-actions">
-    <button class="btn copy" onclick="copyText()">复制当前英文</button>
+    <button class="btn copy" onclick="copyText(event)">复制当前结果</button>
     <button class="btn clear" onclick="clearAll()">清空</button>
   </div>
 </div>
@@ -253,14 +253,15 @@ textarea {
 <script>
 let currentText = "";
 let timer;
-let optionsVisible = false;
+let dropdownVisible = false;
 
 const input = document.getElementById("input");
 const count = document.getElementById("count");
 const statusBox = document.getElementById("status");
 const mainText = document.getElementById("mainText");
-const options = document.getElementById("options");
-const optionsWrap = document.getElementById("optionsWrap");
+const dropdown = document.getElementById("dropdown");
+const detectedLang = document.getElementById("detectedLang");
+const targetLang = document.getElementById("targetLang");
 
 input.addEventListener("input", () => {
   clearTimeout(timer);
@@ -293,63 +294,72 @@ async function translate() {
     const data = await res.json();
 
     if (!res.ok || data.error) {
-      mainText.innerHTML = `<span style="color:#b00020;">${escapeHTML(data.error || data.detail || "Translation failed.")}</span>`;
+      mainText.innerHTML = `<span class="error">${escapeHTML(data.error || data.detail || "Translation failed.")}</span>`;
       statusBox.innerText = "翻译失败";
+      dropdown.innerHTML = "";
       return;
     }
 
     currentText = data.main;
-    mainText.innerText = data.main;
+    mainText.childNodes[0].textContent = data.main;
 
-    renderOptions(data.options || []);
+    detectedLang.innerText = data.detected_language || "Auto Detect";
+    targetLang.innerText = data.target_language || "翻译结果";
+
+    renderDropdown(data.options || []);
     statusBox.innerText = "翻译完成";
 
   } catch (err) {
-    mainText.innerHTML = `<span style="color:#b00020;">Network error. Please try again.</span>`;
+    mainText.innerHTML = `<span class="error">Network error. Please try again.</span><div id="dropdown" class="dropdown"></div>`;
     statusBox.innerText = "网络错误";
   }
 }
 
-function renderOptions(list) {
-  options.innerHTML = "";
+function renderDropdown(list) {
+  dropdown.innerHTML = "";
 
   list.forEach((opt, index) => {
-    const card = document.createElement("div");
-    card.className = "option-card" + (index === 0 ? " active" : "");
+    const item = document.createElement("div");
+    item.className = "dropdown-item" + (index === 0 ? " active" : "");
 
-    card.innerHTML = `
-      <div class="option-label">${escapeHTML(opt.label || "Option")}</div>
-      <div class="option-en">${escapeHTML(opt.english || "")}</div>
-      <div class="option-cn">${escapeHTML(opt.chinese_meaning || "")}</div>
+    item.innerHTML = `
+      <div class="dropdown-label">${escapeHTML(opt.label || "Option")}</div>
+      <div class="dropdown-text">${escapeHTML(opt.text || "")}</div>
+      <div class="dropdown-meaning">${escapeHTML(opt.meaning || "")}</div>
     `;
 
-    card.onclick = () => {
-      document.querySelectorAll(".option-card").forEach(el => {
+    item.onclick = (e) => {
+      e.stopPropagation();
+
+      document.querySelectorAll(".dropdown-item").forEach(el => {
         el.classList.remove("active");
       });
 
-      card.classList.add("active");
-      currentText = opt.english || "";
-      mainText.innerText = currentText;
-      optionsVisible = false;
-      optionsWrap.style.display = "none";
+      item.classList.add("active");
+      currentText = opt.text || "";
+      mainText.childNodes[0].textContent = currentText;
+      dropdown.style.display = "none";
+      dropdownVisible = false;
     };
 
-    options.appendChild(card);
+    dropdown.appendChild(item);
   });
 
-  optionsVisible = false;
-  optionsWrap.style.display = "none";
+  dropdown.style.display = "none";
+  dropdownVisible = false;
 }
 
-function toggleOptions() {
-  if (!options.innerHTML.trim()) return;
+function toggleDropdown(event) {
+  event.stopPropagation();
 
-  optionsVisible = !optionsVisible;
-  optionsWrap.style.display = optionsVisible ? "block" : "none";
+  if (!dropdown.innerHTML.trim()) return;
+
+  dropdownVisible = !dropdownVisible;
+  dropdown.style.display = dropdownVisible ? "block" : "none";
 }
 
-function copyText() {
+function copyText(event) {
+  if (event) event.stopPropagation();
   if (!currentText) return;
 
   navigator.clipboard.writeText(currentText);
@@ -364,12 +374,21 @@ function clearAll() {
 
 function clearResultOnly() {
   currentText = "";
-  optionsVisible = false;
-  mainText.innerHTML = '<span class="placeholder">英文翻译会显示在这里</span>';
-  options.innerHTML = "";
-  optionsWrap.style.display = "none";
+  dropdownVisible = false;
+  detectedLang.innerText = "Auto Detect";
+  targetLang.innerText = "翻译结果";
+  mainText.innerHTML = '<span class="placeholder">翻译会显示在这里</span><div id="dropdown" class="dropdown"></div>';
   statusBox.innerText = "等待输入";
+
+  const newDropdown = document.getElementById("dropdown");
+  dropdown.innerHTML = "";
+  dropdown.style.display = "none";
 }
+
+document.addEventListener("click", () => {
+  dropdown.style.display = "none";
+  dropdownVisible = false;
+});
 
 function escapeHTML(str) {
   return String(str).replace(/[&<>'"]/g, tag => {
