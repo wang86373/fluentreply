@@ -16,16 +16,24 @@ exports.handler = async function (event) {
       };
     }
 
+    if (!process.env.OPENAI_API_KEY) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: "Missing OPENAI_API_KEY" })
+      };
+    }
+
     const prompt = `
-Translate the user's text into natural English.
+Translate this text into natural English.
 
 Return ONLY valid JSON.
 Do not include markdown.
+Do not include explanations.
 
-User text:
+Text:
 ${text}
 
-JSON format:
+Format:
 {
   "main": "best natural English translation",
   "options": [
@@ -43,21 +51,35 @@ JSON format:
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": \`Bearer \${process.env.OPENAI_API_KEY}\`
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: "gpt-4.1-mini",
-        input: prompt,
-        temperature: 0.4
+        model: "gpt-4o-mini",
+        input: prompt
       })
     });
 
     const data = await response.json();
 
-    const outputText =
-      data.output_text ||
-      data.output?.[0]?.content?.[0]?.text ||
-      "";
+    if (!response.ok) {
+      return {
+        statusCode: response.status,
+        body: JSON.stringify({
+          error: data.error?.message || "OpenAI API error"
+        })
+      };
+    }
+
+    const outputText = data.output_text;
+
+    if (!outputText) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          error: "No output from OpenAI"
+        })
+      };
+    }
 
     const cleaned = outputText
       .replace(/```json/g, "")
