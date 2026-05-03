@@ -7,7 +7,7 @@
 
   <style>
     body {
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
       background: #f5f7fb;
       margin: 0;
       padding: 40px 20px;
@@ -15,39 +15,47 @@
     }
 
     h1 {
-      font-size: 32px;
+      font-size: 34px;
       margin-bottom: 10px;
     }
 
     .subtitle {
       color: #666;
       margin-bottom: 30px;
+      font-size: 18px;
     }
 
     textarea {
       width: 100%;
-      max-width: 700px;
-      height: 120px;
-      padding: 15px;
-      font-size: 16px;
-      border-radius: 10px;
+      max-width: 800px;
+      height: 150px;
+      padding: 18px;
+      font-size: 20px;
+      border-radius: 12px;
       border: 1px solid #ccc;
       outline: none;
       resize: none;
     }
 
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: auto;
     }
 
     .output {
-      margin-top: 20px;
+      margin: 25px auto 0;
+      max-width: 800px;
       background: #fff;
-      padding: 20px;
-      border-radius: 10px;
+      padding: 25px;
+      border-radius: 14px;
       text-align: left;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    #mainText {
+      font-size: 24px;
+      line-height: 1.5;
+      margin-bottom: 18px;
     }
 
     .options {
@@ -58,31 +66,40 @@
     }
 
     .option-btn {
-      padding: 8px 12px;
-      border-radius: 6px;
+      padding: 9px 14px;
+      border-radius: 8px;
       border: 1px solid #ddd;
-      background: #f0f0f0;
+      background: #f1f3f4;
       cursor: pointer;
       font-size: 14px;
     }
 
     .option-btn:hover {
-      background: #e0e0e0;
+      background: #e8f0fe;
+      border-color: #1a73e8;
     }
 
     .copy-btn {
-      margin-top: 15px;
-      padding: 10px 20px;
+      margin-top: 18px;
+      padding: 11px 22px;
       border: none;
       background: #4CAF50;
       color: white;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
+      font-size: 15px;
     }
 
     .loading {
-      margin-top: 15px;
-      color: #888;
+      margin-top: 18px;
+      color: #777;
+      font-size: 15px;
+    }
+
+    .error {
+      color: #b00020;
+      font-size: 16px;
+      line-height: 1.5;
     }
   </style>
 </head>
@@ -102,31 +119,37 @@
 
     <div class="output" id="output" style="display:none;">
       <div id="mainText"></div>
-
       <div class="options" id="options"></div>
-
       <button class="copy-btn" onclick="copyText()">Copy</button>
     </div>
   </div>
 
   <script>
     let currentText = "";
-
     const input = document.getElementById("input");
 
-    input.addEventListener("input", debounce(handleInput, 800));
+    input.addEventListener("input", debounce(handleInput, 900));
 
     async function handleInput() {
       const text = input.value.trim();
-      if (!text) return;
+
+      if (!text) {
+        document.getElementById("output").style.display = "none";
+        document.getElementById("loading").style.display = "none";
+        return;
+      }
 
       document.getElementById("loading").style.display = "block";
+      document.getElementById("loading").innerText = "Translating...";
       document.getElementById("output").style.display = "none";
 
       try {
         const res = await fetch("/.netlify/functions/translate", {
           method: "POST",
-          body: JSON.stringify({ text }),
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ text })
         });
 
         const data = await res.json();
@@ -134,32 +157,45 @@
         document.getElementById("loading").style.display = "none";
         document.getElementById("output").style.display = "block";
 
+        if (!res.ok || data.error) {
+          document.getElementById("mainText").innerHTML =
+            '<span class="error">' + escapeHTML(data.error || data.detail || "Translation failed.") + '</span>';
+          document.getElementById("options").innerHTML = "";
+          return;
+        }
+
         document.getElementById("mainText").innerText = data.main;
         currentText = data.main;
 
         const optionsDiv = document.getElementById("options");
         optionsDiv.innerHTML = "";
 
-        data.options.forEach(opt => {
-          const btn = document.createElement("div");
-          btn.className = "option-btn";
-          btn.innerText = opt.label;
+        if (Array.isArray(data.options)) {
+          data.options.forEach(opt => {
+            const btn = document.createElement("div");
+            btn.className = "option-btn";
+            btn.innerText = opt.label || "Option";
 
-          btn.onclick = () => {
-            document.getElementById("mainText").innerText = opt.text;
-            currentText = opt.text;
-          };
+            btn.onclick = () => {
+              document.getElementById("mainText").innerText = opt.text;
+              currentText = opt.text;
+            };
 
-          optionsDiv.appendChild(btn);
-        });
+            optionsDiv.appendChild(btn);
+          });
+        }
 
       } catch (err) {
-        document.getElementById("loading").innerText = "Error occurred";
-        console.error(err);
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("output").style.display = "block";
+        document.getElementById("mainText").innerHTML =
+          '<span class="error">Network or server error. Please try again.</span>';
+        document.getElementById("options").innerHTML = "";
       }
     }
 
     function copyText() {
+      if (!currentText) return;
       navigator.clipboard.writeText(currentText);
       alert("Copied!");
     }
@@ -170,6 +206,19 @@
         clearTimeout(timer);
         timer = setTimeout(() => fn.apply(this, args), delay);
       };
+    }
+
+    function escapeHTML(str) {
+      return String(str).replace(/[&<>'"]/g, function(tag) {
+        const chars = {
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          "'": "&#39;",
+          '"': "&quot;"
+        };
+        return chars[tag] || tag;
+      });
     }
   </script>
 </body>
