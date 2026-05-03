@@ -24,24 +24,43 @@ exports.handler = async function (event) {
     }
 
     const prompt = `
-Translate this text into natural English.
+Translate the user's text into natural English.
 
 Return ONLY valid JSON.
-Do NOT include markdown.
+Do not include markdown.
+Do not include explanations.
 
-Text:
+Rules:
+- Return exactly 3 options only.
+- Each option must include:
+  - label
+  - english
+  - chinese_meaning
+- Make the English natural and useful.
+- The Chinese meaning should explain the English sentence naturally in Simplified Chinese.
+
+User text:
 ${text}
 
-Format:
+JSON format:
 {
-  "main": "best translation",
+  "main": "best English translation",
   "options": [
-    { "label": "Natural", "text": "..." },
-    { "label": "Polite", "text": "..." },
-    { "label": "Casual", "text": "..." },
-    { "label": "Professional", "text": "..." },
-    { "label": "Short", "text": "..." },
-    { "label": "Alternative", "text": "..." }
+    {
+      "label": "Natural",
+      "english": "...",
+      "chinese_meaning": "..."
+    },
+    {
+      "label": "Polite",
+      "english": "...",
+      "chinese_meaning": "..."
+    },
+    {
+      "label": "Casual",
+      "english": "...",
+      "chinese_meaning": "..."
+    }
   ]
 }
 `;
@@ -69,7 +88,6 @@ Format:
       };
     }
 
-    // ✅ 正确读取返回内容（关键修复）
     const outputText =
       data.output_text ||
       data.output?.[0]?.content?.[0]?.text;
@@ -78,13 +96,11 @@ Format:
       return {
         statusCode: 500,
         body: JSON.stringify({
-          error: "No output from OpenAI",
-          detail: JSON.stringify(data)
+          error: "No output from OpenAI"
         })
       };
     }
 
-    // 清理 markdown
     const cleaned = outputText
       .replace(/```json/g, "")
       .replace(/```/g, "")
