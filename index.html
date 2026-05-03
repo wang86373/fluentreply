@@ -1,225 +1,220 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>FluentReply</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8" />
+<title>FluentReply</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
-      background: #f5f7fb;
-      margin: 0;
-      padding: 40px 20px;
-      text-align: center;
-    }
+<style>
+body {
+  font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  background: #f3f6fb;
+  margin: 0;
+  padding: 40px 20px;
+}
 
-    h1 {
-      font-size: 34px;
-      margin-bottom: 10px;
-    }
+.container {
+  max-width: 980px;
+  margin: auto;
+}
 
-    .subtitle {
-      color: #666;
-      margin-bottom: 30px;
-      font-size: 18px;
-    }
+h1 {
+  text-align: center;
+  font-size: 42px;
+  margin-bottom: 10px;
+}
 
-    textarea {
-      width: 100%;
-      max-width: 800px;
-      height: 150px;
-      padding: 18px;
-      font-size: 20px;
-      border-radius: 12px;
-      border: 1px solid #ccc;
-      outline: none;
-      resize: none;
-    }
+.subtitle {
+  text-align: center;
+  color: #5f6368;
+  font-size: 20px;
+  margin-bottom: 32px;
+}
 
-    .container {
-      max-width: 900px;
-      margin: auto;
-    }
+textarea {
+  width: 100%;
+  height: 170px;
+  padding: 22px;
+  font-size: 26px;
+  border-radius: 14px;
+  border: 1px solid #ccc;
+  resize: none;
+  box-sizing: border-box;
+}
 
-    .output {
-      margin: 25px auto 0;
-      max-width: 800px;
-      background: #fff;
-      padding: 25px;
-      border-radius: 14px;
-      text-align: left;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-    }
+.output {
+  margin-top: 28px;
+  background: white;
+  padding: 30px;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
 
-    #mainText {
-      font-size: 24px;
-      line-height: 1.5;
-      margin-bottom: 18px;
-    }
+.main-result {
+  font-size: 30px;
+  line-height: 1.4;
+  margin-bottom: 24px;
+}
 
-    .options {
-      margin-top: 15px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
+.options {
+  display: grid;
+  gap: 12px;
+}
 
-    .option-btn {
-      padding: 9px 14px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      background: #f1f3f4;
-      cursor: pointer;
-      font-size: 14px;
-    }
+.option-card {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  background: #fafafa;
+}
 
-    .option-btn:hover {
-      background: #e8f0fe;
-      border-color: #1a73e8;
-    }
+.option-card:hover {
+  background: #eaf2ff;
+  border-color: #1a73e8;
+}
 
-    .copy-btn {
-      margin-top: 18px;
-      padding: 11px 22px;
-      border: none;
-      background: #4CAF50;
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 15px;
-    }
+.option-card.active {
+  background: #e8f0fe;
+  border-color: #1a73e8;
+}
 
-    .loading {
-      margin-top: 18px;
-      color: #777;
-      font-size: 15px;
-    }
+.option-label {
+  font-size: 13px;
+  color: #1a73e8;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
 
-    .error {
-      color: #b00020;
-      font-size: 16px;
-      line-height: 1.5;
-    }
-  </style>
+.option-text {
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.copy-btn {
+  margin-top: 22px;
+  padding: 12px 24px;
+  background: #34a853;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.loading {
+  text-align: center;
+  color: #777;
+  margin-top: 18px;
+}
+
+.error {
+  color: #b00020;
+}
+</style>
 </head>
 
 <body>
-  <div class="container">
-    <h1>FluentReply</h1>
-    <div class="subtitle">
-      Translate your message into natural English with multiple styles
-    </div>
-
-    <textarea id="input" placeholder="输入中文，例如：你好呀，我不想这样做"></textarea>
-
-    <div class="loading" id="loading" style="display:none;">
-      Translating...
-    </div>
-
-    <div class="output" id="output" style="display:none;">
-      <div id="mainText"></div>
-      <div class="options" id="options"></div>
-      <button class="copy-btn" onclick="copyText()">Copy</button>
-    </div>
+<div class="container">
+  <h1>FluentReply</h1>
+  <div class="subtitle">
+    Translate your message into natural English with multiple expressions
   </div>
 
-  <script>
-    let currentText = "";
-    const input = document.getElementById("input");
+  <textarea id="input" placeholder="输入中文，例如：你好呀。你在做什么"></textarea>
 
-    input.addEventListener("input", debounce(handleInput, 900));
+  <div id="loading" class="loading" style="display:none;">Translating...</div>
 
-    async function handleInput() {
-      const text = input.value.trim();
+  <div id="output" class="output" style="display:none;">
+    <div id="mainText" class="main-result"></div>
+    <div id="options" class="options"></div>
+    <button class="copy-btn" onclick="copyText()">Copy</button>
+  </div>
+</div>
 
-      if (!text) {
-        document.getElementById("output").style.display = "none";
-        document.getElementById("loading").style.display = "none";
-        return;
-      }
+<script>
+let currentText = "";
+let timer;
 
-      document.getElementById("loading").style.display = "block";
-      document.getElementById("loading").innerText = "Translating...";
-      document.getElementById("output").style.display = "none";
+const input = document.getElementById("input");
 
-      try {
-        const res = await fetch("/.netlify/functions/translate", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ text })
-        });
+input.addEventListener("input", () => {
+  clearTimeout(timer);
+  timer = setTimeout(translate, 800);
+});
 
-        const data = await res.json();
+async function translate() {
+  const text = input.value.trim();
 
-        document.getElementById("loading").style.display = "none";
-        document.getElementById("output").style.display = "block";
+  if (!text) {
+    output.style.display = "none";
+    loading.style.display = "none";
+    return;
+  }
 
-        if (!res.ok || data.error) {
-          document.getElementById("mainText").innerHTML =
-            '<span class="error">' + escapeHTML(data.error || data.detail || "Translation failed.") + '</span>';
-          document.getElementById("options").innerHTML = "";
-          return;
-        }
+  loading.style.display = "block";
+  output.style.display = "none";
 
-        document.getElementById("mainText").innerText = data.main;
-        currentText = data.main;
+  try {
+    const res = await fetch("/.netlify/functions/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
 
-        const optionsDiv = document.getElementById("options");
-        optionsDiv.innerHTML = "";
+    const data = await res.json();
 
-        if (Array.isArray(data.options)) {
-          data.options.forEach(opt => {
-            const btn = document.createElement("div");
-            btn.className = "option-btn";
-            btn.innerText = opt.label || "Option";
+    loading.style.display = "none";
+    output.style.display = "block";
 
-            btn.onclick = () => {
-              document.getElementById("mainText").innerText = opt.text;
-              currentText = opt.text;
-            };
-
-            optionsDiv.appendChild(btn);
-          });
-        }
-
-      } catch (err) {
-        document.getElementById("loading").style.display = "none";
-        document.getElementById("output").style.display = "block";
-        document.getElementById("mainText").innerHTML =
-          '<span class="error">Network or server error. Please try again.</span>';
-        document.getElementById("options").innerHTML = "";
-      }
+    if (!res.ok || data.error) {
+      mainText.innerHTML = `<span class="error">${data.error || data.detail || "Translation failed."}</span>`;
+      options.innerHTML = "";
+      return;
     }
 
-    function copyText() {
-      if (!currentText) return;
-      navigator.clipboard.writeText(currentText);
-      alert("Copied!");
-    }
+    currentText = data.main;
+    mainText.innerText = data.main;
+    renderOptions(data.options || []);
+  } catch (err) {
+    loading.style.display = "none";
+    output.style.display = "block";
+    mainText.innerHTML = `<span class="error">Network error. Please try again.</span>`;
+    options.innerHTML = "";
+  }
+}
 
-    function debounce(fn, delay) {
-      let timer;
-      return function (...args) {
-        clearTimeout(timer);
-        timer = setTimeout(() => fn.apply(this, args), delay);
-      };
-    }
+function renderOptions(list) {
+  options.innerHTML = "";
 
-    function escapeHTML(str) {
-      return String(str).replace(/[&<>'"]/g, function(tag) {
-        const chars = {
-          "&": "&amp;",
-          "<": "&lt;",
-          ">": "&gt;",
-          "'": "&#39;",
-          '"': "&quot;"
-        };
-        return chars[tag] || tag;
+  list.forEach((opt, index) => {
+    const card = document.createElement("div");
+    card.className = "option-card" + (index === 0 ? " active" : "");
+
+    card.innerHTML = `
+      <div class="option-label">${opt.label || "Option"}</div>
+      <div class="option-text">${opt.text || ""}</div>
+    `;
+
+    card.onclick = () => {
+      document.querySelectorAll(".option-card").forEach(el => {
+        el.classList.remove("active");
       });
-    }
-  </script>
+
+      card.classList.add("active");
+      currentText = opt.text;
+      mainText.innerText = opt.text;
+    };
+
+    options.appendChild(card);
+  });
+}
+
+function copyText() {
+  if (!currentText) return;
+  navigator.clipboard.writeText(currentText);
+  alert("Copied!");
+}
+</script>
 </body>
 </html>
