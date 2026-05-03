@@ -12,124 +12,88 @@ body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
   background: linear-gradient(135deg, #f4f7fb, #eef3ff);
-  color: #202124;
 }
 
 .container {
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 42px 18px;
+  max-width: 900px;
+  margin: auto;
+  padding: 40px 16px;
 }
 
 .header {
   text-align: center;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .logo {
-  font-size: 42px;
+  font-size: 36px;
   font-weight: 800;
-  color: #111827;
-  margin-bottom: 8px;
 }
 
 .subtitle {
   color: #667085;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .card {
   background: #fff;
-  border-radius: 22px;
-  box-shadow: 0 18px 50px rgba(37, 99, 235, 0.10);
-  padding: 24px;
-  margin-bottom: 22px;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  padding: 18px;
+  margin-bottom: 18px;
 }
 
 textarea {
   width: 100%;
-  height: 170px;
+  height: 130px;
   border: 1px solid #d0d5dd;
-  border-radius: 18px;
-  padding: 20px;
-  font-size: 22px;
-  line-height: 1.55;
+  border-radius: 14px;
+  padding: 16px;
+  font-size: 18px;
   resize: none;
-  outline: none;
-}
-
-textarea:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
 }
 
 .status {
-  margin-top: 12px;
+  margin-top: 8px;
+  font-size: 13px;
   color: #667085;
-  font-size: 14px;
 }
 
 .result-card {
   display: none;
   background: #fff;
-  border-radius: 22px;
-  box-shadow: 0 18px 50px rgba(0,0,0,0.08);
-  padding: 26px;
-}
-
-.result-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 14px;
-}
-
-.result-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: #2563eb;
-}
-
-.hint {
-  font-size: 13px;
-  color: #667085;
+  border-radius: 18px;
+  padding: 20px;
 }
 
 .main-result {
-  font-size: 30px;
-  line-height: 1.45;
-  padding: 18px;
-  border-radius: 16px;
+  font-size: 22px;
+  padding: 12px 14px;
+  border-radius: 12px;
   background: #f8fbff;
   border: 1px solid #e2e8f0;
   cursor: pointer;
 }
 
-.main-result:hover {
-  border-color: #2563eb;
-}
-
 .options {
   display: none;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  margin-top: 16px;
+  margin-top: 12px;
+  gap: 8px;
 }
 
 .option-card {
+  display: grid;
+  grid-template-columns: 80px 1fr 1fr;
+  gap: 10px;
+  padding: 10px 12px;
   border: 1px solid #e5e7eb;
-  background: #fff;
-  border-radius: 16px;
-  padding: 16px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: 0.15s ease;
+  align-items: center;
 }
 
 .option-card:hover {
-  background: #f8fbff;
-  border-color: #2563eb;
-  transform: translateY(-1px);
+  background: #f4f8ff;
 }
 
 .option-card.active {
@@ -138,89 +102,71 @@ textarea:focus {
 }
 
 .option-label {
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: bold;
   color: #2563eb;
-  font-weight: 800;
-  margin-bottom: 8px;
 }
 
 .option-english {
-  font-size: 20px;
-  line-height: 1.45;
-  margin-bottom: 8px;
+  font-size: 14px;
 }
 
 .option-chinese {
-  font-size: 15px;
-  line-height: 1.5;
+  font-size: 13px;
   color: #667085;
 }
 
 .actions {
-  margin-top: 18px;
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+  margin-top: 12px;
 }
 
-.copy-btn, .clear-btn {
+button {
+  padding: 8px 14px;
+  border-radius: 8px;
   border: none;
-  border-radius: 12px;
-  padding: 11px 18px;
-  font-size: 15px;
   cursor: pointer;
-  font-weight: 700;
 }
 
 .copy-btn {
   background: #16a34a;
-  color: #fff;
+  color: white;
 }
 
 .clear-btn {
   background: #eef2f7;
-  color: #334155;
-}
-
-.error {
-  color: #b00020;
 }
 
 @media (max-width: 700px) {
-  .logo { font-size: 34px; }
-  textarea { font-size: 19px; height: 150px; }
-  .main-result { font-size: 24px; }
-  .option-english { font-size: 18px; }
+  .option-card {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
 </head>
 
 <body>
 <div class="container">
+
   <div class="header">
     <div class="logo">FluentReply</div>
-    <div class="subtitle">AI translator with natural English expressions</div>
+    <div class="subtitle">AI translation with natural expressions</div>
   </div>
 
   <div class="card">
-    <textarea id="input" placeholder="输入中文，例如：你好呀。你在做什么"></textarea>
-    <div id="status" class="status">输入内容后会自动翻译。</div>
+    <textarea id="input" placeholder="输入中文..."></textarea>
+    <div id="status" class="status">自动翻译中...</div>
   </div>
 
   <div id="output" class="result-card">
-    <div class="result-header">
-      <div class="result-title">Best translation</div>
-      <div class="hint">点击英文展开 / 收起 3 个表达</div>
-    </div>
-
     <div id="mainText" class="main-result" onclick="toggleOptions()"></div>
     <div id="options" class="options"></div>
 
     <div class="actions">
-      <button class="copy-btn" onclick="copyText()">Copy English</button>
+      <button class="copy-btn" onclick="copyText()">Copy</button>
       <button class="clear-btn" onclick="clearAll()">Clear</button>
     </div>
   </div>
+
 </div>
 
 <script>
@@ -237,127 +183,86 @@ const options = document.getElementById("options");
 input.addEventListener("input", () => {
   clearTimeout(timer);
 
-  const text = input.value.trim();
-
-  if (!text) {
-    clearResultOnly();
+  if (!input.value.trim()) {
+    output.style.display = "none";
     return;
   }
 
-  statusBox.innerText = "准备翻译...";
-  timer = setTimeout(translate, 700);
+  timer = setTimeout(translate, 600);
 });
 
 async function translate() {
-  const text = input.value.trim();
-
-  if (!text) return;
-
-  statusBox.innerText = "AI 正在翻译...";
+  statusBox.innerText = "翻译中...";
 
   try {
     const res = await fetch("/.netlify/functions/translate", {
       method: "POST",
       headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ text })
+      body: JSON.stringify({ text: input.value })
     });
 
     const data = await res.json();
 
-    output.style.display = "block";
-
     if (!res.ok || data.error) {
-      mainText.innerHTML = `<span class="error">${data.error || data.detail || "Translation failed."}</span>`;
-      options.innerHTML = "";
-      statusBox.innerText = "翻译失败。";
+      statusBox.innerText = "出错了";
       return;
     }
 
+    output.style.display = "block";
     currentText = data.main;
     mainText.innerText = data.main;
-    renderOptions(data.options || []);
-    statusBox.innerText = "翻译完成。";
 
-  } catch (err) {
-    output.style.display = "block";
-    mainText.innerHTML = `<span class="error">Network error. Please try again.</span>`;
-    options.innerHTML = "";
-    statusBox.innerText = "网络错误。";
+    renderOptions(data.options);
+
+    statusBox.innerText = "完成";
+  } catch {
+    statusBox.innerText = "网络错误";
   }
 }
 
 function renderOptions(list) {
   options.innerHTML = "";
 
-  list.forEach((opt, index) => {
+  list.forEach((opt, i) => {
     const card = document.createElement("div");
-    card.className = "option-card" + (index === 0 ? " active" : "");
+    card.className = "option-card" + (i === 0 ? " active" : "");
 
     card.innerHTML = `
-      <div class="option-label">${escapeHTML(opt.label || "Option")}</div>
-      <div class="option-english">${escapeHTML(opt.english || "")}</div>
-      <div class="option-chinese">${escapeHTML(opt.chinese_meaning || "")}</div>
+      <div class="option-label">${opt.label}</div>
+      <div class="option-english">${opt.english}</div>
+      <div class="option-chinese">${opt.chinese_meaning}</div>
     `;
 
     card.onclick = () => {
-      document.querySelectorAll(".option-card").forEach(el => {
-        el.classList.remove("active");
-      });
-
+      document.querySelectorAll(".option-card").forEach(el => el.classList.remove("active"));
       card.classList.add("active");
-      currentText = opt.english || "";
-      mainText.innerText = currentText;
-      optionsVisible = false;
+      currentText = opt.english;
+      mainText.innerText = opt.english;
       options.style.display = "none";
+      optionsVisible = false;
     };
 
     options.appendChild(card);
   });
-
-  options.style.display = "none";
-  optionsVisible = false;
 }
 
 function toggleOptions() {
-  if (!options.innerHTML.trim()) return;
+  if (!options.innerHTML) return;
 
   optionsVisible = !optionsVisible;
   options.style.display = optionsVisible ? "grid" : "none";
 }
 
 function copyText() {
-  if (!currentText) return;
   navigator.clipboard.writeText(currentText);
-  statusBox.innerText = "已复制英文。";
+  statusBox.innerText = "已复制";
 }
 
 function clearAll() {
   input.value = "";
-  clearResultOnly();
-}
-
-function clearResultOnly() {
-  currentText = "";
-  optionsVisible = false;
   output.style.display = "none";
-  options.style.display = "none";
-  options.innerHTML = "";
-  mainText.innerText = "";
-  statusBox.innerText = "输入内容后会自动翻译。";
-}
-
-function escapeHTML(str) {
-  return String(str).replace(/[&<>'"]/g, function(tag) {
-    const chars = {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      "'": "&#39;",
-      '"': "&quot;"
-    };
-    return chars[tag] || tag;
-  });
 }
 </script>
+
 </body>
 </html>
