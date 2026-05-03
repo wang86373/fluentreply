@@ -24,42 +24,47 @@ exports.handler = async function (event) {
     }
 
     const prompt = `
-Translate the user's text into natural English.
+You are a professional translation assistant.
 
-Return ONLY valid JSON.
-Do not include markdown.
-Do not include explanations.
+Detect the input language automatically.
 
 Rules:
-- Return exactly 3 options only.
+- If the input is Chinese, translate it into natural English.
+- If the input is English, translate it into natural Simplified Chinese.
+- Return exactly 3 options.
+- The main result should be the most natural option.
 - Each option must include:
   - label
-  - english
-  - chinese_meaning
-- Make the English natural and useful.
-- The Chinese meaning should explain the English sentence naturally in Simplified Chinese.
+  - text
+  - meaning
+- If translating into English, meaning should be Simplified Chinese.
+- If translating into Chinese, meaning should be natural English.
 
-User text:
+Return ONLY valid JSON. No markdown.
+
+Input:
 ${text}
 
 JSON format:
 {
-  "main": "best English translation",
+  "detected_language": "Chinese or English or Other",
+  "target_language": "English or Simplified Chinese",
+  "main": "...",
   "options": [
     {
       "label": "Natural",
-      "english": "...",
-      "chinese_meaning": "..."
+      "text": "...",
+      "meaning": "..."
     },
     {
       "label": "Polite",
-      "english": "...",
-      "chinese_meaning": "..."
+      "text": "...",
+      "meaning": "..."
     },
     {
       "label": "Casual",
-      "english": "...",
-      "chinese_meaning": "..."
+      "text": "...",
+      "meaning": "..."
     }
   ]
 }
@@ -95,9 +100,7 @@ JSON format:
     if (!outputText) {
       return {
         statusCode: 500,
-        body: JSON.stringify({
-          error: "No output from OpenAI"
-        })
+        body: JSON.stringify({ error: "No output from OpenAI" })
       };
     }
 
@@ -110,9 +113,7 @@ JSON format:
 
     return {
       statusCode: 200,
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(parsed)
     };
 
