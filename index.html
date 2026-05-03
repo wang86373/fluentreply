@@ -1,5 +1,176 @@
-fluentreply/
-├── index.html
-└── netlify/
-    └── functions/
-        └── translate.js
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FluentReply</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f5f7fb;
+      margin: 0;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    textarea {
+      width: 100%;
+      max-width: 700px;
+      height: 120px;
+      padding: 15px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      outline: none;
+      resize: none;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .output {
+      margin-top: 20px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: left;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .options {
+      margin-top: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .option-btn {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      background: #f0f0f0;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .option-btn:hover {
+      background: #e0e0e0;
+    }
+
+    .copy-btn {
+      margin-top: 15px;
+      padding: 10px 20px;
+      border: none;
+      background: #4CAF50;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .loading {
+      margin-top: 15px;
+      color: #888;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>FluentReply</h1>
+    <div class="subtitle">
+      Translate your message into natural English with multiple styles
+    </div>
+
+    <textarea id="input" placeholder="输入中文，例如：你好呀，我不想这样做"></textarea>
+
+    <div class="loading" id="loading" style="display:none;">
+      Translating...
+    </div>
+
+    <div class="output" id="output" style="display:none;">
+      <div id="mainText"></div>
+
+      <div class="options" id="options"></div>
+
+      <button class="copy-btn" onclick="copyText()">Copy</button>
+    </div>
+  </div>
+
+  <script>
+    let currentText = "";
+
+    const input = document.getElementById("input");
+
+    input.addEventListener("input", debounce(handleInput, 800));
+
+    async function handleInput() {
+      const text = input.value.trim();
+      if (!text) return;
+
+      document.getElementById("loading").style.display = "block";
+      document.getElementById("output").style.display = "none";
+
+      try {
+        const res = await fetch("/.netlify/functions/translate", {
+          method: "POST",
+          body: JSON.stringify({ text }),
+        });
+
+        const data = await res.json();
+
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("output").style.display = "block";
+
+        document.getElementById("mainText").innerText = data.main;
+        currentText = data.main;
+
+        const optionsDiv = document.getElementById("options");
+        optionsDiv.innerHTML = "";
+
+        data.options.forEach(opt => {
+          const btn = document.createElement("div");
+          btn.className = "option-btn";
+          btn.innerText = opt.label;
+
+          btn.onclick = () => {
+            document.getElementById("mainText").innerText = opt.text;
+            currentText = opt.text;
+          };
+
+          optionsDiv.appendChild(btn);
+        });
+
+      } catch (err) {
+        document.getElementById("loading").innerText = "Error occurred";
+        console.error(err);
+      }
+    }
+
+    function copyText() {
+      navigator.clipboard.writeText(currentText);
+      alert("Copied!");
+    }
+
+    function debounce(fn, delay) {
+      let timer;
+      return function (...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), delay);
+      };
+    }
+  </script>
+</body>
+</html>
