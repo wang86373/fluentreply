@@ -6,122 +6,220 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <style>
+* { box-sizing: border-box; }
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
-  background: #f3f6fb;
   margin: 0;
-  padding: 40px 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  background: linear-gradient(135deg, #f4f7fb, #eef3ff);
+  color: #202124;
 }
 
 .container {
-  max-width: 900px;
-  margin: auto;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 42px 18px;
 }
 
-h1 {
+.header {
   text-align: center;
-  font-size: 40px;
-  margin-bottom: 10px;
+  margin-bottom: 28px;
+}
+
+.logo {
+  font-size: 42px;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 8px;
 }
 
 .subtitle {
-  text-align: center;
-  color: #666;
-  margin-bottom: 30px;
+  color: #667085;
+  font-size: 18px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 18px 50px rgba(37, 99, 235, 0.10);
+  padding: 24px;
+  margin-bottom: 22px;
 }
 
 textarea {
   width: 100%;
-  height: 150px;
+  height: 170px;
+  border: 1px solid #d0d5dd;
+  border-radius: 18px;
   padding: 20px;
   font-size: 22px;
-  border-radius: 12px;
-  border: 1px solid #ccc;
+  line-height: 1.55;
   resize: none;
-  box-sizing: border-box;
+  outline: none;
 }
 
-.output {
-  margin-top: 25px;
-  background: white;
-  padding: 25px;
-  border-radius: 16px;
+textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+.status {
+  margin-top: 12px;
+  color: #667085;
+  font-size: 14px;
+}
+
+.result-card {
+  display: none;
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.08);
+  padding: 26px;
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.result-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.hint {
+  font-size: 13px;
+  color: #667085;
 }
 
 .main-result {
-  font-size: 28px;
+  font-size: 30px;
+  line-height: 1.45;
+  padding: 18px;
+  border-radius: 16px;
+  background: #f8fbff;
+  border: 1px solid #e2e8f0;
   cursor: pointer;
-  margin-bottom: 15px;
+}
+
+.main-result:hover {
+  border-color: #2563eb;
 }
 
 .options {
   display: none;
+  grid-template-columns: 1fr;
   gap: 12px;
+  margin-top: 16px;
 }
 
 .option-card {
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  padding: 14px;
-  background: #fafafa;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
   cursor: pointer;
+  transition: 0.15s ease;
 }
 
 .option-card:hover {
-  background: #eef4ff;
+  background: #f8fbff;
+  border-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.option-card.active {
+  background: #eaf2ff;
+  border-color: #2563eb;
 }
 
 .option-label {
   font-size: 13px;
-  color: #1a73e8;
-  font-weight: bold;
-  margin-bottom: 5px;
+  color: #2563eb;
+  font-weight: 800;
+  margin-bottom: 8px;
 }
 
 .option-english {
-  font-size: 18px;
-  margin-bottom: 6px;
+  font-size: 20px;
+  line-height: 1.45;
+  margin-bottom: 8px;
 }
 
 .option-chinese {
-  font-size: 14px;
-  color: #666;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #667085;
+}
+
+.actions {
+  margin-top: 18px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.copy-btn, .clear-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 11px 18px;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 700;
 }
 
 .copy-btn {
-  margin-top: 18px;
-  padding: 10px 20px;
-  background: #34a853;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+  background: #16a34a;
+  color: #fff;
 }
 
-.loading {
-  margin-top: 15px;
-  color: #777;
+.clear-btn {
+  background: #eef2f7;
+  color: #334155;
 }
 
 .error {
-  color: red;
+  color: #b00020;
+}
+
+@media (max-width: 700px) {
+  .logo { font-size: 34px; }
+  textarea { font-size: 19px; height: 150px; }
+  .main-result { font-size: 24px; }
+  .option-english { font-size: 18px; }
 }
 </style>
 </head>
 
 <body>
 <div class="container">
-  <h1>FluentReply</h1>
-  <div class="subtitle">点击英文可展开不同表达方式</div>
+  <div class="header">
+    <div class="logo">FluentReply</div>
+    <div class="subtitle">AI translator with natural English expressions</div>
+  </div>
 
-  <textarea id="input" placeholder="输入中文..."></textarea>
+  <div class="card">
+    <textarea id="input" placeholder="输入中文，例如：你好呀。你在做什么"></textarea>
+    <div id="status" class="status">输入内容后会自动翻译。</div>
+  </div>
 
-  <div id="loading" class="loading" style="display:none;">Translating...</div>
+  <div id="output" class="result-card">
+    <div class="result-header">
+      <div class="result-title">Best translation</div>
+      <div class="hint">点击英文展开 / 收起 3 个表达</div>
+    </div>
 
-  <div id="output" class="output" style="display:none;">
     <div id="mainText" class="main-result" onclick="toggleOptions()"></div>
     <div id="options" class="options"></div>
-    <button class="copy-btn" onclick="copyText()">Copy</button>
+
+    <div class="actions">
+      <button class="copy-btn" onclick="copyText()">Copy English</button>
+      <button class="clear-btn" onclick="clearAll()">Clear</button>
+    </div>
   </div>
 </div>
 
@@ -131,26 +229,31 @@ let timer;
 let optionsVisible = false;
 
 const input = document.getElementById("input");
-const loading = document.getElementById("loading");
+const statusBox = document.getElementById("status");
 const output = document.getElementById("output");
 const mainText = document.getElementById("mainText");
 const options = document.getElementById("options");
 
 input.addEventListener("input", () => {
   clearTimeout(timer);
-  timer = setTimeout(translate, 600);
+
+  const text = input.value.trim();
+
+  if (!text) {
+    clearResultOnly();
+    return;
+  }
+
+  statusBox.innerText = "准备翻译...";
+  timer = setTimeout(translate, 700);
 });
 
 async function translate() {
   const text = input.value.trim();
 
-  if (!text) {
-    output.style.display = "none";
-    return;
-  }
+  if (!text) return;
 
-  loading.style.display = "block";
-  output.style.display = "none";
+  statusBox.innerText = "AI 正在翻译...";
 
   try {
     const res = await fetch("/.netlify/functions/translate", {
@@ -161,43 +264,51 @@ async function translate() {
 
     const data = await res.json();
 
-    loading.style.display = "none";
     output.style.display = "block";
 
     if (!res.ok || data.error) {
-      mainText.innerHTML = `<span class="error">${data.error}</span>`;
+      mainText.innerHTML = `<span class="error">${data.error || data.detail || "Translation failed."}</span>`;
       options.innerHTML = "";
+      statusBox.innerText = "翻译失败。";
       return;
     }
 
     currentText = data.main;
     mainText.innerText = data.main;
-
-    renderOptions(data.options);
+    renderOptions(data.options || []);
+    statusBox.innerText = "翻译完成。";
 
   } catch (err) {
-    loading.style.display = "none";
     output.style.display = "block";
-    mainText.innerHTML = `<span class="error">Network error</span>`;
+    mainText.innerHTML = `<span class="error">Network error. Please try again.</span>`;
+    options.innerHTML = "";
+    statusBox.innerText = "网络错误。";
   }
 }
 
 function renderOptions(list) {
   options.innerHTML = "";
 
-  list.forEach(opt => {
+  list.forEach((opt, index) => {
     const card = document.createElement("div");
-    card.className = "option-card";
+    card.className = "option-card" + (index === 0 ? " active" : "");
 
     card.innerHTML = `
-      <div class="option-label">${opt.label}</div>
-      <div class="option-english">${opt.english}</div>
-      <div class="option-chinese">${opt.chinese_meaning}</div>
+      <div class="option-label">${escapeHTML(opt.label || "Option")}</div>
+      <div class="option-english">${escapeHTML(opt.english || "")}</div>
+      <div class="option-chinese">${escapeHTML(opt.chinese_meaning || "")}</div>
     `;
 
     card.onclick = () => {
-      currentText = opt.english;
-      mainText.innerText = opt.english;
+      document.querySelectorAll(".option-card").forEach(el => {
+        el.classList.remove("active");
+      });
+
+      card.classList.add("active");
+      currentText = opt.english || "";
+      mainText.innerText = currentText;
+      optionsVisible = false;
+      options.style.display = "none";
     };
 
     options.appendChild(card);
@@ -208,15 +319,44 @@ function renderOptions(list) {
 }
 
 function toggleOptions() {
-  if (!options.innerHTML) return;
+  if (!options.innerHTML.trim()) return;
 
   optionsVisible = !optionsVisible;
   options.style.display = optionsVisible ? "grid" : "none";
 }
 
 function copyText() {
+  if (!currentText) return;
   navigator.clipboard.writeText(currentText);
-  alert("Copied!");
+  statusBox.innerText = "已复制英文。";
+}
+
+function clearAll() {
+  input.value = "";
+  clearResultOnly();
+}
+
+function clearResultOnly() {
+  currentText = "";
+  optionsVisible = false;
+  output.style.display = "none";
+  options.style.display = "none";
+  options.innerHTML = "";
+  mainText.innerText = "";
+  statusBox.innerText = "输入内容后会自动翻译。";
+}
+
+function escapeHTML(str) {
+  return String(str).replace(/[&<>'"]/g, function(tag) {
+    const chars = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      "'": "&#39;",
+      '"': "&quot;"
+    };
+    return chars[tag] || tag;
+  });
 }
 </script>
 </body>
