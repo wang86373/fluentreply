@@ -58,13 +58,13 @@ textarea {
 
 .options {
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 
 .option-card {
   border: 1px solid #ddd;
-  border-radius: 12px;
-  padding: 16px;
+  border-radius: 14px;
+  padding: 18px;
   cursor: pointer;
   background: #fafafa;
 }
@@ -80,15 +80,22 @@ textarea {
 }
 
 .option-label {
-  font-size: 13px;
+  font-size: 14px;
   color: #1a73e8;
   font-weight: bold;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
-.option-text {
-  font-size: 18px;
+.option-english {
+  font-size: 22px;
   line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.option-chinese {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #5f6368;
 }
 
 .copy-btn {
@@ -111,6 +118,24 @@ textarea {
 .error {
   color: #b00020;
 }
+
+@media (max-width: 700px) {
+  h1 {
+    font-size: 34px;
+  }
+
+  textarea {
+    font-size: 22px;
+  }
+
+  .main-result {
+    font-size: 24px;
+  }
+
+  .option-english {
+    font-size: 19px;
+  }
+}
 </style>
 </head>
 
@@ -118,7 +143,7 @@ textarea {
 <div class="container">
   <h1>FluentReply</h1>
   <div class="subtitle">
-    Translate your message into natural English with multiple expressions
+    Translate your message into natural English with Chinese meanings
   </div>
 
   <textarea id="input" placeholder="输入中文，例如：你好呀。你在做什么"></textarea>
@@ -137,6 +162,10 @@ let currentText = "";
 let timer;
 
 const input = document.getElementById("input");
+const loading = document.getElementById("loading");
+const output = document.getElementById("output");
+const mainText = document.getElementById("mainText");
+const options = document.getElementById("options");
 
 input.addEventListener("input", () => {
   clearTimeout(timer);
@@ -175,6 +204,7 @@ async function translate() {
 
     currentText = data.main;
     mainText.innerText = data.main;
+
     renderOptions(data.options || []);
   } catch (err) {
     loading.style.display = "none";
@@ -193,7 +223,8 @@ function renderOptions(list) {
 
     card.innerHTML = `
       <div class="option-label">${opt.label || "Option"}</div>
-      <div class="option-text">${opt.text || ""}</div>
+      <div class="option-english">${opt.english || ""}</div>
+      <div class="option-chinese">${opt.chinese_meaning || ""}</div>
     `;
 
     card.onclick = () => {
@@ -202,8 +233,8 @@ function renderOptions(list) {
       });
 
       card.classList.add("active");
-      currentText = opt.text;
-      mainText.innerText = opt.text;
+      currentText = opt.english;
+      mainText.innerText = opt.english;
     };
 
     options.appendChild(card);
