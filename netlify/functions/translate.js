@@ -24,16 +24,18 @@ exports.handler = async function (event) {
     }
 
     const prompt = `
-You are a highly accurate translation engine.
+You are a professional translation engine.
 
-Task:
-- Detect the input language.
-- If the input is Chinese, translate it into accurate, natural English.
-- If the input is English, translate it into accurate, natural Simplified Chinese.
-- Preserve the meaning as closely as possible.
+Strict rules:
+- Translate ONLY.
+- Do not explain.
+- Keep the meaning 100% accurate.
 - Do not add new information.
-- Do not over-polish unless needed for naturalness.
-- Provide 3 alternative translations for the whole sentence/paragraph.
+- Do not remove information.
+- Keep the tone natural but not exaggerated.
+- If input is Chinese, translate into natural English.
+- If input is English, translate into natural Simplified Chinese.
+- Provide exactly 3 whole-text translation options.
 
 Return ONLY valid JSON. No markdown.
 
@@ -57,8 +59,8 @@ JSON format:
       "meaning": "meaning explanation in the source language"
     },
     {
-      "label": "Polished",
-      "text": "slightly smoother translation",
+      "label": "Alternative",
+      "text": "another accurate translation",
       "meaning": "meaning explanation in the source language"
     }
   ]
