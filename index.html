@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <title>FluentReply Translate</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 * { box-sizing: border-box; }
@@ -665,17 +666,6 @@ summary::-webkit-details-marker {
       <button class="copy-btn" onclick="goUpgrade()">Upgrade</button>
     </div>
 
-    <section id="apiBox" class="api-box" style="display:none;">
-      <h3 data-i18n="apiTitle">API Access</h3>
-      <p data-i18n="apiText">API access will let developers use FluentReply translation in their own apps. This feature is coming soon.</p>
-      <pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:12px;border:1px solid #e5e7eb;">POST /.netlify/functions/translate
-{
-  "text": "Hello",
-  "sourceLanguage": "English",
-  "targetLanguage": "Simplified Chinese"
-}</pre>
-    </section>
-
     <section class="privacy-box">
       <p data-i18n="privacyText">
         Privacy note: Your text is sent only to generate translation results. Do not enter passwords, banking details, or private identification information.
@@ -730,9 +720,14 @@ summary::-webkit-details-marker {
   </main>
 
 <script>
+const SUPABASE_URL = "https://smwclefrunxnzzjammnu.supabase.co";
+const SUPABASE_KEY = "sb_publishable_DWI3c__Tq7P9z7GSJqhT6g_dzKxwMrb";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 const FREE_LIMIT = 200;
 const PAYMENT_LINK = "YOUR_PAYMENT_LINK_HERE";
 
+let currentUser = null;
 let timer;
 let currentText = "";
 let currentSegments = [];
@@ -761,7 +756,7 @@ const i18n = {
     vocabHelper: "Vocabulary Helper", vocabHelperText: "Extract and explain key news vocabulary from your text.",
     useThis: "Use this", recentHistory: "Recent history",
     glossaryTitle: "Custom Glossary", glossaryText: "Add fixed translations for names, places, brands, movie titles, or professional terms.",
-    addTerm: "Add term", apiTitle: "API Access", apiText: "API access will let developers use FluentReply translation in their own apps. This feature is coming soon."
+    addTerm: "Add term"
   },
   zh: {
     history: "历史记录", login: "登录", signup: "注册",
@@ -781,7 +776,7 @@ const i18n = {
     vocabHelper: "新闻关键词解释", vocabHelperText: "提取并解释文本中的重要新闻词汇。",
     useThis: "使用", recentHistory: "最近翻译记录",
     glossaryTitle: "自定义词库", glossaryText: "添加固定翻译，例如人名、地名、品牌、电影名或专业术语。",
-    addTerm: "添加词条", apiTitle: "API 接入", apiText: "API 功能未来可以让开发者在自己的应用中使用 FluentReply 翻译。此功能即将上线。"
+    addTerm: "添加词条"
   },
   ja: {
     history: "履歴", login: "ログイン", signup: "登録",
@@ -801,7 +796,7 @@ const i18n = {
     vocabHelper: "語彙ヘルパー", vocabHelperText: "ニュース内の重要語彙を説明します。",
     useThis: "使用", recentHistory: "最近の履歴",
     glossaryTitle: "カスタム用語集", glossaryText: "名前、地名、ブランド、映画名、専門用語の固定訳を追加します。",
-    addTerm: "用語を追加", apiTitle: "APIアクセス", apiText: "API機能は今後提供予定です。"
+    addTerm: "用語を追加"
   }
 };
 
@@ -821,9 +816,12 @@ function applyUILanguage() {
     if (i18n[lang][key]) el.innerText = i18n[lang][key];
   });
   updateModeUI();
+  updateAuthUI();
 }
 
-function changeUILanguage() { applyUILanguage(); }
+function changeUILanguage() {
+  applyUILanguage();
+}
 
 const input = document.getElementById("input");
 const result = document.getElementById("result");
@@ -851,12 +849,93 @@ input.addEventListener("input", () => {
   timer = setTimeout(translate, 700);
 });
 
-function openLogin() {
-  alert(getUILang() === "zh" ? "登录功能稍后接入。游客现在也可以直接使用。" : "Login will be added later. You can use it as a guest now.");
+async function initAuth() {
+  const { data } = await supabaseClient.auth.getUser();
+
+  if (data && data.user) {
+    currentUser = data.user;
+    updateAuthUI();
+    await loadCloudGlossary();
+    await loadCloudHistory();
+  }
+
+  supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+    currentUser = session?.user || null;
+    updateAuthUI();
+
+    if (currentUser) {
+      await loadCloudGlossary();
+      await loadCloudHistory();
+    }
+  });
 }
 
-function openSignup() {
-  alert(getUILang() === "zh" ? "注册功能稍后接入。游客现在也可以直接使用。" : "Sign up will be added later. You can use it as a guest now.");
+function updateAuthUI() {
+  const loginBtn = document.querySelector(".auth-btn");
+  const signupBtn = document.querySelector(".auth-primary");
+  if (!loginBtn || !signupBtn) return;
+
+  if (currentUser) {
+    loginBtn.innerText = currentUser.email;
+    loginBtn.onclick = () => alert(currentUser.email);
+
+    signupBtn.innerText = getUILang() === "zh" ? "退出" : getUILang() === "ja" ? "ログアウト" : "Logout";
+    signupBtn.onclick = logout;
+  } else {
+    loginBtn.innerText = i18n[getUILang()].login;
+    loginBtn.onclick = openLogin;
+
+    signupBtn.innerText = i18n[getUILang()].signup;
+    signupBtn.onclick = openSignup;
+  }
+}
+
+async function openSignup() {
+  const email = prompt(getUILang() === "zh" ? "请输入邮箱注册：" : "Enter your email:");
+  if (!email) return;
+
+  const password = prompt(getUILang() === "zh" ? "请输入密码，至少 6 位：" : "Enter password, at least 6 characters:");
+  if (!password) return;
+
+  const { error } = await supabaseClient.auth.signUp({ email, password });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  alert(getUILang() === "zh"
+    ? "注册成功。如果 Supabase 开启了邮箱确认，请检查邮箱。"
+    : "Sign up successful. If email confirmation is enabled, please check your inbox.");
+}
+
+async function openLogin() {
+  const email = prompt(getUILang() === "zh" ? "请输入邮箱：" : "Enter your email:");
+  if (!email) return;
+
+  const password = prompt(getUILang() === "zh" ? "请输入密码：" : "Enter password:");
+  if (!password) return;
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  currentUser = data.user;
+  updateAuthUI();
+  await loadCloudGlossary();
+  await loadCloudHistory();
+
+  alert(getUILang() === "zh" ? "登录成功。" : "Login successful.");
+}
+
+async function logout() {
+  await supabaseClient.auth.signOut();
+  currentUser = null;
+  updateAuthUI();
+  alert(getUILang() === "zh" ? "已退出登录。" : "Logged out.");
 }
 
 function goUpgrade() {
@@ -929,11 +1008,6 @@ function toggleVoiceInput() {
   }
 }
 
-function toggleApiBox() {
-  const box = document.getElementById("apiBox");
-  box.style.display = box.style.display === "block" ? "none" : "block";
-}
-
 function setTask(task) {
   currentTask = task;
   updateModeUI();
@@ -966,12 +1040,14 @@ function changeTargetLanguage() { if (input.value.trim()) translate(); }
 function swapLanguages() {
   const source = sourceSelect.value;
   const target = targetSelect.value;
+
   if (source !== "auto") {
     sourceSelect.value = target || "auto";
     targetSelect.value = source;
   } else {
     targetSelect.value = targetSelect.value === "English" ? "Simplified Chinese" : "English";
   }
+
   if (input.value.trim()) translate();
 }
 
@@ -995,14 +1071,25 @@ function saveGlossary(list) {
   localStorage.setItem("custom_glossary", JSON.stringify(list));
 }
 
-function addGlossaryTerm() {
+async function addGlossaryTerm() {
   const source = document.getElementById("glossarySource").value.trim();
   const target = document.getElementById("glossaryTarget").value.trim();
   if (!source || !target) return;
 
   const glossary = getGlossary();
-  glossary.unshift({ source, target });
+
+  const newTerm = { source, target };
+  glossary.unshift(newTerm);
   saveGlossary(glossary.slice(0, 100));
+
+  if (currentUser) {
+    const cloudId = await saveGlossaryToCloud(source, target);
+    if (cloudId) {
+      const updated = getGlossary();
+      updated[0].cloudId = cloudId;
+      saveGlossary(updated);
+    }
+  }
 
   document.getElementById("glossarySource").value = "";
   document.getElementById("glossaryTarget").value = "";
@@ -1011,17 +1098,24 @@ function addGlossaryTerm() {
   if (input.value.trim()) translate();
 }
 
-function deleteGlossaryTerm(index) {
+async function deleteGlossaryTerm(index) {
   const glossary = getGlossary();
+
+  if (glossary[index]?.cloudId) {
+    await deleteCloudGlossaryTerm(glossary[index].cloudId);
+  }
+
   glossary.splice(index, 1);
   saveGlossary(glossary);
   renderGlossary();
+
   if (input.value.trim()) translate();
 }
 
 function renderGlossary() {
   const glossary = getGlossary();
   glossaryList.innerHTML = "";
+
   glossary.forEach((item, index) => {
     const div = document.createElement("div");
     div.className = "glossary-item";
@@ -1031,6 +1125,52 @@ function renderGlossary() {
     `;
     glossaryList.appendChild(div);
   });
+}
+
+async function saveGlossaryToCloud(source, target) {
+  if (!currentUser) return null;
+
+  const { data, error } = await supabaseClient
+    .from("custom_glossary")
+    .insert({
+      user_id: currentUser.id,
+      source_term: source,
+      target_term: target
+    })
+    .select("id")
+    .single();
+
+  if (error) return null;
+  return data.id;
+}
+
+async function loadCloudGlossary() {
+  if (!currentUser) return;
+
+  const { data, error } = await supabaseClient
+    .from("custom_glossary")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) return;
+
+  const glossary = data.map(item => ({
+    source: item.source_term,
+    target: item.target_term,
+    cloudId: item.id
+  }));
+
+  localStorage.setItem("custom_glossary", JSON.stringify(glossary));
+  renderGlossary();
+}
+
+async function deleteCloudGlossaryTerm(cloudId) {
+  if (!currentUser || !cloudId) return;
+
+  await supabaseClient
+    .from("custom_glossary")
+    .delete()
+    .eq("id", cloudId);
 }
 
 async function translate() {
@@ -1047,7 +1187,7 @@ async function translate() {
   const targetLanguage = targetSelect.value;
   const glossary = getGlossary();
 
-  const cacheKey = "folded_tools_v1_" + currentTask + "_" + sourceLanguage + "_" + targetLanguage + "_" + JSON.stringify(glossary) + "_" + text;
+  const cacheKey = "supabase_login_v1_" + currentTask + "_" + sourceLanguage + "_" + targetLanguage + "_" + JSON.stringify(glossary) + "_" + text;
   const cached = localStorage.getItem(cacheKey);
 
   if (cached) {
@@ -1099,6 +1239,7 @@ function renderData(data) {
   rebuildFullText();
   activeSegmentIndex = null;
   renderSegments();
+
   statusBox.innerText = getUILang() === "zh" ? "完成" : "Done";
   bottomStatus.innerText = getUILang() === "zh"
     ? "点击右侧某一句，可查看该句的 3 个替代表达。"
@@ -1111,6 +1252,7 @@ function rebuildFullText() {
 
 function renderSegments() {
   result.innerHTML = "";
+
   if (!currentSegments.length) {
     result.innerHTML = '<span class="placeholder" data-i18n="placeholder">Translation will appear here</span><div id="dropdown" class="dropdown"></div>';
     applyUILanguage();
@@ -1198,7 +1340,9 @@ function feedback(isGood) {
   statusBox.innerText = isGood ? "👍" : "👎";
 }
 
-function speakInput() { speak(input.value.trim(), langCode(sourceSelect.value)); }
+function speakInput() {
+  speak(input.value.trim(), langCode(sourceSelect.value));
+}
 
 function speakOutput(event) {
   if (event) event.stopPropagation();
@@ -1240,8 +1384,54 @@ function clearResultOnly() {
 
 function saveHistory(source, data) {
   const history = JSON.parse(localStorage.getItem("history_folded_tools") || "[]");
-  history.unshift({ source, result: data.full_translation || "", from: sourceSelect.value, to: targetSelect.value, task: currentTask, time: new Date().toLocaleString() });
+  history.unshift({
+    source,
+    result: data.full_translation || "",
+    from: sourceSelect.value,
+    to: targetSelect.value,
+    task: currentTask,
+    time: new Date().toLocaleString()
+  });
+
   localStorage.setItem("history_folded_tools", JSON.stringify(history.slice(0, 20)));
+  renderHistory();
+  saveHistoryToCloud(source, data);
+}
+
+async function saveHistoryToCloud(source, result) {
+  if (!currentUser) return;
+
+  await supabaseClient.from("translation_history").insert({
+    user_id: currentUser.id,
+    source_text: source,
+    result_text: result.full_translation || "",
+    from_lang: sourceSelect.value,
+    to_lang: targetSelect.value,
+    task: currentTask
+  });
+}
+
+async function loadCloudHistory() {
+  if (!currentUser) return;
+
+  const { data, error } = await supabaseClient
+    .from("translation_history")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  if (error) return;
+
+  const history = data.map(item => ({
+    source: item.source_text,
+    result: item.result_text,
+    from: item.from_lang,
+    to: item.to_lang,
+    task: item.task,
+    time: new Date(item.created_at).toLocaleString()
+  }));
+
+  localStorage.setItem("history_folded_tools", JSON.stringify(history));
   renderHistory();
 }
 
@@ -1286,6 +1476,7 @@ function escapeHTML(str) {
 
 applyUILanguage();
 renderGlossary();
+initAuth();
 </script>
 </body>
 </html>
