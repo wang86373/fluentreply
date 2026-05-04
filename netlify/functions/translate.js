@@ -34,6 +34,9 @@ Task:
   - English input -> Simplified Chinese
   - Other language -> English
 
+Supported target languages:
+English, Simplified Chinese, Japanese, Korean, Spanish, French, German, Russian, Thai, Vietnamese, Burmese, Arabic.
+
 Mode:
 ${mode || "full"}
 
@@ -49,8 +52,7 @@ Rules:
 - The first option should be the closest accurate translation.
 - The second option should be natural.
 - The third option should be an alternative expression.
-- If translating into English, each option's meaning must be Simplified Chinese.
-- If translating into Simplified Chinese, each option's meaning must be English.
+- "meaning" must explain the option in the original input language.
 - Return ONLY valid JSON. No markdown.
 
 Input:
@@ -61,8 +63,8 @@ ${targetLanguage || "auto"}
 
 JSON format:
 {
-  "detected_language": "Chinese or English or Other",
-  "target_language": "English or Simplified Chinese",
+  "detected_language": "Detected input language",
+  "target_language": "Target output language",
   "full_translation": "complete translation joined from the best segment translations",
   "segments": [
     {
@@ -73,17 +75,17 @@ JSON format:
         {
           "label": "Closest",
           "text": "closest accurate translation",
-          "meaning": "meaning in the opposite language"
+          "meaning": "meaning in the original input language"
         },
         {
           "label": "Natural",
           "text": "natural translation",
-          "meaning": "meaning in the opposite language"
+          "meaning": "meaning in the original input language"
         },
         {
           "label": "Alternative",
           "text": "alternative translation",
-          "meaning": "meaning in the opposite language"
+          "meaning": "meaning in the original input language"
         }
       ]
     }
