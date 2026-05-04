@@ -1,7 +1,10 @@
 exports.handler = async function (event) {
   try {
     if (event.httpMethod !== "POST") {
-      return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
+      return {
+        statusCode: 405,
+        body: JSON.stringify({ error: "Method not allowed" })
+      };
     }
 
     const {
@@ -13,16 +16,22 @@ exports.handler = async function (event) {
     } = JSON.parse(event.body || "{}");
 
     if (!text || !text.trim()) {
-      return { statusCode: 400, body: JSON.stringify({ error: "Missing text" }) };
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "Missing text" })
+      };
     }
 
     let deeplText = "";
+    let deeplUsed = false;
+    let deeplError = "";
 
     if (process.env.DEEPL_API_KEY && task === "translate") {
       try {
         deeplText = await translateWithDeepL(text, sourceLanguage, targetLanguage);
+        if (deeplText) deeplUsed = true;
       } catch (e) {
-        deeplText = "";
+        deeplError = e.message || "DeepL failed";
       }
     }
 
@@ -34,6 +43,10 @@ exports.handler = async function (event) {
       task,
       glossary
     });
+
+    aiResult.engine_used = deeplUsed ? "DeepL + AI" : "AI only";
+    aiResult.deepl_used = deeplUsed;
+    aiResult.deepl_error = deeplError;
 
     return {
       statusCode: 200,
@@ -107,7 +120,7 @@ async function enhanceWithAI({
               {
                 label: "DeepL",
                 text: deeplText,
-                meaning: "DeepL precise translation."
+                meaning: "基于 DeepL 的精准翻译。"
               }
             ]
           }
@@ -152,15 +165,24 @@ ${deeplText || "No DeepL result provided."}
 Glossary:
 ${glossaryText}
 
-Rules:
-- Preserve meaning accurately.
-- If DeepL result is provided, use it as the precise base.
-- Improve fluency naturally.
-- Keep sentence segmentation.
-- Each segment must have 3 options:
-  1. Closest
-  2. Natural
-  3. Alternative
+Very important context rules:
+- First understand the full original text as one complete message.
+- Translate according to the full context, not sentence by sentence in isolation.
+- The full_translation must be the best complete translation of the entire input.
+- Then split the original input into natural sentence segments.
+- Each segment translation must match the meaning of the full_translation.
+- Do not change the meaning of a segment just to make it sound natural.
+- Keep pronouns, relationships, tone, and logic consistent across all segments.
+- If a sentence depends on previous or next sentences, use that context.
+- If DeepL result is provided, use it as the precise base for the full meaning.
+- Do not let each small segment create a separate meaning.
+- Do not invent new relationships, subjects, locations, or emotions.
+
+Option rules:
+- Each segment must have exactly 3 options:
+  1. Closest: most faithful to the original meaning
+  2. Natural: natural spoken expression, but same meaning
+  3. Alternative: another natural way to say the same meaning
 - Each option must include a short meaning/explanation in the source language.
 - Apply glossary terms strictly.
 - Return ONLY valid JSON.
