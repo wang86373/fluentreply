@@ -131,6 +131,8 @@ textarea {
   padding: 9px 18px;
   border-radius: 20px;
   font-weight: 600;
+  border: none;
+  cursor: pointer;
 }
 
 .dropdown {
@@ -225,19 +227,78 @@ textarea {
 .error { color: #b00020; }
 
 @media (max-width: 850px) {
-  .lang-row { grid-template-columns: 1fr; }
-  .swap { display: none; }
-  .translator { grid-template-columns: 1fr; }
+  .app {
+    margin: 16px auto;
+    padding: 0 12px;
+  }
+
+  .translator {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .lang-row {
+    grid-template-columns: 1fr;
+  }
+
+  .swap {
+    display: none;
+  }
 
   textarea,
   .result {
-    height: 200px;
-    font-size: 22px;
+    height: 160px;
+    font-size: 18px;
+    padding: 14px;
+  }
+
+  .panel-footer {
+    height: 44px;
+    padding: 0 12px;
+    font-size: 12px;
+  }
+
+  .copy-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+    border-radius: 16px;
+  }
+
+  .btn {
+    font-size: 13px;
   }
 
   .dropdown {
-    top: 52px;
-    max-height: 170px;
+    top: 48px;
+    max-height: 140px;
+    font-size: 12px;
+  }
+
+  .dropdown-item {
+    padding: 6px 8px;
+  }
+
+  .dropdown-text {
+    font-size: 13px;
+  }
+
+  .dropdown-meaning {
+    font-size: 11px;
+  }
+
+  .lang-tabs {
+    font-size: 13px;
+    gap: 16px;
+    padding: 0 8px;
+  }
+
+  .header {
+    height: 56px;
+    padding: 0 16px;
+  }
+
+  .logo {
+    font-size: 18px;
   }
 }
 </style>
@@ -285,7 +346,13 @@ textarea {
         </div>
 
         <div class="panel-footer">
+          <div>
+            <button class="btn" onclick="feedback(true)">👍</button>
+            <button class="btn" onclick="feedback(false)">👎</button>
+          </div>
+
           <span id="status">等待输入</span>
+
           <div>
             <button class="btn" onclick="speakOutput(event)">🔊</button>
             <button class="copy-btn" onclick="copyText(event)">复制</button>
@@ -480,6 +547,23 @@ function copyText(event) {
 
   navigator.clipboard.writeText(currentText);
   statusBox.innerText = "已复制";
+}
+
+function feedback(isGood) {
+  if (!currentText) return;
+
+  const feedbackData = JSON.parse(localStorage.getItem("feedback") || "[]");
+
+  feedbackData.push({
+    input: input.value,
+    output: currentText,
+    good: isGood,
+    time: new Date().toISOString()
+  });
+
+  localStorage.setItem("feedback", JSON.stringify(feedbackData));
+
+  statusBox.innerText = isGood ? "已记录 👍" : "已记录 👎";
 }
 
 function speakInput() {
