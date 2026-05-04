@@ -136,23 +136,27 @@ textarea {
 .dropdown {
   display: none;
   position: absolute;
-  left: 22px;
-  top: 62px;
-  width: min(560px, calc(100% - 44px));
-  max-height: 260px;
+  left: 18px;
+  top: 56px;
+  width: min(480px, calc(100% - 36px));
+  max-height: 180px;
   overflow-y: auto;
   background: white;
   border: 1px solid #dadce0;
   border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.16);
   z-index: 20;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .dropdown-item {
-  padding: 12px 14px;
+  padding: 9px 12px;
   border-bottom: 1px solid #eef2f7;
   cursor: pointer;
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
 }
 
 .dropdown-item:hover,
@@ -162,21 +166,22 @@ textarea {
 
 .dropdown-label {
   color: #1a73e8;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .dropdown-text {
-  font-size: 16px;
-  line-height: 1.45;
-  margin-bottom: 6px;
+  color: #202124;
+  font-size: 14px;
+  line-height: 1.35;
+  margin-bottom: 4px;
 }
 
 .dropdown-meaning {
   color: #5f6368;
-  font-size: 13px;
-  line-height: 1.45;
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 .status {
@@ -228,6 +233,11 @@ textarea {
   .result {
     height: 200px;
     font-size: 22px;
+  }
+
+  .dropdown {
+    top: 52px;
+    max-height: 170px;
   }
 }
 </style>
@@ -421,10 +431,12 @@ function renderDropdown(optionsList) {
 
     item.onclick = (e) => {
       e.stopPropagation();
+
       currentText = opt.text || "";
       renderMainText(currentText);
       renderDropdown(optionsList);
       hideDropdown();
+
       statusBox.innerText = "已选择表达";
     };
 
@@ -476,15 +488,22 @@ function speakInput() {
 
 function speakOutput(event) {
   if (event) event.stopPropagation();
-  speak(currentText, targetLang.innerText.includes("Chinese") || targetLang.innerText.includes("中文") ? "zh-CN" : "en-US");
+
+  const lang =
+    targetLang.innerText.includes("Chinese") ||
+    targetLang.innerText.includes("中文")
+      ? "zh-CN"
+      : "en-US";
+
+  speak(currentText, lang);
 }
 
 function speak(text, lang) {
   if (!text) return;
 
   const utterance = new SpeechSynthesisUtterance(text);
-
   if (lang !== "auto") utterance.lang = lang;
+
   speechSynthesis.cancel();
   speechSynthesis.speak(utterance);
 }
@@ -553,6 +572,7 @@ function renderHistory() {
 
     div.onclick = () => {
       input.value = item.source;
+      count.innerText = item.source.length;
       translate();
     };
 
