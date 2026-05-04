@@ -31,48 +31,51 @@ Rules:
 - Do NOT explain outside JSON.
 - Do NOT add meaning.
 - Do NOT remove meaning.
-- Keep the translation accurate and natural.
-- If targetLanguage is provided, translate into that language.
-- If targetLanguage is empty:
-  - Chinese input -> English
-  - English input -> Simplified Chinese
-- Provide exactly 3 whole-text translation options.
-- For each option, meaning must be short.
-- If translating Chinese to English, meaning must be Simplified Chinese.
-- If translating English to Chinese, meaning must be English.
-- Keep each option concise and suitable for a dropdown menu.
+- Keep translation accurate and natural.
 
-Return ONLY valid JSON. No markdown.
+Direction:
+- If targetLanguage exists → use it
+- Otherwise:
+  - Chinese → English
+  - English → Simplified Chinese
+
+CRITICAL:
+- Always return EXACT SAME meaning in BOTH languages
+- NO generic text like "简短翻译"
+- meaning MUST be full sentence meaning
+
+Output EXACTLY 3 options.
+
+JSON ONLY:
+
+{
+  "detected_language": "...",
+  "target_language": "...",
+  "main": "...",
+  "options": [
+    {
+      "label": "Closest",
+      "text": "...",
+      "meaning": "完整对应翻译（另一种语言）"
+    },
+    {
+      "label": "Natural",
+      "text": "...",
+      "meaning": "完整对应翻译（另一种语言）"
+    },
+    {
+      "label": "Alternative",
+      "text": "...",
+      "meaning": "完整对应翻译（另一种语言）"
+    }
+  ]
+}
 
 Input:
 ${text}
 
-Preferred target language:
+Target:
 ${targetLanguage || "auto"}
-
-JSON format:
-{
-  "detected_language": "Chinese or English or Other",
-  "target_language": "English or Simplified Chinese",
-  "main": "best accurate translation",
-  "options": [
-    {
-      "label": "Closest",
-      "text": "closest accurate translation",
-      "meaning": "short meaning in source language"
-    },
-    {
-      "label": "Natural",
-      "text": "natural accurate translation",
-      "meaning": "short meaning in source language"
-    },
-    {
-      "label": "Alternative",
-      "text": "another accurate translation",
-      "meaning": "short meaning in source language"
-    }
-  ]
-}
 `;
 
     const response = await fetch("https://api.openai.com/v1/responses", {
@@ -89,25 +92,9 @@ JSON format:
 
     const data = await response.json();
 
-    if (!response.ok) {
-      return {
-        statusCode: response.status,
-        body: JSON.stringify({
-          error: data.error?.message || "OpenAI API error"
-        })
-      };
-    }
-
     const outputText =
       data.output_text ||
       data.output?.[0]?.content?.[0]?.text;
-
-    if (!outputText) {
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: "No output from OpenAI" })
-      };
-    }
 
     const cleaned = outputText
       .replace(/```json/g, "")
