@@ -421,7 +421,7 @@ async function translate() {
     return;
   }
 
-  const cacheKey = "cache_" + text + "_" + forcedTarget;
+  const cacheKey = "cache_v3_" + text + "_" + forcedTarget;
   const cached = localStorage.getItem(cacheKey);
 
   if (cached) {
@@ -493,7 +493,7 @@ function renderDropdown(optionsList) {
     item.innerHTML = `
       <div class="dropdown-label">${escapeHTML(opt.label || "Option")}</div>
       <div class="dropdown-text">${escapeHTML(opt.text || "")}</div>
-      <div class="dropdown-meaning">${escapeHTML(opt.meaning || "")}</div>
+      <div class="dropdown-meaning">${escapeHTML(opt.meaning || "（无翻译）")}</div>
     `;
 
     item.onclick = (e) => {
