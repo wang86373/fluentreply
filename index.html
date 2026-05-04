@@ -77,7 +77,7 @@ body {
   padding: 0 20px;
 }
 
-.hero {
+.hero, .guide-box, .privacy-box {
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 18px;
@@ -91,9 +91,28 @@ body {
   font-size: 22px;
 }
 
-.hero p {
+.hero p, .guide-box p, .privacy-box p {
   margin: 0;
   color: #64748b;
+  line-height: 1.5;
+}
+
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.guide-card {
+  background: #f8fbff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.guide-card strong {
+  display: block;
+  margin-bottom: 6px;
 }
 
 .feature-tabs {
@@ -442,7 +461,8 @@ textarea {
   .lang-row,
   .translator,
   .news-grid,
-  .glossary-form {
+  .glossary-form,
+  .guide-grid {
     grid-template-columns: 1fr;
   }
 
@@ -507,6 +527,23 @@ textarea {
     <section class="hero">
       <h2 data-i18n="heroTitle">AI Translation for Real Conversations and News</h2>
       <p data-i18n="heroText">Use it instantly as a guest. Sign in later to sync history, glossary, and Pro status.</p>
+    </section>
+
+    <section class="guide-box">
+      <div class="guide-grid">
+        <div class="guide-card">
+          <strong data-i18n="guideOneTitle">Click any sentence</strong>
+          <p data-i18n="guideOneText">Choose from 3 alternative expressions.</p>
+        </div>
+        <div class="guide-card">
+          <strong data-i18n="guideTwoTitle">Use your glossary</strong>
+          <p data-i18n="guideTwoText">Keep names, places, and terms consistent.</p>
+        </div>
+        <div class="guide-card">
+          <strong data-i18n="guideThreeTitle">News mode</strong>
+          <p data-i18n="guideThreeText">Rewrite or translate news in a professional tone.</p>
+        </div>
+      </div>
     </section>
 
     <section class="feature-tabs">
@@ -596,6 +633,12 @@ textarea {
       <button class="copy-btn" onclick="goUpgrade()">Upgrade</button>
     </div>
 
+    <section class="privacy-box">
+      <p data-i18n="privacyText">
+        Privacy note: Your text is sent only to generate translation results. Do not enter passwords, banking details, or private identification information.
+      </p>
+    </section>
+
     <section class="glossary-box">
       <h3 data-i18n="glossaryTitle">Custom Glossary</h3>
       <p data-i18n="glossaryText">Add fixed translations for names, places, brands, movie titles, or professional terms.</p>
@@ -651,6 +694,10 @@ const i18n = {
     history: "History", login: "Login", signup: "Sign up",
     heroTitle: "AI Translation for Real Conversations and News",
     heroText: "Use it instantly as a guest. Sign in later to sync history, glossary, and Pro status.",
+    guideOneTitle: "Click any sentence", guideOneText: "Choose from 3 alternative expressions.",
+    guideTwoTitle: "Use your glossary", guideTwoText: "Keep names, places, and terms consistent.",
+    guideThreeTitle: "News mode", guideThreeText: "Rewrite or translate news in a professional tone.",
+    privacyText: "Privacy note: Your text is sent only to generate translation results. Do not enter passwords, banking details, or private identification information.",
     translateText: "Translate Text", translateFile: "Translate Files", translateVoice: "Translate Voice", useApi: "Use API",
     clear: "Clear", copy: "Copy", waiting: "Waiting", placeholder: "Translation will appear here",
     autoDetect: "Auto detect", newsTranslator: "News Translator",
@@ -665,6 +712,10 @@ const i18n = {
     history: "历史记录", login: "登录", signup: "注册",
     heroTitle: "适合真实对话和新闻内容的 AI 翻译",
     heroText: "无需注册即可使用。登录后未来可同步历史、词库和 Pro 状态。",
+    guideOneTitle: "点击任意句子", guideOneText: "选择 3 种不同表达。",
+    guideTwoTitle: "使用自定义词库", guideTwoText: "保持人名、地名和专业术语一致。",
+    guideThreeTitle: "新闻模式", guideThreeText: "用专业语气翻译或改写新闻内容。",
+    privacyText: "隐私提示：您的文本仅用于生成翻译结果。请不要输入密码、银行信息或私人身份信息。",
     translateText: "翻译文本", translateFile: "翻译文件", translateVoice: "翻译语音", useApi: "使用 API",
     clear: "清空", copy: "复制", waiting: "等待输入", placeholder: "翻译结果会显示在这里",
     autoDetect: "自动检测", newsTranslator: "新闻翻译",
@@ -679,6 +730,10 @@ const i18n = {
     history: "履歴", login: "ログイン", signup: "登録",
     heroTitle: "会話とニュース向けのAI翻訳",
     heroText: "登録なしですぐ使えます。ログインすると履歴や用語集を同期できます。",
+    guideOneTitle: "文をクリック", guideOneText: "3つの別表現を選べます。",
+    guideTwoTitle: "用語集を使用", guideTwoText: "名前、地名、専門用語を統一します。",
+    guideThreeTitle: "ニュースモード", guideThreeText: "ニュース文を専門的な表現にします。",
+    privacyText: "プライバシー注記：入力テキストは翻訳結果の生成にのみ使用されます。パスワード、銀行情報、個人識別情報は入力しないでください。",
     translateText: "テキスト翻訳", translateFile: "ファイル翻訳", translateVoice: "音声翻訳", useApi: "APIを使用",
     clear: "クリア", copy: "コピー", waiting: "待機中", placeholder: "翻訳結果がここに表示されます",
     autoDetect: "自動検出", newsTranslator: "ニュース翻訳",
@@ -750,7 +805,7 @@ function alertComingSoon() {
 
 function goUpgrade() {
   if (PAYMENT_LINK === "YOUR_PAYMENT_LINK_HERE") {
-    alert(getUILang() === "zh" ? "请先设置支付链接。" : "Please set your payment link first.");
+    alert(getUILang() === "zh" ? "支付功能稍后上线。" : "Upgrade payment will be added later.");
     return;
   }
   window.location.href = PAYMENT_LINK;
@@ -848,7 +903,7 @@ async function translate() {
   const targetLanguage = targetSelect.value;
   const glossary = getGlossary();
 
-  const cacheKey = "final_guest_v1_" + currentTask + "_" + sourceLanguage + "_" + targetLanguage + "_" + JSON.stringify(glossary) + "_" + text;
+  const cacheKey = "guide_privacy_v1_" + currentTask + "_" + sourceLanguage + "_" + targetLanguage + "_" + JSON.stringify(glossary) + "_" + text;
   const cached = localStorage.getItem(cacheKey);
 
   if (cached) {
@@ -1039,14 +1094,14 @@ function clearResultOnly() {
 }
 
 function saveHistory(source, data) {
-  const history = JSON.parse(localStorage.getItem("history_final_guest") || "[]");
+  const history = JSON.parse(localStorage.getItem("history_guide_privacy") || "[]");
   history.unshift({ source, result: data.full_translation || "", from: sourceSelect.value, to: targetSelect.value, task: currentTask, time: new Date().toLocaleString() });
-  localStorage.setItem("history_final_guest", JSON.stringify(history.slice(0, 20)));
+  localStorage.setItem("history_guide_privacy", JSON.stringify(history.slice(0, 20)));
   renderHistory();
 }
 
 function renderHistory() {
-  const history = JSON.parse(localStorage.getItem("history_final_guest") || "[]");
+  const history = JSON.parse(localStorage.getItem("history_guide_privacy") || "[]");
   historyList.innerHTML = "";
 
   history.forEach(item => {
