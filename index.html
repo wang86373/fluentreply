@@ -587,6 +587,7 @@ async function translate(){
   const targetLanguage=targetSelect.value;
   const glossary=getGlossary();
   const engineMode=document.getElementById("engineMode")?.value||"auto";
+  const uiLanguage=getUILang();
 
   statusBox.innerText=getUILang()==="zh"?"正在翻译...":"Translating...";
 
@@ -600,7 +601,8 @@ async function translate(){
         targetLanguage,
         task:currentTask,
         glossary,
-        engineMode
+        engineMode,
+        uiLanguage
       })
     });
 
