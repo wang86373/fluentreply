@@ -1,168 +1,44 @@
 exports.handler = async function (event) {
   try {
     if (event.httpMethod !== "POST") {
-      return {
-        statusCode: 405,
-        body: JSON.stringify({ error: "Method not allowed" })
-      };
+      return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
     }
 
     const {
       text,
+      sourceLanguage = "auto",
+      targetLanguage = "English",
+      task = "translate",
+      glossary = []
+    } = JSON.parse(event.body || "{}");
+
+    if (!text || !text.trim()) {
+      return { statusCode: 400, body: JSON.stringify({ error: "Missing text" }) };
+    }
+
+    let deeplText = "";
+
+    if (process.env.DEEPL_API_KEY && task === "translate") {
+      try {
+        deeplText = await translateWithDeepL(text, sourceLanguage, targetLanguage);
+      } catch (e) {
+        deeplText = "";
+      }
+    }
+
+    const aiResult = await enhanceWithAI({
+      originalText: text,
+      deeplText,
       sourceLanguage,
       targetLanguage,
       task,
       glossary
-    } = JSON.parse(event.body || "{}");
-
-    if (!text || !text.trim()) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "Missing text" })
-      };
-    }
-
-    if (!process.env.OPENAI_API_KEY) {
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: "Missing OPENAI_API_KEY" })
-      };
-    }
-
-    const glossaryText = Array.isArray(glossary) && glossary.length
-      ? glossary.map(item => `${item.source} = ${item.target}`).join("\n")
-      : "No glossary provided.";
-
-    const taskPrompt =
-      task === "headline"
-        ? "Rewrite or translate the input as a professional news headline. Keep it accurate and concise."
-        : task === "vocab"
-        ? "Extract important news vocabulary from the input and explain each term briefly."
-        : task === "news"
-        ? "Translate the input as professional news content. Keep it accurate, neutral, and journalistic."
-        : "Translate accurately.";
-
-    const prompt = `
-You are a strict professional AI translation and news writing assistant.
-
-Task:
-${taskPrompt}
-
-Language rules:
-- If sourceLanguage is "auto", detect the input language.
-- If sourceLanguage is provided, treat input as that language.
-- Translate or rewrite into targetLanguage.
-- If targetLanguage is empty:
-  - Simplified Chinese -> English
-  - English -> Simplified Chinese
-  - Other -> English
-
-Supported languages:
-Simplified Chinese, English, Japanese, Korean, Spanish, French, German, Russian, Thai, Vietnamese, Burmese, Arabic.
-
-Glossary rules:
-- If a glossary is provided, you MUST prioritize these translations.
-- Keep proper names, brand names, movie titles, places, and custom terms consistent.
-- Do not ignore glossary terms if they appear in the input.
-
-Glossary:
-${glossaryText}
-
-Strict rules:
-- Do not add false information.
-- Do not remove meaning.
-- Keep the meaning accurate.
-- Return ONLY valid JSON.
-- Split input into meaningful sentence segments.
-- Each segment must have exactly 3 options.
-- "meaning" must explain the option in the source language.
-
-Input:
-${text}
-
-Source language:
-${sourceLanguage || "auto"}
-
-Target language:
-${targetLanguage || "auto"}
-
-JSON format:
-{
-  "detected_language": "detected or selected source language",
-  "target_language": "target language",
-  "full_translation": "complete result joined from best segment results",
-  "segments": [
-    {
-      "id": 1,
-      "source": "original sentence or clause",
-      "best": "best result for this segment",
-      "options": [
-        {
-          "label": "Closest",
-          "text": "closest accurate result",
-          "meaning": "meaning in source language"
-        },
-        {
-          "label": "Natural",
-          "text": "natural result",
-          "meaning": "meaning in source language"
-        },
-        {
-          "label": "News Style",
-          "text": "professional news-style result",
-          "meaning": "meaning in source language"
-        }
-      ]
-    }
-  ]
-}
-`;
-
-    const response = await fetch("https://api.openai.com/v1/responses", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        input: prompt
-      })
     });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      return {
-        statusCode: response.status,
-        body: JSON.stringify({
-          error: data.error?.message || "OpenAI API error"
-        })
-      };
-    }
-
-    const outputText =
-      data.output_text ||
-      data.output?.[0]?.content?.[0]?.text;
-
-    if (!outputText) {
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: "No output from OpenAI" })
-      };
-    }
-
-    const cleaned = outputText
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
-      .trim();
-
-    const parsed = JSON.parse(cleaned);
 
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(parsed)
+      body: JSON.stringify(aiResult)
     };
 
   } catch (error) {
@@ -175,3 +51,205 @@ JSON format:
     };
   }
 };
+
+async function translateWithDeepL(text, sourceLanguage, targetLanguage) {
+  const params = new URLSearchParams();
+  params.append("text", text);
+  params.append("target_lang", mapDeepLLang(targetLanguage));
+
+  const source = mapDeepLLang(sourceLanguage);
+  if (sourceLanguage !== "auto" && source) {
+    params.append("source_lang", source);
+  }
+
+  const endpoint = process.env.DEEPL_API_KEY.endsWith(":fx")
+    ? "https://api-free.deepl.com/v2/translate"
+    : "https://api.deepl.com/v2/translate";
+
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Authorization": `DeepL-Auth-Key ${process.env.DEEPL_API_KEY}`,
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: params
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || "DeepL failed");
+  }
+
+  return data.translations?.[0]?.text || "";
+}
+
+async function enhanceWithAI({
+  originalText,
+  deeplText,
+  sourceLanguage,
+  targetLanguage,
+  task,
+  glossary
+}) {
+  if (!process.env.OPENAI_API_KEY) {
+    if (deeplText) {
+      return {
+        detected_language: sourceLanguage,
+        target_language: targetLanguage,
+        full_translation: deeplText,
+        segments: [
+          {
+            id: 1,
+            source: originalText,
+            best: deeplText,
+            options: [
+              {
+                label: "DeepL",
+                text: deeplText,
+                meaning: "DeepL precise translation."
+              }
+            ]
+          }
+        ]
+      };
+    }
+
+    throw new Error("Missing OPENAI_API_KEY");
+  }
+
+  const glossaryText = Array.isArray(glossary) && glossary.length
+    ? glossary.map(item => `${item.source} = ${item.target}`).join("\n")
+    : "No glossary provided.";
+
+  const taskPrompt =
+    task === "headline"
+      ? "Rewrite or translate the input as a professional news headline."
+      : task === "vocab"
+      ? "Extract important vocabulary and explain each term briefly."
+      : task === "news"
+      ? "Translate as professional neutral news content."
+      : "Translate accurately, using DeepL as the precise base translation when provided.";
+
+  const prompt = `
+You are FluentReply, a professional translation assistant.
+
+Task:
+${taskPrompt}
+
+Source language:
+${sourceLanguage}
+
+Target language:
+${targetLanguage || "auto"}
+
+Original input:
+${originalText}
+
+DeepL base translation:
+${deeplText || "No DeepL result provided."}
+
+Glossary:
+${glossaryText}
+
+Rules:
+- Preserve meaning accurately.
+- If DeepL result is provided, use it as the precise base.
+- Improve fluency naturally.
+- Keep sentence segmentation.
+- Each segment must have 3 options:
+  1. Closest
+  2. Natural
+  3. Alternative
+- Each option must include a short meaning/explanation in the source language.
+- Apply glossary terms strictly.
+- Return ONLY valid JSON.
+
+JSON format:
+{
+  "detected_language": "detected source language",
+  "target_language": "target language",
+  "full_translation": "complete best translation",
+  "segments": [
+    {
+      "id": 1,
+      "source": "original sentence",
+      "best": "best translated sentence",
+      "options": [
+        {
+          "label": "Closest",
+          "text": "closest translation",
+          "meaning": "meaning explanation"
+        },
+        {
+          "label": "Natural",
+          "text": "natural translation",
+          "meaning": "meaning explanation"
+        },
+        {
+          "label": "Alternative",
+          "text": "alternative expression",
+          "meaning": "meaning explanation"
+        }
+      ]
+    }
+  ]
+}
+`;
+
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: "gpt-4o-mini",
+      input: prompt
+    })
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error?.message || "OpenAI API error");
+  }
+
+  const outputText =
+    data.output_text ||
+    data.output?.[0]?.content?.[0]?.text;
+
+  if (!outputText) {
+    throw new Error("No output from OpenAI");
+  }
+
+  const cleaned = outputText
+    .replace(/```json/g, "")
+    .replace(/```/g, "")
+    .trim();
+
+  return JSON.parse(cleaned);
+}
+
+function mapDeepLLang(lang) {
+  const map = {
+    "English": "EN",
+    "Simplified Chinese": "ZH",
+    "Chinese": "ZH",
+    "Japanese": "JA",
+    "Korean": "KO",
+    "Spanish": "ES",
+    "French": "FR",
+    "German": "DE",
+    "Russian": "RU",
+    "Portuguese": "PT",
+    "Italian": "IT",
+    "Dutch": "NL",
+    "Polish": "PL",
+    "Arabic": "AR",
+    "Turkish": "TR",
+    "Ukrainian": "UK"
+  };
+
+  return map[lang] || "EN";
+}
