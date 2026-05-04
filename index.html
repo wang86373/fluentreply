@@ -46,6 +46,20 @@ body {
   font-size: 14px;
 }
 
+.auth-btn {
+  border: 1px solid #dadce0 !important;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: white !important;
+}
+
+.auth-primary {
+  background: #0f2b46 !important;
+  color: white !important;
+  border-radius: 999px;
+  padding: 9px 18px;
+}
+
 .app {
   max-width: 1280px;
   margin: 26px auto;
@@ -69,6 +83,30 @@ body {
 .hero p {
   margin: 0;
   color: #64748b;
+}
+
+.feature-tabs {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.feature-tab {
+  background: white;
+  border: 1px solid #dadce0;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #202124;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+}
+
+.feature-tab.active {
+  border-color: #1a73e8;
+  color: #1a73e8;
+  background: #f8fbff;
 }
 
 .lang-row {
@@ -257,7 +295,8 @@ textarea {
   margin-top: 24px;
 }
 
-.news-card {
+.news-card,
+.glossary-box {
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 16px;
@@ -265,19 +304,22 @@ textarea {
   box-shadow: 0 8px 24px rgba(0,0,0,0.04);
 }
 
-.news-card h3 {
+.news-card h3,
+.glossary-box h3 {
   margin: 0 0 8px;
   font-size: 17px;
 }
 
-.news-card p {
+.news-card p,
+.glossary-box p {
   margin: 0 0 14px;
   color: #64748b;
   font-size: 14px;
   line-height: 1.5;
 }
 
-.news-card button {
+.news-card button,
+.glossary-box button {
   background: #eef4ff;
   border: none;
   color: #1a73e8;
@@ -285,6 +327,50 @@ textarea {
   padding: 8px 12px;
   border-radius: 10px;
   cursor: pointer;
+}
+
+.glossary-box {
+  margin-top: 24px;
+}
+
+.glossary-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.glossary-form input {
+  border: 1px solid #dadce0;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 14px;
+}
+
+.glossary-list {
+  display: grid;
+  gap: 8px;
+}
+
+.glossary-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid #edf0f5;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fafafa;
+}
+
+.glossary-item span {
+  font-size: 14px;
+}
+
+.glossary-item button {
+  background: transparent;
+  color: #b00020;
+  padding: 4px 8px;
 }
 
 .status {
@@ -326,8 +412,10 @@ textarea {
 
 @media (max-width: 850px) {
   .header {
-    height: 56px;
-    padding: 0 14px;
+    height: auto;
+    padding: 12px 14px;
+    gap: 10px;
+    flex-wrap: wrap;
   }
 
   .logo {
@@ -348,7 +436,8 @@ textarea {
   }
 
   .translator,
-  .news-grid {
+  .news-grid,
+  .glossary-form {
     grid-template-columns: 1fr;
   }
 
@@ -399,13 +488,22 @@ textarea {
         <option value="ja">日本語</option>
       </select>
       <button onclick="toggleHistory()" data-i18n="history">History</button>
+      <button class="auth-btn" onclick="openLogin()" data-i18n="login">Login</button>
+      <button class="auth-primary" onclick="openSignup()" data-i18n="signup">Sign up</button>
     </div>
   </div>
 
   <main class="app">
     <section class="hero">
       <h2 data-i18n="heroTitle">AI Translation for Real Conversations and News</h2>
-      <p data-i18n="heroText">Translate naturally, compare alternatives, and improve news-style language.</p>
+      <p data-i18n="heroText">Translate naturally, compare alternatives, improve news-style language, and keep custom glossary terms consistent.</p>
+    </section>
+
+    <section class="feature-tabs">
+      <button class="feature-tab active" data-i18n="translateText">Translate Text</button>
+      <button class="feature-tab" onclick="alertComingSoon()" data-i18n="translateFile">Translate Files</button>
+      <button class="feature-tab" onclick="alertComingSoon()" data-i18n="translateVoice">Translate Voice</button>
+      <button class="feature-tab" onclick="alertComingSoon()" data-i18n="useApi">Use API</button>
     </section>
 
     <div class="lang-row">
@@ -481,6 +579,19 @@ textarea {
 
     <div id="bottomStatus" class="status"></div>
 
+    <section class="glossary-box">
+      <h3 data-i18n="glossaryTitle">Custom Glossary</h3>
+      <p data-i18n="glossaryText">Add fixed translations for names, places, brands, movie titles, or professional terms.</p>
+
+      <div class="glossary-form">
+        <input id="glossarySource" placeholder="Original term, e.g. Goonies">
+        <input id="glossaryTarget" placeholder="Preferred translation, e.g. 志愿军小子">
+        <button onclick="addGlossaryTerm()" data-i18n="addTerm">Add term</button>
+      </div>
+
+      <div id="glossaryList" class="glossary-list"></div>
+    </section>
+
     <section class="news-grid">
       <div class="news-card">
         <h3 data-i18n="newsTranslator">News Translator</h3>
@@ -518,8 +629,14 @@ let currentTask = "translate";
 const i18n = {
   en: {
     history: "History",
+    login: "Login",
+    signup: "Sign up",
     heroTitle: "AI Translation for Real Conversations and News",
-    heroText: "Translate naturally, compare alternatives, and improve news-style language.",
+    heroText: "Translate naturally, compare alternatives, improve news-style language, and keep custom glossary terms consistent.",
+    translateText: "Translate Text",
+    translateFile: "Translate Files",
+    translateVoice: "Translate Voice",
+    useApi: "Use API",
     clear: "Clear",
     copy: "Copy",
     waiting: "Waiting",
@@ -532,12 +649,21 @@ const i18n = {
     vocabHelper: "Vocabulary Helper",
     vocabHelperText: "Extract and explain key news vocabulary from your text.",
     useThis: "Use this",
-    recentHistory: "Recent history"
+    recentHistory: "Recent history",
+    glossaryTitle: "Custom Glossary",
+    glossaryText: "Add fixed translations for names, places, brands, movie titles, or professional terms.",
+    addTerm: "Add term"
   },
   zh: {
     history: "历史记录",
+    login: "登录",
+    signup: "注册",
     heroTitle: "适合真实对话和新闻内容的 AI 翻译",
-    heroText: "自然翻译、比较表达，并优化新闻风格语言。",
+    heroText: "自然翻译、比较表达、优化新闻风格，并保持自定义词库一致。",
+    translateText: "翻译文本",
+    translateFile: "翻译文件",
+    translateVoice: "翻译语音",
+    useApi: "使用 API",
     clear: "清空",
     copy: "复制",
     waiting: "等待输入",
@@ -550,12 +676,21 @@ const i18n = {
     vocabHelper: "新闻关键词解释",
     vocabHelperText: "提取并解释文本中的重要新闻词汇。",
     useThis: "使用",
-    recentHistory: "最近翻译记录"
+    recentHistory: "最近翻译记录",
+    glossaryTitle: "自定义词库",
+    glossaryText: "添加固定翻译，例如人名、地名、品牌、电影名或专业术语。",
+    addTerm: "添加词条"
   },
   ja: {
     history: "履歴",
+    login: "ログイン",
+    signup: "登録",
     heroTitle: "会話とニュース向けのAI翻訳",
-    heroText: "自然に翻訳し、表現を比較し、ニュース調の文章を改善します。",
+    heroText: "自然に翻訳し、表現を比較し、ニュース調の文章を改善し、用語を統一します。",
+    translateText: "テキスト翻訳",
+    translateFile: "ファイル翻訳",
+    translateVoice: "音声翻訳",
+    useApi: "APIを使用",
     clear: "クリア",
     copy: "コピー",
     waiting: "待機中",
@@ -568,7 +703,10 @@ const i18n = {
     vocabHelper: "語彙ヘルパー",
     vocabHelperText: "ニュース内の重要語彙を抽出して説明します。",
     useThis: "使用",
-    recentHistory: "最近の履歴"
+    recentHistory: "最近の履歴",
+    glossaryTitle: "カスタム用語集",
+    glossaryText: "名前、地名、ブランド、映画名、専門用語の固定訳を追加します。",
+    addTerm: "用語を追加"
   }
 };
 
@@ -603,6 +741,7 @@ const sourceSelect = document.getElementById("sourceSelect");
 const targetSelect = document.getElementById("targetSelect");
 const historyBox = document.getElementById("historyBox");
 const historyList = document.getElementById("historyList");
+const glossaryList = document.getElementById("glossaryList");
 
 input.addEventListener("input", () => {
   clearTimeout(timer);
@@ -617,6 +756,18 @@ input.addEventListener("input", () => {
   statusBox.innerText = getUILang() === "zh" ? "准备翻译..." : "Preparing...";
   timer = setTimeout(translate, 700);
 });
+
+function openLogin() {
+  alert(getUILang() === "zh" ? "登录系统下一步接入 Netlify Identity。" : "Login will be connected with Netlify Identity next.");
+}
+
+function openSignup() {
+  alert(getUILang() === "zh" ? "注册系统下一步接入 Netlify Identity。" : "Sign up will be connected with Netlify Identity next.");
+}
+
+function alertComingSoon() {
+  alert(getUILang() === "zh" ? "这个功能稍后上线。" : "This feature is coming soon.");
+}
 
 function setTask(task) {
   currentTask = task;
@@ -645,14 +796,65 @@ function swapLanguages() {
   if (input.value.trim()) translate();
 }
 
+function getGlossary() {
+  return JSON.parse(localStorage.getItem("custom_glossary") || "[]");
+}
+
+function saveGlossary(list) {
+  localStorage.setItem("custom_glossary", JSON.stringify(list));
+}
+
+function addGlossaryTerm() {
+  const source = document.getElementById("glossarySource").value.trim();
+  const target = document.getElementById("glossaryTarget").value.trim();
+
+  if (!source || !target) return;
+
+  const glossary = getGlossary();
+  glossary.unshift({ source, target });
+  saveGlossary(glossary.slice(0, 100));
+
+  document.getElementById("glossarySource").value = "";
+  document.getElementById("glossaryTarget").value = "";
+
+  renderGlossary();
+
+  if (input.value.trim()) translate();
+}
+
+function deleteGlossaryTerm(index) {
+  const glossary = getGlossary();
+  glossary.splice(index, 1);
+  saveGlossary(glossary);
+  renderGlossary();
+
+  if (input.value.trim()) translate();
+}
+
+function renderGlossary() {
+  const glossary = getGlossary();
+  glossaryList.innerHTML = "";
+
+  glossary.forEach((item, index) => {
+    const div = document.createElement("div");
+    div.className = "glossary-item";
+    div.innerHTML = `
+      <span><strong>${escapeHTML(item.source)}</strong> → ${escapeHTML(item.target)}</span>
+      <button onclick="deleteGlossaryTerm(${index})">Delete</button>
+    `;
+    glossaryList.appendChild(div);
+  });
+}
+
 async function translate() {
   const text = input.value.trim();
   if (!text) return;
 
   const sourceLanguage = sourceSelect.value;
   const targetLanguage = targetSelect.value;
+  const glossary = getGlossary();
 
-  const cacheKey = "enhanced_news_v1_" + currentTask + "_" + sourceLanguage + "_" + targetLanguage + "_" + text;
+  const cacheKey = "glossary_news_v1_" + currentTask + "_" + sourceLanguage + "_" + targetLanguage + "_" + JSON.stringify(glossary) + "_" + text;
   const cached = localStorage.getItem(cacheKey);
 
   if (cached) {
@@ -671,7 +873,8 @@ async function translate() {
         text,
         sourceLanguage,
         targetLanguage,
-        task: currentTask
+        task: currentTask,
+        glossary
       })
     });
 
@@ -878,7 +1081,7 @@ function clearResultOnly() {
 }
 
 function saveHistory(source, data) {
-  const history = JSON.parse(localStorage.getItem("history_enhanced_news") || "[]");
+  const history = JSON.parse(localStorage.getItem("history_glossary_news") || "[]");
 
   history.unshift({
     source,
@@ -889,12 +1092,12 @@ function saveHistory(source, data) {
     time: new Date().toLocaleString()
   });
 
-  localStorage.setItem("history_enhanced_news", JSON.stringify(history.slice(0, 20)));
+  localStorage.setItem("history_glossary_news", JSON.stringify(history.slice(0, 20)));
   renderHistory();
 }
 
 function renderHistory() {
-  const history = JSON.parse(localStorage.getItem("history_enhanced_news") || "[]");
+  const history = JSON.parse(localStorage.getItem("history_glossary_news") || "[]");
   historyList.innerHTML = "";
 
   history.forEach(item => {
@@ -940,6 +1143,7 @@ function escapeHTML(str) {
 }
 
 applyUILanguage();
+renderGlossary();
 </script>
 </body>
 </html>
