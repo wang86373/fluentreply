@@ -5,54 +5,93 @@
 <title>Login - FluentReply</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,"Segoe UI",sans-serif;background:linear-gradient(135deg,#eef4ff,#ffffff);min-height:100vh;display:flex;align-items:center;justify-content:center;color:#202124}
-.card{width:min(420px,92vw);background:white;border:1px solid #e5e7eb;border-radius:24px;padding:32px;box-shadow:0 20px 60px rgba(15,23,42,.12)}
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#eef4ff,#fff);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.card{width:min(440px,92vw);background:white;border:1px solid #e5e7eb;border-radius:24px;padding:32px;box-shadow:0 20px 60px rgba(15,23,42,.12)}
 .logo{font-size:26px;font-weight:900;color:#1a73e8;margin-bottom:8px}
-h1{margin:0 0 8px;font-size:26px}
-p{margin:0 0 24px;color:#64748b;line-height:1.5}
-label{font-weight:700;font-size:14px;margin-bottom:8px;display:block}
-input{width:100%;border:1px solid #dadce0;border-radius:12px;padding:13px 14px;font-size:15px;margin-bottom:16px}
-button{width:100%;border:none;background:#1a73e8;color:white;font-weight:800;border-radius:999px;padding:13px 16px;font-size:15px;cursor:pointer;margin-top:6px}
-button:hover{background:#155fc0}
+h1{margin:0 0 8px}
+p{color:#64748b;line-height:1.5}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#f1f5f9;border-radius:999px;padding:5px;margin:22px 0}
+.tab{border:none;background:transparent;color:#64748b;font-weight:800;border-radius:999px;padding:10px;cursor:pointer}
+.tab.active{background:white;color:#1a73e8;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+label{font-weight:700;font-size:14px;margin:14px 0 8px;display:block}
+input{width:100%;border:1px solid #dadce0;border-radius:12px;padding:13px;font-size:15px}
+button{width:100%;border:none;background:#1a73e8;color:white;font-weight:800;border-radius:999px;padding:13px;margin-top:18px;cursor:pointer}
 .secondary{background:white;color:#1a73e8;border:1px solid #dadce0}
-.status{margin-top:14px;font-size:14px;color:#64748b;min-height:20px}
-.links{margin-top:20px;display:flex;justify-content:space-between;font-size:14px}
+.status{margin-top:14px;color:#64748b;font-size:14px;min-height:20px}
+.links{margin-top:20px;display:flex;justify-content:space-between}
 a{color:#1a73e8;text-decoration:none;font-weight:700}
+.hidden{display:none}
 </style>
 </head>
-
 <body>
-  <div class="card">
-    <div class="logo">FluentReply</div>
-    <h1>Login</h1>
-    <p>Sign in to sync your translation history and custom glossary.</p>
+<div class="card">
+  <div class="logo">FluentReply</div>
+  <h1>Login</h1>
+  <p>Choose password login or email verification code login.</p>
 
-    <label>Email</label>
-    <input id="email" type="email" placeholder="you@example.com" />
-
-    <label>Password</label>
-    <input id="password" type="password" placeholder="Your password" />
-
-    <button onclick="login()">Login</button>
-    <button class="secondary" onclick="location.href='index.html'">Continue as guest</button>
-
-    <div id="status" class="status"></div>
-
-    <div class="links">
-      <a href="signup.html">Create account</a>
-      <a href="index.html">Back home</a>
-    </div>
+  <div class="tabs">
+    <button id="passwordTab" class="tab active" onclick="setMode('password')">Password</button>
+    <button id="codeTab" class="tab" onclick="setMode('code')">Code</button>
   </div>
+
+  <label>Email</label>
+  <input id="email" type="email" placeholder="you@example.com">
+
+  <div id="passwordBox">
+    <label>Password</label>
+    <input id="password" type="password" placeholder="Your password">
+    <button onclick="loginWithPassword()">Login with password</button>
+  </div>
+
+  <div id="codeBox" class="hidden">
+    <button onclick="sendLoginCode()">Send login code</button>
+
+    <label>Verification code</label>
+    <input id="code" placeholder="Enter 6-digit code">
+
+    <button onclick="verifyLoginCode()">Login with code</button>
+  </div>
+
+  <button class="secondary" onclick="location.href='index.html'">Continue as guest</button>
+
+  <div id="status" class="status"></div>
+
+  <div class="links">
+    <a href="signup.html">Create account</a>
+    <a href="index.html">Back home</a>
+  </div>
+</div>
 
 <script>
 const SUPABASE_URL = "https://smwclefrunxnzzjammnu.supabase.co";
 const SUPABASE_KEY = "sb_publishable_DWI3c__Tq7P9z7GSJqhT6g_dzKxwMrb";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-async function login() {
+function setMode(mode) {
+  const passwordTab = document.getElementById("passwordTab");
+  const codeTab = document.getElementById("codeTab");
+  const passwordBox = document.getElementById("passwordBox");
+  const codeBox = document.getElementById("codeBox");
+  const status = document.getElementById("status");
+
+  status.innerText = "";
+
+  if (mode === "password") {
+    passwordTab.classList.add("active");
+    codeTab.classList.remove("active");
+    passwordBox.classList.remove("hidden");
+    codeBox.classList.add("hidden");
+  } else {
+    codeTab.classList.add("active");
+    passwordTab.classList.remove("active");
+    codeBox.classList.remove("hidden");
+    passwordBox.classList.add("hidden");
+  }
+}
+
+async function loginWithPassword() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
   const status = document.getElementById("status");
@@ -64,7 +103,7 @@ async function login() {
 
   status.innerText = "Logging in...";
 
-  const { data, error } = await supabaseClient.auth.signInWithPassword({
+  const { error } = await supabaseClient.auth.signInWithPassword({
     email,
     password
   });
@@ -75,9 +114,60 @@ async function login() {
   }
 
   status.innerText = "Login successful. Redirecting...";
-  setTimeout(() => {
-    window.location.href = "index.html";
-  }, 700);
+  setTimeout(() => location.href = "index.html", 700);
+}
+
+async function sendLoginCode() {
+  const email = document.getElementById("email").value.trim();
+  const status = document.getElementById("status");
+
+  if (!email) {
+    status.innerText = "Please enter your email.";
+    return;
+  }
+
+  status.innerText = "Sending login code...";
+
+  const { error } = await supabaseClient.auth.signInWithOtp({
+    email,
+    options: {
+      shouldCreateUser: false
+    }
+  });
+
+  if (error) {
+    status.innerText = error.message;
+    return;
+  }
+
+  status.innerText = "Login code sent. Please check your email.";
+}
+
+async function verifyLoginCode() {
+  const email = document.getElementById("email").value.trim();
+  const code = document.getElementById("code").value.trim();
+  const status = document.getElementById("status");
+
+  if (!email || !code) {
+    status.innerText = "Please enter email and code.";
+    return;
+  }
+
+  status.innerText = "Verifying...";
+
+  const { error } = await supabaseClient.auth.verifyOtp({
+    email,
+    token: code,
+    type: "email"
+  });
+
+  if (error) {
+    status.innerText = error.message;
+    return;
+  }
+
+  status.innerText = "Login successful. Redirecting...";
+  setTimeout(() => location.href = "index.html", 700);
 }
 </script>
 </body>
