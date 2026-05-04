@@ -19,13 +19,16 @@ body {
   height: 64px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 0 28px;
   border-bottom: 1px solid #e0e0e0;
-  font-size: 22px;
-  font-weight: 600;
 }
 
-.logo-blue { color: #1a73e8; }
+.logo {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a73e8;
+}
 
 .app {
   max-width: 1280px;
@@ -58,8 +61,10 @@ body {
 
 .swap {
   text-align: center;
-  color: #5f6368;
   font-size: 24px;
+  color: #5f6368;
+  cursor: pointer;
+  user-select: none;
 }
 
 .translator {
@@ -72,7 +77,6 @@ body {
   border: 1px solid #dadce0;
   border-radius: 16px;
   overflow: hidden;
-  min-height: 270px;
 }
 
 textarea {
@@ -84,7 +88,6 @@ textarea {
   padding: 24px;
   font-size: 26px;
   line-height: 1.35;
-  font-family: Arial, sans-serif;
 }
 
 .result {
@@ -114,21 +117,19 @@ textarea {
   font-size: 13px;
 }
 
-.icon-btn {
+.btn {
   border: none;
   background: transparent;
   cursor: pointer;
-  font-size: 15px;
   color: #5f6368;
+  font-size: 14px;
 }
 
 .copy-btn {
-  border: none;
   background: #1a73e8;
   color: white;
   padding: 9px 18px;
   border-radius: 20px;
-  cursor: pointer;
   font-weight: 600;
 }
 
@@ -154,10 +155,6 @@ textarea {
   cursor: pointer;
 }
 
-.dropdown-item:last-child {
-  border-bottom: none;
-}
-
 .dropdown-item:hover,
 .dropdown-item.active {
   background: #e8f0fe;
@@ -171,7 +168,6 @@ textarea {
 }
 
 .dropdown-text {
-  color: #202124;
   font-size: 16px;
   line-height: 1.45;
   margin-bottom: 6px;
@@ -189,32 +185,49 @@ textarea {
   font-size: 14px;
 }
 
-.error {
-  color: #b00020;
+.history {
+  margin-top: 28px;
+  display: none;
 }
 
+.history-title {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.history-item {
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  background: #fafafa;
+}
+
+.history-item:hover {
+  background: #e8f0fe;
+}
+
+.paywall {
+  display: none;
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid #dadce0;
+  border-radius: 12px;
+  background: #fff8e1;
+}
+
+.error { color: #b00020; }
+
 @media (max-width: 850px) {
-  .lang-row {
-    grid-template-columns: 1fr;
-  }
-
-  .swap {
-    display: none;
-  }
-
-  .translator {
-    grid-template-columns: 1fr;
-  }
+  .lang-row { grid-template-columns: 1fr; }
+  .swap { display: none; }
+  .translator { grid-template-columns: 1fr; }
 
   textarea,
   .result {
     height: 200px;
     font-size: 22px;
-  }
-
-  .dropdown {
-    top: 56px;
-    max-height: 220px;
   }
 }
 </style>
@@ -222,7 +235,8 @@ textarea {
 
 <body>
   <div class="header">
-    <span class="logo-blue">FluentReply</span>&nbsp;翻译
+    <div class="logo">FluentReply 翻译</div>
+    <button class="btn" onclick="toggleHistory()">History</button>
   </div>
 
   <main class="app">
@@ -233,12 +247,11 @@ textarea {
         <span>英语</span>
       </div>
 
-      <div class="swap">⇄</div>
+      <div class="swap" onclick="swapLanguages()">⇄</div>
 
       <div class="lang-tabs">
         <span id="targetLang" class="active">英语</span>
         <span>中文</span>
-        <span>日语</span>
       </div>
     </div>
 
@@ -248,7 +261,10 @@ textarea {
 
         <div class="panel-footer">
           <span id="count">0</span>
-          <button class="icon-btn" onclick="clearAll()">清空</button>
+          <div>
+            <button class="btn" onclick="speakInput()">🔊</button>
+            <button class="btn" onclick="clearAll()">清空</button>
+          </div>
         </div>
       </div>
 
@@ -260,19 +276,37 @@ textarea {
 
         <div class="panel-footer">
           <span id="status">等待输入</span>
-          <button class="copy-btn" onclick="copyText(event)">复制</button>
+          <div>
+            <button class="btn" onclick="speakOutput(event)">🔊</button>
+            <button class="copy-btn" onclick="copyText(event)">复制</button>
+          </div>
         </div>
       </div>
     </section>
 
     <div id="bottomStatus" class="status"></div>
+
+    <div id="paywall" class="paywall">
+      免费 200 次已用完。请升级后继续使用。
+      <br><br>
+      <button class="copy-btn" onclick="goPay()">Upgrade</button>
+    </div>
+
+    <section id="historyBox" class="history">
+      <div class="history-title">最近翻译记录</div>
+      <div id="historyList"></div>
+    </section>
   </main>
 
 <script>
+const FREE_LIMIT = 200;
+const PAYMENT_LINK = "YOUR_PAYMENT_LINK_HERE";
+
 let timer;
 let currentText = "";
 let dropdownVisible = false;
 let currentOptions = [];
+let forcedTarget = "";
 
 const input = document.getElementById("input");
 const result = document.getElementById("result");
@@ -281,6 +315,9 @@ const statusBox = document.getElementById("status");
 const bottomStatus = document.getElementById("bottomStatus");
 const sourceLang = document.getElementById("sourceLang");
 const targetLang = document.getElementById("targetLang");
+const paywall = document.getElementById("paywall");
+const historyBox = document.getElementById("historyBox");
+const historyList = document.getElementById("historyList");
 
 input.addEventListener("input", () => {
   clearTimeout(timer);
@@ -301,14 +338,31 @@ async function translate() {
   const text = input.value.trim();
   if (!text) return;
 
+  if (getUsage() >= FREE_LIMIT && !isPro()) {
+    paywall.style.display = "block";
+    statusBox.innerText = "免费次数已用完";
+    return;
+  }
+
+  const cacheKey = "cache_" + text + "_" + forcedTarget;
+  const cached = localStorage.getItem(cacheKey);
+
+  if (cached) {
+    renderData(JSON.parse(cached));
+    statusBox.innerText = "来自缓存";
+    return;
+  }
+
   statusBox.innerText = "AI 正在翻译...";
-  bottomStatus.innerText = "";
 
   try {
     const res = await fetch("/.netlify/functions/translate", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ text })
+      body: JSON.stringify({
+        text,
+        targetLanguage: forcedTarget
+      })
     });
 
     const data = await res.json();
@@ -319,22 +373,29 @@ async function translate() {
       return;
     }
 
-    currentText = data.main || "";
-    currentOptions = data.options || [];
+    increaseUsage();
+    localStorage.setItem(cacheKey, JSON.stringify(data));
+    saveHistory(text, data);
+    renderData(data);
 
-    sourceLang.innerText = data.detected_language || "检测到的语言";
-    targetLang.innerText = data.target_language || "翻译结果";
-
-    renderMainText(currentText);
-    renderDropdown(currentOptions);
-
-    statusBox.innerText = "翻译完成";
-    bottomStatus.innerText = "点击翻译结果可查看 3 个替代表达。";
-
-  } catch (err) {
+  } catch {
     result.innerHTML = `<span class="error">Network error. Please try again.</span><div id="dropdown" class="dropdown"></div>`;
     statusBox.innerText = "网络错误";
   }
+}
+
+function renderData(data) {
+  currentText = data.main || "";
+  currentOptions = data.options || [];
+
+  sourceLang.innerText = data.detected_language || "检测到的语言";
+  targetLang.innerText = data.target_language || "翻译结果";
+
+  renderMainText(currentText);
+  renderDropdown(currentOptions);
+
+  statusBox.innerText = "翻译完成";
+  bottomStatus.innerText = "点击翻译结果可查看 3 个替代表达。";
 }
 
 function renderMainText(text) {
@@ -360,12 +421,10 @@ function renderDropdown(optionsList) {
 
     item.onclick = (e) => {
       e.stopPropagation();
-
       currentText = opt.text || "";
       renderMainText(currentText);
       renderDropdown(optionsList);
       hideDropdown();
-
       statusBox.innerText = "已选择表达";
     };
 
@@ -391,12 +450,43 @@ function hideDropdown() {
   dropdownVisible = false;
 }
 
+function swapLanguages() {
+  if (targetLang.innerText.includes("English") || targetLang.innerText.includes("英语")) {
+    forcedTarget = "Simplified Chinese";
+    targetLang.innerText = "Simplified Chinese";
+  } else {
+    forcedTarget = "English";
+    targetLang.innerText = "English";
+  }
+
+  if (input.value.trim()) translate();
+}
+
 function copyText(event) {
   if (event) event.stopPropagation();
   if (!currentText) return;
 
   navigator.clipboard.writeText(currentText);
   statusBox.innerText = "已复制";
+}
+
+function speakInput() {
+  speak(input.value.trim(), "auto");
+}
+
+function speakOutput(event) {
+  if (event) event.stopPropagation();
+  speak(currentText, targetLang.innerText.includes("Chinese") || targetLang.innerText.includes("中文") ? "zh-CN" : "en-US");
+}
+
+function speak(text, lang) {
+  if (!text) return;
+
+  const utterance = new SpeechSynthesisUtterance(text);
+
+  if (lang !== "auto") utterance.lang = lang;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utterance);
 }
 
 function clearAll() {
@@ -409,10 +499,70 @@ function clearResultOnly() {
   currentText = "";
   currentOptions = [];
   sourceLang.innerText = "检测到的语言";
-  targetLang.innerText = "英语";
+  targetLang.innerText = forcedTarget || "英语";
   result.innerHTML = '<span class="placeholder">翻译结果会显示在这里</span><div id="dropdown" class="dropdown"></div>';
   statusBox.innerText = "等待输入";
   bottomStatus.innerText = "";
+}
+
+function getUsage() {
+  return Number(localStorage.getItem("usage_count") || "0");
+}
+
+function increaseUsage() {
+  localStorage.setItem("usage_count", String(getUsage() + 1));
+}
+
+function isPro() {
+  return localStorage.getItem("pro_user") === "true";
+}
+
+function goPay() {
+  if (PAYMENT_LINK === "YOUR_PAYMENT_LINK_HERE") {
+    alert("请先设置支付链接");
+    return;
+  }
+  window.location.href = PAYMENT_LINK;
+}
+
+function saveHistory(source, data) {
+  const history = JSON.parse(localStorage.getItem("history") || "[]");
+
+  history.unshift({
+    source,
+    result: data.main,
+    time: new Date().toLocaleString()
+  });
+
+  localStorage.setItem("history", JSON.stringify(history.slice(0, 20)));
+  renderHistory();
+}
+
+function renderHistory() {
+  const history = JSON.parse(localStorage.getItem("history") || "[]");
+  historyList.innerHTML = "";
+
+  history.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "history-item";
+    div.innerHTML = `
+      <strong>${escapeHTML(item.source)}</strong><br>
+      ${escapeHTML(item.result)}<br>
+      <small>${escapeHTML(item.time)}</small>
+    `;
+
+    div.onclick = () => {
+      input.value = item.source;
+      translate();
+    };
+
+    historyList.appendChild(div);
+  });
+}
+
+function toggleHistory() {
+  renderHistory();
+  historyBox.style.display = historyBox.style.display === "block" ? "none" : "block";
 }
 
 document.addEventListener("click", hideDropdown);
