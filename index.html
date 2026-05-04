@@ -44,19 +44,28 @@ body {
   margin-bottom: 10px;
 }
 
-.lang-tabs {
+.lang-box {
   display: flex;
-  gap: 24px;
-  font-size: 15px;
-  font-weight: 600;
-  color: #5f6368;
+  gap: 12px;
+  align-items: center;
   padding: 0 18px;
 }
 
-.lang-tabs span.active {
-  color: #1a73e8;
+.lang-label {
+  font-size: 14px;
+  color: #5f6368;
+  font-weight: 600;
+}
+
+select {
+  border: none;
   border-bottom: 2px solid #1a73e8;
-  padding-bottom: 10px;
+  padding: 8px 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a73e8;
+  background: white;
+  outline: none;
 }
 
 .swap {
@@ -266,6 +275,10 @@ textarea {
     display: none;
   }
 
+  .lang-box {
+    padding: 0 8px;
+  }
+
   textarea,
   .result {
     height: 170px;
@@ -287,12 +300,6 @@ textarea {
 
   .btn {
     font-size: 13px;
-  }
-
-  .lang-tabs {
-    font-size: 13px;
-    gap: 16px;
-    padding: 0 8px;
   }
 
   .header {
@@ -323,23 +330,38 @@ textarea {
 
   <main class="app">
     <div class="lang-row">
-      <div class="lang-tabs">
-        <span id="sourceLang" class="active">检测到的语言</span>
-        <span>中文</span>
-        <span>英语</span>
+      <div class="lang-box">
+        <span class="lang-label">源语言</span>
+        <select id="sourceSelect" disabled>
+          <option>自动检测</option>
+        </select>
       </div>
 
       <div class="swap" onclick="swapLanguages()">⇄</div>
 
-      <div class="lang-tabs">
-        <span id="targetLang" class="active">英语</span>
-        <span>中文</span>
+      <div class="lang-box">
+        <span class="lang-label">目标语言</span>
+        <select id="targetSelect" onchange="changeTargetLanguage()">
+          <option value="">自动</option>
+          <option value="English">英语</option>
+          <option value="Simplified Chinese">中文</option>
+          <option value="Japanese">日语</option>
+          <option value="Korean">韩语</option>
+          <option value="Spanish">西班牙语</option>
+          <option value="French">法语</option>
+          <option value="German">德语</option>
+          <option value="Russian">俄语</option>
+          <option value="Thai">泰语</option>
+          <option value="Vietnamese">越南语</option>
+          <option value="Burmese">缅甸语</option>
+          <option value="Arabic">阿拉伯语</option>
+        </select>
       </div>
     </div>
 
     <section class="translator">
       <div class="panel">
-        <textarea id="input" placeholder="请输入中文或英文。选中文字后可单独翻译..."></textarea>
+        <textarea id="input" placeholder="请输入任意语言，选择目标语言后自动翻译..."></textarea>
 
         <div class="panel-footer">
           <span id="count">0</span>
@@ -395,8 +417,6 @@ const result = document.getElementById("result");
 const count = document.getElementById("count");
 const statusBox = document.getElementById("status");
 const bottomStatus = document.getElementById("bottomStatus");
-const sourceLang = document.getElementById("sourceLang");
-const targetLang = document.getElementById("targetLang");
 const historyBox = document.getElementById("historyBox");
 const historyList = document.getElementById("historyList");
 const optionsBox = document.getElementById("optionsBox");
@@ -404,6 +424,7 @@ const optionsList = document.getElementById("optionsList");
 const optionsTitle = document.getElementById("optionsTitle");
 const selectionBar = document.getElementById("selectionBar");
 const selectionText = document.getElementById("selectionText");
+const targetSelect = document.getElementById("targetSelect");
 
 input.addEventListener("input", () => {
   clearTimeout(timer);
@@ -435,6 +456,28 @@ function handleSelection() {
   }
 }
 
+function changeTargetLanguage() {
+  forcedTarget = targetSelect.value;
+
+  if (input.value.trim()) {
+    translateText(input.value.trim(), "full");
+  }
+}
+
+function swapLanguages() {
+  if (targetSelect.value === "English") {
+    targetSelect.value = "Simplified Chinese";
+  } else {
+    targetSelect.value = "English";
+  }
+
+  forcedTarget = targetSelect.value;
+
+  if (input.value.trim()) {
+    translateText(input.value.trim(), "full");
+  }
+}
+
 async function translateSelectedText() {
   const selected = input.value.substring(input.selectionStart, input.selectionEnd).trim();
 
@@ -449,7 +492,7 @@ async function translateText(text, mode) {
 
   statusBox.innerText = mode === "selected" ? "AI 正在翻译选中内容..." : "AI 正在翻译...";
 
-  const cacheKey = "seg_cache_v1_" + text + "_" + forcedTarget + "_" + mode;
+  const cacheKey = "multi_lang_cache_v1_" + text + "_" + forcedTarget + "_" + mode;
   const cached = localStorage.getItem(cacheKey);
 
   if (cached) {
@@ -503,9 +546,6 @@ function renderData(data, mode) {
       options: []
     }];
   }
-
-  sourceLang.innerText = data.detected_language || "检测到的语言";
-  targetLang.innerText = data.target_language || "翻译结果";
 
   activeSegmentIndex = null;
   rebuildFullText();
@@ -580,20 +620,6 @@ function showSegmentOptions(index) {
   optionsBox.style.display = "block";
 }
 
-function swapLanguages() {
-  if (targetLang.innerText.includes("English") || targetLang.innerText.includes("英语")) {
-    forcedTarget = "Simplified Chinese";
-    targetLang.innerText = "Simplified Chinese";
-  } else {
-    forcedTarget = "English";
-    targetLang.innerText = "English";
-  }
-
-  if (input.value.trim()) {
-    translateText(input.value.trim(), "full");
-  }
-}
-
 function copyText(event) {
   if (event) event.stopPropagation();
   if (!currentText) return;
@@ -609,13 +635,22 @@ function speakInput() {
 function speakOutput(event) {
   if (event) event.stopPropagation();
 
-  const lang =
-    targetLang.innerText.includes("Chinese") ||
-    targetLang.innerText.includes("中文")
-      ? "zh-CN"
-      : "en-US";
+  const langMap = {
+    "English": "en-US",
+    "Simplified Chinese": "zh-CN",
+    "Japanese": "ja-JP",
+    "Korean": "ko-KR",
+    "Spanish": "es-ES",
+    "French": "fr-FR",
+    "German": "de-DE",
+    "Russian": "ru-RU",
+    "Thai": "th-TH",
+    "Vietnamese": "vi-VN",
+    "Burmese": "my-MM",
+    "Arabic": "ar-SA"
+  };
 
-  speak(currentText, lang);
+  speak(currentText, langMap[forcedTarget] || "en-US");
 }
 
 function speak(text, lang) {
@@ -638,8 +673,6 @@ function clearResultOnly() {
   currentText = "";
   currentSegments = [];
   activeSegmentIndex = null;
-  sourceLang.innerText = "检测到的语言";
-  targetLang.innerText = forcedTarget || "英语";
   result.innerHTML = '<span class="placeholder">翻译结果会显示在这里</span>';
   optionsBox.style.display = "none";
   optionsList.innerHTML = "";
@@ -649,20 +682,21 @@ function clearResultOnly() {
 }
 
 function saveHistory(source, data) {
-  const history = JSON.parse(localStorage.getItem("history_v2") || "[]");
+  const history = JSON.parse(localStorage.getItem("history_multilang") || "[]");
 
   history.unshift({
     source,
     result: data.full_translation || "",
+    target: forcedTarget || "auto",
     time: new Date().toLocaleString()
   });
 
-  localStorage.setItem("history_v2", JSON.stringify(history.slice(0, 20)));
+  localStorage.setItem("history_multilang", JSON.stringify(history.slice(0, 20)));
   renderHistory();
 }
 
 function renderHistory() {
-  const history = JSON.parse(localStorage.getItem("history_v2") || "[]");
+  const history = JSON.parse(localStorage.getItem("history_multilang") || "[]");
   historyList.innerHTML = "";
 
   history.forEach(item => {
@@ -671,12 +705,14 @@ function renderHistory() {
     div.innerHTML = `
       <strong>${escapeHTML(item.source)}</strong><br>
       ${escapeHTML(item.result)}<br>
-      <small>${escapeHTML(item.time)}</small>
+      <small>${escapeHTML(item.target)} · ${escapeHTML(item.time)}</small>
     `;
 
     div.onclick = () => {
       input.value = item.source;
       count.innerText = item.source.length;
+      forcedTarget = item.target === "auto" ? "" : item.target;
+      targetSelect.value = forcedTarget;
       translateText(item.source, "full");
     };
 
