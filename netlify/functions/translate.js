@@ -1,10 +1,7 @@
 exports.handler = async function (event) {
   try {
     if (event.httpMethod !== "POST") {
-      return {
-        statusCode: 405,
-        body: JSON.stringify({ error: "Method not allowed" })
-      };
+      return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
     }
 
     const {
@@ -12,27 +9,58 @@ exports.handler = async function (event) {
       sourceLanguage = "auto",
       targetLanguage = "English",
       task = "translate",
-      glossary = []
+      glossary = [],
+      engineMode = "auto"
     } = JSON.parse(event.body || "{}");
 
     if (!text || !text.trim()) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "Missing text" })
-      };
+      return { statusCode: 400, body: JSON.stringify({ error: "Missing text" }) };
     }
 
     let deeplText = "";
     let deeplUsed = false;
     let deeplError = "";
 
-    if (process.env.DEEPL_API_KEY && task === "translate") {
+    if (
+      process.env.DEEPL_API_KEY &&
+      task === "translate" &&
+      engineMode !== "ai"
+    ) {
       try {
         deeplText = await translateWithDeepL(text, sourceLanguage, targetLanguage);
-        if (deeplText) deeplUsed = true;
+        deeplUsed = !!deeplText;
       } catch (e) {
         deeplError = e.message || "DeepL failed";
       }
+    }
+
+    if (engineMode === "deepl" && deeplText) {
+      return {
+        statusCode: 200,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          detected_language: sourceLanguage,
+          target_language: targetLanguage,
+          full_translation: deeplText,
+          engine_used: "DeepL only",
+          deepl_used: true,
+          deepl_error: "",
+          segments: [
+            {
+              id: 1,
+              source: text,
+              best: deeplText,
+              options: [
+                {
+                  label: "DeepL",
+                  text: deeplText,
+                  meaning: "DeepL precise translation."
+                }
+              ]
+            }
+          ]
+        })
+      };
     }
 
     const aiResult = await enhanceWithAI({
@@ -223,7 +251,7 @@ JSON format:
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+      "Authorization": Bearer ${process.env.OPENAI_API_KEY}
     },
     body: JSON.stringify({
       model: "gpt-4o-mini",
