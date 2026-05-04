@@ -16,13 +16,15 @@ body {
 }
 
 .header {
-  height: 64px;
+  min-height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 26px;
+  padding: 12px 26px;
   border-bottom: 1px solid #e0e0e0;
   background: white;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .logo {
@@ -33,8 +35,9 @@ body {
 
 .header-actions {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .header button,
@@ -58,6 +61,14 @@ body {
   color: white !important;
   border-radius: 999px;
   padding: 9px 18px;
+}
+
+.upgrade-btn {
+  background: #1a73e8 !important;
+  color: white !important;
+  border-radius: 999px;
+  padding: 9px 18px;
+  font-weight: 700;
 }
 
 .app {
@@ -117,13 +128,6 @@ body {
   margin-bottom: 10px;
 }
 
-.lang-tabs {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 0 10px;
-}
-
 .lang-tabs select {
   border: none;
   border-bottom: 2px solid #1a73e8;
@@ -133,6 +137,7 @@ body {
   color: #1a73e8;
   background: transparent;
   outline: none;
+  width: 100%;
 }
 
 .swap {
@@ -406,6 +411,15 @@ textarea {
   background: #e8f0fe;
 }
 
+.paywall {
+  display: none;
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid #dadce0;
+  border-radius: 14px;
+  background: #fff8e1;
+}
+
 .error {
   color: #b00020;
 }
@@ -414,8 +428,6 @@ textarea {
   .header {
     height: auto;
     padding: 12px 14px;
-    gap: 10px;
-    flex-wrap: wrap;
   }
 
   .logo {
@@ -427,18 +439,15 @@ textarea {
     padding: 0 12px;
   }
 
-  .lang-row {
+  .lang-row,
+  .translator,
+  .news-grid,
+  .glossary-form {
     grid-template-columns: 1fr;
   }
 
   .swap {
     display: none;
-  }
-
-  .translator,
-  .news-grid,
-  .glossary-form {
-    grid-template-columns: 1fr;
   }
 
   textarea,
@@ -488,6 +497,7 @@ textarea {
         <option value="ja">日本語</option>
       </select>
       <button onclick="toggleHistory()" data-i18n="history">History</button>
+      <button class="upgrade-btn" onclick="goUpgrade()">Upgrade</button>
       <button class="auth-btn" onclick="openLogin()" data-i18n="login">Login</button>
       <button class="auth-primary" onclick="openSignup()" data-i18n="signup">Sign up</button>
     </div>
@@ -496,7 +506,7 @@ textarea {
   <main class="app">
     <section class="hero">
       <h2 data-i18n="heroTitle">AI Translation for Real Conversations and News</h2>
-      <p data-i18n="heroText">Translate naturally, compare alternatives, improve news-style language, and keep custom glossary terms consistent.</p>
+      <p data-i18n="heroText">Use it instantly as a guest. Sign in later to sync history, glossary, and Pro status.</p>
     </section>
 
     <section class="feature-tabs">
@@ -579,13 +589,20 @@ textarea {
 
     <div id="bottomStatus" class="status"></div>
 
+    <div id="paywall" class="paywall">
+      <strong>Free limit reached.</strong><br>
+      You can upgrade to Pro for more translations.
+      <br><br>
+      <button class="copy-btn" onclick="goUpgrade()">Upgrade</button>
+    </div>
+
     <section class="glossary-box">
       <h3 data-i18n="glossaryTitle">Custom Glossary</h3>
       <p data-i18n="glossaryText">Add fixed translations for names, places, brands, movie titles, or professional terms.</p>
 
       <div class="glossary-form">
-        <input id="glossarySource" placeholder="Original term, e.g. Goonies">
-        <input id="glossaryTarget" placeholder="Preferred translation, e.g. 志愿军小子">
+        <input id="glossarySource" placeholder="Original term">
+        <input id="glossaryTarget" placeholder="Preferred translation">
         <button onclick="addGlossaryTerm()" data-i18n="addTerm">Add term</button>
       </div>
 
@@ -619,6 +636,9 @@ textarea {
   </main>
 
 <script>
+const FREE_LIMIT = 200;
+const PAYMENT_LINK = "YOUR_PAYMENT_LINK_HERE";
+
 let timer;
 let currentText = "";
 let currentSegments = [];
@@ -628,84 +648,45 @@ let currentTask = "translate";
 
 const i18n = {
   en: {
-    history: "History",
-    login: "Login",
-    signup: "Sign up",
+    history: "History", login: "Login", signup: "Sign up",
     heroTitle: "AI Translation for Real Conversations and News",
-    heroText: "Translate naturally, compare alternatives, improve news-style language, and keep custom glossary terms consistent.",
-    translateText: "Translate Text",
-    translateFile: "Translate Files",
-    translateVoice: "Translate Voice",
-    useApi: "Use API",
-    clear: "Clear",
-    copy: "Copy",
-    waiting: "Waiting",
-    placeholder: "Translation will appear here",
-    autoDetect: "Auto detect",
-    newsTranslator: "News Translator",
+    heroText: "Use it instantly as a guest. Sign in later to sync history, glossary, and Pro status.",
+    translateText: "Translate Text", translateFile: "Translate Files", translateVoice: "Translate Voice", useApi: "Use API",
+    clear: "Clear", copy: "Copy", waiting: "Waiting", placeholder: "Translation will appear here",
+    autoDetect: "Auto detect", newsTranslator: "News Translator",
     newsTranslatorText: "Translate news headlines and paragraphs in a neutral professional tone.",
-    headlineRewriter: "Headline Rewriter",
-    headlineRewriterText: "Turn plain sentences into clear, concise news headlines.",
-    vocabHelper: "Vocabulary Helper",
-    vocabHelperText: "Extract and explain key news vocabulary from your text.",
-    useThis: "Use this",
-    recentHistory: "Recent history",
-    glossaryTitle: "Custom Glossary",
-    glossaryText: "Add fixed translations for names, places, brands, movie titles, or professional terms.",
+    headlineRewriter: "Headline Rewriter", headlineRewriterText: "Turn plain sentences into clear, concise news headlines.",
+    vocabHelper: "Vocabulary Helper", vocabHelperText: "Extract and explain key news vocabulary from your text.",
+    useThis: "Use this", recentHistory: "Recent history",
+    glossaryTitle: "Custom Glossary", glossaryText: "Add fixed translations for names, places, brands, movie titles, or professional terms.",
     addTerm: "Add term"
   },
   zh: {
-    history: "历史记录",
-    login: "登录",
-    signup: "注册",
+    history: "历史记录", login: "登录", signup: "注册",
     heroTitle: "适合真实对话和新闻内容的 AI 翻译",
-    heroText: "自然翻译、比较表达、优化新闻风格，并保持自定义词库一致。",
-    translateText: "翻译文本",
-    translateFile: "翻译文件",
-    translateVoice: "翻译语音",
-    useApi: "使用 API",
-    clear: "清空",
-    copy: "复制",
-    waiting: "等待输入",
-    placeholder: "翻译结果会显示在这里",
-    autoDetect: "自动检测",
-    newsTranslator: "新闻翻译",
+    heroText: "无需注册即可使用。登录后未来可同步历史、词库和 Pro 状态。",
+    translateText: "翻译文本", translateFile: "翻译文件", translateVoice: "翻译语音", useApi: "使用 API",
+    clear: "清空", copy: "复制", waiting: "等待输入", placeholder: "翻译结果会显示在这里",
+    autoDetect: "自动检测", newsTranslator: "新闻翻译",
     newsTranslatorText: "用中立、专业的语气翻译新闻标题和正文。",
-    headlineRewriter: "新闻标题优化",
-    headlineRewriterText: "把普通句子改写成清晰简洁的新闻标题。",
-    vocabHelper: "新闻关键词解释",
-    vocabHelperText: "提取并解释文本中的重要新闻词汇。",
-    useThis: "使用",
-    recentHistory: "最近翻译记录",
-    glossaryTitle: "自定义词库",
-    glossaryText: "添加固定翻译，例如人名、地名、品牌、电影名或专业术语。",
+    headlineRewriter: "新闻标题优化", headlineRewriterText: "把普通句子改写成清晰简洁的新闻标题。",
+    vocabHelper: "新闻关键词解释", vocabHelperText: "提取并解释文本中的重要新闻词汇。",
+    useThis: "使用", recentHistory: "最近翻译记录",
+    glossaryTitle: "自定义词库", glossaryText: "添加固定翻译，例如人名、地名、品牌、电影名或专业术语。",
     addTerm: "添加词条"
   },
   ja: {
-    history: "履歴",
-    login: "ログイン",
-    signup: "登録",
+    history: "履歴", login: "ログイン", signup: "登録",
     heroTitle: "会話とニュース向けのAI翻訳",
-    heroText: "自然に翻訳し、表現を比較し、ニュース調の文章を改善し、用語を統一します。",
-    translateText: "テキスト翻訳",
-    translateFile: "ファイル翻訳",
-    translateVoice: "音声翻訳",
-    useApi: "APIを使用",
-    clear: "クリア",
-    copy: "コピー",
-    waiting: "待機中",
-    placeholder: "翻訳結果がここに表示されます",
-    autoDetect: "自動検出",
-    newsTranslator: "ニュース翻訳",
-    newsTranslatorText: "ニュース見出しや本文を自然で専門的に翻訳します。",
-    headlineRewriter: "見出しリライト",
-    headlineRewriterText: "普通の文章をニュース見出し風に整えます。",
-    vocabHelper: "語彙ヘルパー",
-    vocabHelperText: "ニュース内の重要語彙を抽出して説明します。",
-    useThis: "使用",
-    recentHistory: "最近の履歴",
-    glossaryTitle: "カスタム用語集",
-    glossaryText: "名前、地名、ブランド、映画名、専門用語の固定訳を追加します。",
+    heroText: "登録なしですぐ使えます。ログインすると履歴や用語集を同期できます。",
+    translateText: "テキスト翻訳", translateFile: "ファイル翻訳", translateVoice: "音声翻訳", useApi: "APIを使用",
+    clear: "クリア", copy: "コピー", waiting: "待機中", placeholder: "翻訳結果がここに表示されます",
+    autoDetect: "自動検出", newsTranslator: "ニュース翻訳",
+    newsTranslatorText: "ニュース見出しや本文を専門的に翻訳します。",
+    headlineRewriter: "見出しリライト", headlineRewriterText: "普通の文章をニュース見出し風に整えます。",
+    vocabHelper: "語彙ヘルパー", vocabHelperText: "ニュース内の重要語彙を説明します。",
+    useThis: "使用", recentHistory: "最近の履歴",
+    glossaryTitle: "カスタム用語集", glossaryText: "名前、地名、ブランド、映画名、専門用語の固定訳を追加します。",
     addTerm: "用語を追加"
   }
 };
@@ -713,7 +694,6 @@ const i18n = {
 function getUILang() {
   const selected = document.getElementById("uiLangSelect").value;
   if (selected !== "auto") return selected;
-
   const lang = navigator.language.toLowerCase();
   if (lang.startsWith("zh")) return "zh";
   if (lang.startsWith("ja")) return "ja";
@@ -728,9 +708,7 @@ function applyUILanguage() {
   });
 }
 
-function changeUILanguage() {
-  applyUILanguage();
-}
+function changeUILanguage() { applyUILanguage(); }
 
 const input = document.getElementById("input");
 const result = document.getElementById("result");
@@ -742,6 +720,7 @@ const targetSelect = document.getElementById("targetSelect");
 const historyBox = document.getElementById("historyBox");
 const historyList = document.getElementById("historyList");
 const glossaryList = document.getElementById("glossaryList");
+const paywall = document.getElementById("paywall");
 
 input.addEventListener("input", () => {
   clearTimeout(timer);
@@ -758,15 +737,23 @@ input.addEventListener("input", () => {
 });
 
 function openLogin() {
-  alert(getUILang() === "zh" ? "登录系统下一步接入 Netlify Identity。" : "Login will be connected with Netlify Identity next.");
+  alert(getUILang() === "zh" ? "登录功能稍后接入。游客现在也可以直接使用。" : "Login will be added later. You can use it as a guest now.");
 }
 
 function openSignup() {
-  alert(getUILang() === "zh" ? "注册系统下一步接入 Netlify Identity。" : "Sign up will be connected with Netlify Identity next.");
+  alert(getUILang() === "zh" ? "注册功能稍后接入。游客现在也可以直接使用。" : "Sign up will be added later. You can use it as a guest now.");
 }
 
 function alertComingSoon() {
   alert(getUILang() === "zh" ? "这个功能稍后上线。" : "This feature is coming soon.");
+}
+
+function goUpgrade() {
+  if (PAYMENT_LINK === "YOUR_PAYMENT_LINK_HERE") {
+    alert(getUILang() === "zh" ? "请先设置支付链接。" : "Please set your payment link first.");
+    return;
+  }
+  window.location.href = PAYMENT_LINK;
 }
 
 function setTask(task) {
@@ -774,26 +761,31 @@ function setTask(task) {
   if (input.value.trim()) translate();
 }
 
-function changeSourceLanguage() {
-  if (input.value.trim()) translate();
-}
-
-function changeTargetLanguage() {
-  if (input.value.trim()) translate();
-}
+function changeSourceLanguage() { if (input.value.trim()) translate(); }
+function changeTargetLanguage() { if (input.value.trim()) translate(); }
 
 function swapLanguages() {
   const source = sourceSelect.value;
   const target = targetSelect.value;
-
   if (source !== "auto") {
     sourceSelect.value = target || "auto";
     targetSelect.value = source;
   } else {
     targetSelect.value = targetSelect.value === "English" ? "Simplified Chinese" : "English";
   }
-
   if (input.value.trim()) translate();
+}
+
+function getUsage() {
+  return Number(localStorage.getItem("usage_count") || "0");
+}
+
+function increaseUsage() {
+  localStorage.setItem("usage_count", String(getUsage() + 1));
+}
+
+function isPro() {
+  return localStorage.getItem("pro_user") === "true";
 }
 
 function getGlossary() {
@@ -807,7 +799,6 @@ function saveGlossary(list) {
 function addGlossaryTerm() {
   const source = document.getElementById("glossarySource").value.trim();
   const target = document.getElementById("glossaryTarget").value.trim();
-
   if (!source || !target) return;
 
   const glossary = getGlossary();
@@ -818,7 +809,6 @@ function addGlossaryTerm() {
   document.getElementById("glossaryTarget").value = "";
 
   renderGlossary();
-
   if (input.value.trim()) translate();
 }
 
@@ -827,14 +817,12 @@ function deleteGlossaryTerm(index) {
   glossary.splice(index, 1);
   saveGlossary(glossary);
   renderGlossary();
-
   if (input.value.trim()) translate();
 }
 
 function renderGlossary() {
   const glossary = getGlossary();
   glossaryList.innerHTML = "";
-
   glossary.forEach((item, index) => {
     const div = document.createElement("div");
     div.className = "glossary-item";
@@ -850,11 +838,17 @@ async function translate() {
   const text = input.value.trim();
   if (!text) return;
 
+  if (getUsage() >= FREE_LIMIT && !isPro()) {
+    paywall.style.display = "block";
+    statusBox.innerText = getUILang() === "zh" ? "免费次数已用完" : "Free limit reached";
+    return;
+  }
+
   const sourceLanguage = sourceSelect.value;
   const targetLanguage = targetSelect.value;
   const glossary = getGlossary();
 
-  const cacheKey = "glossary_news_v1_" + currentTask + "_" + sourceLanguage + "_" + targetLanguage + "_" + JSON.stringify(glossary) + "_" + text;
+  const cacheKey = "final_guest_v1_" + currentTask + "_" + sourceLanguage + "_" + targetLanguage + "_" + JSON.stringify(glossary) + "_" + text;
   const cached = localStorage.getItem(cacheKey);
 
   if (cached) {
@@ -869,13 +863,7 @@ async function translate() {
     const res = await fetch("/.netlify/functions/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        text,
-        sourceLanguage,
-        targetLanguage,
-        task: currentTask,
-        glossary
-      })
+      body: JSON.stringify({ text, sourceLanguage, targetLanguage, task: currentTask, glossary })
     });
 
     const data = await res.json();
@@ -886,6 +874,7 @@ async function translate() {
       return;
     }
 
+    increaseUsage();
     localStorage.setItem(cacheKey, JSON.stringify(data));
     saveHistory(text, data);
     renderData(data);
@@ -905,12 +894,7 @@ function renderData(data) {
   }));
 
   if (!currentSegments.length && data.full_translation) {
-    currentSegments = [{
-      id: 1,
-      source: input.value,
-      selected: data.full_translation,
-      options: []
-    }];
+    currentSegments = [{ id: 1, source: input.value, selected: data.full_translation, options: [] }];
   }
 
   rebuildFullText();
@@ -928,7 +912,6 @@ function rebuildFullText() {
 
 function renderSegments() {
   result.innerHTML = "";
-
   if (!currentSegments.length) {
     result.innerHTML = '<span class="placeholder" data-i18n="placeholder">Translation will appear here</span><div id="dropdown" class="dropdown"></div>';
     applyUILanguage();
@@ -939,12 +922,10 @@ function renderSegments() {
     const span = document.createElement("span");
     span.className = "segment" + (activeSegmentIndex === index ? " active" : "");
     span.innerText = seg.selected + " ";
-
     span.onclick = (e) => {
       e.stopPropagation();
       showDropdownForSegment(index);
     };
-
     result.appendChild(span);
   });
 
@@ -960,7 +941,6 @@ function showDropdownForSegment(index) {
 
   const seg = currentSegments[index];
   const dd = document.getElementById("dropdown");
-
   dd.innerHTML = "";
 
   if (!seg.options || !seg.options.length) {
@@ -969,13 +949,11 @@ function showDropdownForSegment(index) {
     seg.options.forEach((opt, optIndex) => {
       const item = document.createElement("div");
       item.className = "dropdown-item" + (opt.text === seg.selected || optIndex === 0 ? " active" : "");
-
       item.innerHTML = `
         <div class="dropdown-label">${escapeHTML(opt.label || "Option")}</div>
         <div class="dropdown-text">${escapeHTML(opt.text || "")}</div>
         <div class="dropdown-meaning">${escapeHTML(opt.meaning || "No explanation")}</div>
       `;
-
       item.onclick = (e) => {
         e.stopPropagation();
         currentSegments[index].selected = opt.text || "";
@@ -984,7 +962,6 @@ function showDropdownForSegment(index) {
         hideDropdown();
         statusBox.innerText = getUILang() === "zh" ? "已选择表达" : "Alternative selected";
       };
-
       dd.appendChild(item);
     });
   }
@@ -1016,23 +993,13 @@ function copyText(event) {
 
 function feedback(isGood) {
   if (!currentText) return;
-
   const feedback = JSON.parse(localStorage.getItem("feedback") || "[]");
-  feedback.push({
-    input: input.value,
-    output: currentText,
-    good: isGood,
-    time: new Date().toISOString()
-  });
-
+  feedback.push({ input: input.value, output: currentText, good: isGood, time: new Date().toISOString() });
   localStorage.setItem("feedback", JSON.stringify(feedback));
   statusBox.innerText = isGood ? "👍" : "👎";
 }
 
-function speakInput() {
-  speak(input.value.trim(), langCode(sourceSelect.value));
-}
-
+function speakInput() { speak(input.value.trim(), langCode(sourceSelect.value)); }
 function speakOutput(event) {
   if (event) event.stopPropagation();
   speak(currentText, langCode(targetSelect.value || "English"));
@@ -1048,18 +1015,9 @@ function speak(text, lang) {
 
 function langCode(lang) {
   const map = {
-    "Simplified Chinese": "zh-CN",
-    "English": "en-US",
-    "Japanese": "ja-JP",
-    "Korean": "ko-KR",
-    "Spanish": "es-ES",
-    "French": "fr-FR",
-    "German": "de-DE",
-    "Russian": "ru-RU",
-    "Thai": "th-TH",
-    "Vietnamese": "vi-VN",
-    "Burmese": "my-MM",
-    "Arabic": "ar-SA"
+    "Simplified Chinese": "zh-CN", "English": "en-US", "Japanese": "ja-JP", "Korean": "ko-KR",
+    "Spanish": "es-ES", "French": "fr-FR", "German": "de-DE", "Russian": "ru-RU",
+    "Thai": "th-TH", "Vietnamese": "vi-VN", "Burmese": "my-MM", "Arabic": "ar-SA"
   };
   return map[lang] || "";
 }
@@ -1081,23 +1039,14 @@ function clearResultOnly() {
 }
 
 function saveHistory(source, data) {
-  const history = JSON.parse(localStorage.getItem("history_glossary_news") || "[]");
-
-  history.unshift({
-    source,
-    result: data.full_translation || "",
-    from: sourceSelect.value,
-    to: targetSelect.value,
-    task: currentTask,
-    time: new Date().toLocaleString()
-  });
-
-  localStorage.setItem("history_glossary_news", JSON.stringify(history.slice(0, 20)));
+  const history = JSON.parse(localStorage.getItem("history_final_guest") || "[]");
+  history.unshift({ source, result: data.full_translation || "", from: sourceSelect.value, to: targetSelect.value, task: currentTask, time: new Date().toLocaleString() });
+  localStorage.setItem("history_final_guest", JSON.stringify(history.slice(0, 20)));
   renderHistory();
 }
 
 function renderHistory() {
-  const history = JSON.parse(localStorage.getItem("history_glossary_news") || "[]");
+  const history = JSON.parse(localStorage.getItem("history_final_guest") || "[]");
   historyList.innerHTML = "";
 
   history.forEach(item => {
@@ -1108,7 +1057,6 @@ function renderHistory() {
       ${escapeHTML(item.result)}<br>
       <small>${escapeHTML(item.task)} · ${escapeHTML(item.from || "auto")} → ${escapeHTML(item.to || "auto")} · ${escapeHTML(item.time)}</small>
     `;
-
     div.onclick = () => {
       input.value = item.source;
       sourceSelect.value = item.from || "auto";
@@ -1117,7 +1065,6 @@ function renderHistory() {
       count.innerText = item.source.length;
       translate();
     };
-
     historyList.appendChild(div);
   });
 }
@@ -1131,13 +1078,7 @@ document.addEventListener("click", hideDropdown);
 
 function escapeHTML(str) {
   return String(str).replace(/[&<>'"]/g, tag => {
-    const chars = {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      "'": "&#39;",
-      '"': "&quot;"
-    };
+    const chars = { "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" };
     return chars[tag] || tag;
   });
 }
