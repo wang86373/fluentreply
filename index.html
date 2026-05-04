@@ -10,114 +10,166 @@
 
 body {
   margin: 0;
-  font-family: Arial, "Segoe UI", sans-serif;
-  background: #fff;
-  color: #202124;
+  font-family: Inter, Arial, "Segoe UI", sans-serif;
+  background: linear-gradient(180deg, #f7f9fc 0%, #ffffff 45%);
+  color: #111827;
 }
 
 .header {
-  height: 64px;
+  height: 68px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 28px;
-  border-bottom: 1px solid #e0e0e0;
+  padding: 0 32px;
+  border-bottom: 1px solid #e5e7eb;
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
 .logo {
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.logo span {
   color: #1a73e8;
 }
 
-.app {
-  max-width: 1280px;
-  margin: 32px auto;
-  padding: 0 20px;
-}
-
-.lang-row {
-  display: grid;
-  grid-template-columns: 1fr 42px 1fr;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-
-.lang-box {
+.header-actions {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
+}
+
+.app {
+  max-width: 1240px;
+  margin: 30px auto;
   padding: 0 18px;
 }
 
+.language-bar {
+  display: grid;
+  grid-template-columns: 1fr 44px 1fr;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.lang-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+}
+
 .lang-label {
-  font-size: 14px;
-  color: #5f6368;
-  font-weight: 600;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 select {
   border: none;
-  border-bottom: 2px solid #1a73e8;
-  padding: 8px 4px;
-  font-size: 15px;
-  font-weight: 600;
-  color: #1a73e8;
-  background: white;
   outline: none;
+  background: transparent;
+  color: #1a73e8;
+  font-size: 15px;
+  font-weight: 800;
+  width: 100%;
 }
 
 .swap {
-  text-align: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid #dbe3ef;
+  background: white;
+  color: #1a73e8;
+  display: grid;
+  place-items: center;
   font-size: 24px;
-  color: #5f6368;
   cursor: pointer;
-  user-select: none;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+}
+
+.swap:hover {
+  background: #eef6ff;
 }
 
 .translator {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: 18px;
 }
 
 .panel {
-  border: 1px solid #dadce0;
-  border-radius: 16px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 22px;
   overflow: hidden;
+  box-shadow: 0 16px 42px rgba(15, 23, 42, 0.08);
+}
+
+.panel-head {
+  height: 54px;
+  padding: 0 18px;
+  border-bottom: 1px solid #edf0f5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.panel-sub {
+  font-size: 12px;
+  color: #64748b;
 }
 
 textarea {
   width: 100%;
-  height: 250px;
+  height: 270px;
   border: none;
   outline: none;
   resize: none;
-  padding: 24px;
-  font-size: 24px;
-  line-height: 1.4;
+  padding: 22px;
+  font-size: 22px;
+  line-height: 1.55;
+  color: #111827;
 }
 
 .result {
-  height: 250px;
-  padding: 20px;
+  height: 270px;
+  padding: 22px;
   font-size: 21px;
-  line-height: 1.45;
-  background: #f1f5ff;
+  line-height: 1.6;
+  background: #f8fbff;
   overflow-y: auto;
 }
 
 .placeholder {
-  color: #9aa0a6;
-  font-size: 21px;
+  color: #94a3b8;
 }
 
 .segment {
   display: inline;
+  padding: 2px 5px;
+  border-radius: 7px;
   cursor: pointer;
-  border-radius: 6px;
-  padding: 2px 4px;
+  transition: 0.12s ease;
 }
 
 .segment:hover {
@@ -129,56 +181,90 @@ textarea {
 }
 
 .panel-footer {
-  height: 56px;
-  border-top: 1px solid #dadce0;
+  height: 58px;
+  padding: 0 18px;
+  border-top: 1px solid #edf0f5;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 18px;
-  color: #5f6368;
+  color: #64748b;
   font-size: 13px;
+}
+
+.footer-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .btn {
   border: none;
   background: transparent;
+  color: #64748b;
   cursor: pointer;
-  color: #5f6368;
   font-size: 14px;
+  border-radius: 10px;
+  padding: 8px 10px;
 }
 
-.copy-btn {
+.btn:hover {
+  background: #f1f5f9;
+}
+
+.primary-btn {
+  border: none;
   background: #1a73e8;
   color: white;
-  padding: 9px 18px;
-  border-radius: 20px;
-  font-weight: 600;
-  border: none;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: 800;
+  border-radius: 999px;
+  padding: 9px 18px;
+}
+
+.primary-btn:hover {
+  background: #155fc0;
+}
+
+.selection-bar {
+  display: none;
+  margin-top: 16px;
+  background: #eef6ff;
+  border: 1px solid #cfe3ff;
+  border-radius: 16px;
+  padding: 14px 16px;
+}
+
+.selection-text {
+  color: #334155;
+  font-size: 14px;
+  margin-bottom: 10px;
 }
 
 .options-box {
   display: none;
-  margin-top: 16px;
-  border: 1px solid #dadce0;
-  border-radius: 12px;
-  overflow: hidden;
+  margin-top: 18px;
   background: white;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
 }
 
 .options-title {
-  padding: 10px 14px;
+  padding: 13px 16px;
+  background: #f8fafc;
+  color: #475569;
   font-size: 13px;
-  color: #5f6368;
-  border-bottom: 1px solid #eef2f7;
-  background: #fafafa;
+  font-weight: 800;
+  border-bottom: 1px solid #edf0f5;
 }
 
 .option-item {
-  padding: 10px 14px;
-  border-bottom: 1px solid #eef2f7;
+  padding: 13px 16px;
+  border-bottom: 1px solid #edf0f5;
   cursor: pointer;
+  transition: 0.12s ease;
 }
 
 .option-item:last-child {
@@ -187,128 +273,122 @@ textarea {
 
 .option-item:hover,
 .option-item.active {
-  background: #e8f0fe;
+  background: #eaf2ff;
 }
 
 .option-label {
   color: #1a73e8;
-  font-size: 11px;
-  font-weight: 700;
-  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 900;
+  margin-bottom: 5px;
 }
 
 .option-text {
-  color: #202124;
+  color: #111827;
   font-size: 15px;
-  line-height: 1.4;
-  margin-bottom: 4px;
+  line-height: 1.45;
+  margin-bottom: 5px;
 }
 
 .option-meaning {
-  color: #5f6368;
-  font-size: 12px;
-  line-height: 1.35;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 .status {
-  margin-top: 18px;
-  color: #5f6368;
+  margin-top: 16px;
+  color: #64748b;
   font-size: 14px;
 }
 
 .history {
-  margin-top: 28px;
   display: none;
+  margin-top: 24px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
 }
 
 .history-title {
-  font-weight: 700;
-  margin-bottom: 10px;
+  font-size: 15px;
+  font-weight: 900;
+  margin-bottom: 12px;
 }
 
 .history-item {
   padding: 12px;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  margin-bottom: 8px;
+  border-radius: 12px;
+  border: 1px solid #edf0f5;
+  margin-bottom: 10px;
   cursor: pointer;
   background: #fafafa;
 }
 
 .history-item:hover {
-  background: #e8f0fe;
+  background: #eaf2ff;
 }
 
-.selection-bar {
-  margin-top: 12px;
-  display: none;
-  padding: 12px;
-  background: #f8fbff;
-  border: 1px solid #dbeafe;
-  border-radius: 10px;
+.error {
+  color: #b00020;
 }
-
-.selection-text {
-  font-size: 14px;
-  color: #334155;
-  margin-bottom: 8px;
-}
-
-.error { color: #b00020; }
 
 @media (max-width: 850px) {
+  .header {
+    height: 58px;
+    padding: 0 16px;
+  }
+
+  .logo {
+    font-size: 19px;
+  }
+
   .app {
     margin: 16px auto;
     padding: 0 12px;
   }
 
-  .translator {
+  .language-bar {
     grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .lang-row {
-    grid-template-columns: 1fr;
+    gap: 8px;
   }
 
   .swap {
     display: none;
   }
 
-  .lang-box {
-    padding: 0 8px;
+  .translator {
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   textarea,
   .result {
-    height: 170px;
+    height: 180px;
     font-size: 18px;
-    padding: 14px;
+    padding: 15px;
   }
 
   .panel-footer {
-    height: 44px;
+    height: 48px;
     padding: 0 12px;
-    font-size: 12px;
   }
 
-  .copy-btn {
-    padding: 6px 12px;
+  .panel-head {
+    height: 48px;
+    padding: 0 12px;
+  }
+
+  .primary-btn {
+    padding: 7px 12px;
     font-size: 13px;
-    border-radius: 16px;
   }
 
   .btn {
+    padding: 6px 8px;
     font-size: 13px;
-  }
-
-  .header {
-    height: 56px;
-    padding: 0 16px;
-  }
-
-  .logo {
-    font-size: 18px;
   }
 
   .option-text {
@@ -323,23 +403,25 @@ textarea {
 </head>
 
 <body>
-  <div class="header">
-    <div class="logo">FluentReply 翻译</div>
-    <button class="btn" onclick="toggleHistory()">History</button>
-  </div>
+  <header class="header">
+    <div class="logo"><span>FluentReply</span> 翻译</div>
+    <div class="header-actions">
+      <button class="btn" onclick="toggleHistory()">History</button>
+    </div>
+  </header>
 
   <main class="app">
-    <div class="lang-row">
-      <div class="lang-box">
+    <section class="language-bar">
+      <div class="lang-card">
         <span class="lang-label">源语言</span>
-        <select id="sourceSelect" disabled>
+        <select disabled>
           <option>自动检测</option>
         </select>
       </div>
 
-      <div class="swap" onclick="swapLanguages()">⇄</div>
+      <button class="swap" onclick="swapLanguages()">⇄</button>
 
-      <div class="lang-box">
+      <div class="lang-card">
         <span class="lang-label">目标语言</span>
         <select id="targetSelect" onchange="changeTargetLanguage()">
           <option value="">自动</option>
@@ -357,15 +439,22 @@ textarea {
           <option value="Arabic">阿拉伯语</option>
         </select>
       </div>
-    </div>
+    </section>
 
     <section class="translator">
       <div class="panel">
-        <textarea id="input" placeholder="请输入任意语言，选择目标语言后自动翻译..."></textarea>
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">输入</div>
+            <div class="panel-sub">选中文字可单独翻译</div>
+          </div>
+        </div>
+
+        <textarea id="input" placeholder="请输入任意语言..."></textarea>
 
         <div class="panel-footer">
-          <span id="count">0</span>
-          <div>
+          <span id="count">0 字符</span>
+          <div class="footer-group">
             <button class="btn" onclick="speakInput()">🔊</button>
             <button class="btn" onclick="clearAll()">清空</button>
           </div>
@@ -373,15 +462,22 @@ textarea {
       </div>
 
       <div class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">翻译结果</div>
+            <div class="panel-sub">点击某一句查看替代表达</div>
+          </div>
+        </div>
+
         <div id="result" class="result">
           <span class="placeholder">翻译结果会显示在这里</span>
         </div>
 
         <div class="panel-footer">
           <span id="status">等待输入</span>
-          <div>
+          <div class="footer-group">
             <button class="btn" onclick="speakOutput(event)">🔊</button>
-            <button class="copy-btn" onclick="copyText(event)">复制</button>
+            <button class="primary-btn" onclick="copyText(event)">复制</button>
           </div>
         </div>
       </div>
@@ -389,7 +485,7 @@ textarea {
 
     <div id="selectionBar" class="selection-bar">
       <div id="selectionText" class="selection-text"></div>
-      <button class="copy-btn" onclick="translateSelectedText()">翻译选中内容</button>
+      <button class="primary-btn" onclick="translateSelectedText()">翻译选中内容</button>
     </div>
 
     <div id="optionsBox" class="options-box">
@@ -430,7 +526,7 @@ input.addEventListener("input", () => {
   clearTimeout(timer);
 
   const text = input.value.trim();
-  count.innerText = text.length;
+  count.innerText = text.length + " 字符";
 
   if (!text) {
     clearResultOnly();
@@ -480,7 +576,6 @@ function swapLanguages() {
 
 async function translateSelectedText() {
   const selected = input.value.substring(input.selectionStart, input.selectionEnd).trim();
-
   if (!selected) return;
 
   selectionBar.style.display = "none";
@@ -492,7 +587,7 @@ async function translateText(text, mode) {
 
   statusBox.innerText = mode === "selected" ? "AI 正在翻译选中内容..." : "AI 正在翻译...";
 
-  const cacheKey = "multi_lang_cache_v1_" + text + "_" + forcedTarget + "_" + mode;
+  const cacheKey = "hybrid_cache_v1_" + text + "_" + forcedTarget + "_" + mode;
   const cached = localStorage.getItem(cacheKey);
 
   if (cached) {
@@ -665,7 +760,7 @@ function speak(text, lang) {
 
 function clearAll() {
   input.value = "";
-  count.innerText = "0";
+  count.innerText = "0 字符";
   clearResultOnly();
 }
 
@@ -682,7 +777,7 @@ function clearResultOnly() {
 }
 
 function saveHistory(source, data) {
-  const history = JSON.parse(localStorage.getItem("history_multilang") || "[]");
+  const history = JSON.parse(localStorage.getItem("history_hybrid") || "[]");
 
   history.unshift({
     source,
@@ -691,12 +786,12 @@ function saveHistory(source, data) {
     time: new Date().toLocaleString()
   });
 
-  localStorage.setItem("history_multilang", JSON.stringify(history.slice(0, 20)));
+  localStorage.setItem("history_hybrid", JSON.stringify(history.slice(0, 20)));
   renderHistory();
 }
 
 function renderHistory() {
-  const history = JSON.parse(localStorage.getItem("history_multilang") || "[]");
+  const history = JSON.parse(localStorage.getItem("history_hybrid") || "[]");
   historyList.innerHTML = "";
 
   history.forEach(item => {
@@ -710,7 +805,7 @@ function renderHistory() {
 
     div.onclick = () => {
       input.value = item.source;
-      count.innerText = item.source.length;
+      count.innerText = item.source.length + " 字符";
       forcedTarget = item.target === "auto" ? "" : item.target;
       targetSelect.value = forcedTarget;
       translateText(item.source, "full");
