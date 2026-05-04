@@ -24,20 +24,18 @@ exports.handler = async function (event) {
     }
 
     const prompt = `
-You are a professional translation assistant.
+You are a highly accurate translation engine.
 
-Detect the input language automatically.
+Task:
+- Detect the input language.
+- If the input is Chinese, translate it into accurate, natural English.
+- If the input is English, translate it into accurate, natural Simplified Chinese.
+- Preserve the meaning as closely as possible.
+- Do not add new information.
+- Do not over-polish unless needed for naturalness.
+- Provide 3 alternative translations for the whole sentence/paragraph.
 
-Rules:
-- If input is Chinese, translate into natural English.
-- If input is English, translate into natural Simplified Chinese.
-- Split the input into short meaningful sentence segments.
-- For each segment, return exactly 3 translation options.
-- Each option must include label, text, and meaning.
-- If translating into English, meaning must be Simplified Chinese.
-- If translating into Chinese, meaning must be natural English.
-- Keep each option concise and natural.
-- Return ONLY valid JSON. No markdown.
+Return ONLY valid JSON. No markdown.
 
 Input:
 ${text}
@@ -46,28 +44,22 @@ JSON format:
 {
   "detected_language": "Chinese or English or Other",
   "target_language": "English or Simplified Chinese",
-  "full_translation": "complete best translation",
-  "segments": [
+  "main": "best accurate translation",
+  "options": [
     {
-      "source": "original sentence segment",
-      "best": "best translation for this segment",
-      "options": [
-        {
-          "label": "Natural",
-          "text": "...",
-          "meaning": "..."
-        },
-        {
-          "label": "Polite",
-          "text": "...",
-          "meaning": "..."
-        },
-        {
-          "label": "Casual",
-          "text": "...",
-          "meaning": "..."
-        }
-      ]
+      "label": "Natural",
+      "text": "natural accurate translation",
+      "meaning": "meaning explanation in the source language"
+    },
+    {
+      "label": "Direct",
+      "text": "more literal translation",
+      "meaning": "meaning explanation in the source language"
+    },
+    {
+      "label": "Polished",
+      "text": "slightly smoother translation",
+      "meaning": "meaning explanation in the source language"
     }
   ]
 }
