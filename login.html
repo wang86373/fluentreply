@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Login - FluentReply</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,"Segoe UI",sans-serif;background:linear-gradient(135deg,#eef4ff,#ffffff);min-height:100vh;display:flex;align-items:center;justify-content:center;color:#202124}
+.card{width:min(420px,92vw);background:white;border:1px solid #e5e7eb;border-radius:24px;padding:32px;box-shadow:0 20px 60px rgba(15,23,42,.12)}
+.logo{font-size:26px;font-weight:900;color:#1a73e8;margin-bottom:8px}
+h1{margin:0 0 8px;font-size:26px}
+p{margin:0 0 24px;color:#64748b;line-height:1.5}
+label{font-weight:700;font-size:14px;margin-bottom:8px;display:block}
+input{width:100%;border:1px solid #dadce0;border-radius:12px;padding:13px 14px;font-size:15px;margin-bottom:16px}
+button{width:100%;border:none;background:#1a73e8;color:white;font-weight:800;border-radius:999px;padding:13px 16px;font-size:15px;cursor:pointer;margin-top:6px}
+button:hover{background:#155fc0}
+.secondary{background:white;color:#1a73e8;border:1px solid #dadce0}
+.status{margin-top:14px;font-size:14px;color:#64748b;min-height:20px}
+.links{margin-top:20px;display:flex;justify-content:space-between;font-size:14px}
+a{color:#1a73e8;text-decoration:none;font-weight:700}
+</style>
+</head>
+
+<body>
+  <div class="card">
+    <div class="logo">FluentReply</div>
+    <h1>Login</h1>
+    <p>Sign in to sync your translation history and custom glossary.</p>
+
+    <label>Email</label>
+    <input id="email" type="email" placeholder="you@example.com" />
+
+    <label>Password</label>
+    <input id="password" type="password" placeholder="Your password" />
+
+    <button onclick="login()">Login</button>
+    <button class="secondary" onclick="location.href='index.html'">Continue as guest</button>
+
+    <div id="status" class="status"></div>
+
+    <div class="links">
+      <a href="signup.html">Create account</a>
+      <a href="index.html">Back home</a>
+    </div>
+  </div>
+
+<script>
+const SUPABASE_URL = "https://smwclefrunxnzzjammnu.supabase.co";
+const SUPABASE_KEY = "sb_publishable_DWI3c__Tq7P9z7GSJqhT6g_dzKxwMrb";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+async function login() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const status = document.getElementById("status");
+
+  if (!email || !password) {
+    status.innerText = "Please enter email and password.";
+    return;
+  }
+
+  status.innerText = "Logging in...";
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    status.innerText = error.message;
+    return;
+  }
+
+  status.innerText = "Login successful. Redirecting...";
+  setTimeout(() => {
+    window.location.href = "index.html";
+  }, 700);
+}
+</script>
+</body>
+</html>
