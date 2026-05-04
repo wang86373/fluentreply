@@ -11,7 +11,7 @@
 body {
   margin: 0;
   font-family: Arial, "Segoe UI", sans-serif;
-  background: #ffffff;
+  background: #fff;
   color: #202124;
 }
 
@@ -82,7 +82,7 @@ textarea {
   outline: none;
   resize: none;
   padding: 24px;
-  font-size: 28px;
+  font-size: 26px;
   line-height: 1.35;
   font-family: Arial, sans-serif;
 }
@@ -90,11 +90,11 @@ textarea {
 .result {
   height: 240px;
   padding: 24px;
-  font-size: 28px;
+  font-size: 26px;
   line-height: 1.35;
   background: #f1f5ff;
   position: relative;
-  cursor: text;
+  cursor: pointer;
   overflow-y: auto;
 }
 
@@ -276,7 +276,6 @@ let currentOptions = [];
 
 const input = document.getElementById("input");
 const result = document.getElementById("result");
-const dropdown = document.getElementById("dropdown");
 const count = document.getElementById("count");
 const statusBox = document.getElementById("status");
 const bottomStatus = document.getElementById("bottomStatus");
@@ -343,8 +342,6 @@ function renderMainText(text) {
     <span>${escapeHTML(text)}</span>
     <div id="dropdown" class="dropdown"></div>
   `;
-
-  window.dropdown = document.getElementById("dropdown");
 }
 
 function renderDropdown(optionsList) {
@@ -364,15 +361,11 @@ function renderDropdown(optionsList) {
     item.onclick = (e) => {
       e.stopPropagation();
 
-      document.querySelectorAll(".dropdown-item").forEach(el => {
-        el.classList.remove("active");
-      });
-
-      item.classList.add("active");
       currentText = opt.text || "";
       renderMainText(currentText);
       renderDropdown(optionsList);
       hideDropdown();
+
       statusBox.innerText = "已选择表达";
     };
 
