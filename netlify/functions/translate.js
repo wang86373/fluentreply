@@ -1,7 +1,10 @@
 exports.handler = async function (event) {
   try {
     if (event.httpMethod !== "POST") {
-      return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
+      return {
+        statusCode: 405,
+        body: JSON.stringify({ error: "Method not allowed" })
+      };
     }
 
     const {
@@ -14,7 +17,10 @@ exports.handler = async function (event) {
     } = JSON.parse(event.body || "{}");
 
     if (!text || !text.trim()) {
-      return { statusCode: 400, body: JSON.stringify({ error: "Missing text" }) };
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "Missing text" })
+      };
     }
 
     let deeplText = "";
@@ -54,7 +60,7 @@ exports.handler = async function (event) {
                 {
                   label: "DeepL",
                   text: deeplText,
-                  meaning: "DeepL precise translation."
+                  meaning: "基于 DeepL 的精准整段翻译。"
                 }
               ]
             }
@@ -148,7 +154,7 @@ async function enhanceWithAI({
               {
                 label: "DeepL",
                 text: deeplText,
-                meaning: "基于 DeepL 的精准翻译。"
+                meaning: "基于 DeepL 的精准整段翻译。"
               }
             ]
           }
@@ -165,12 +171,12 @@ async function enhanceWithAI({
 
   const taskPrompt =
     task === "headline"
-      ? "Rewrite or translate the input as a professional news headline."
+      ? "Rewrite or translate the entire input as a professional news headline. Do not drop any key information."
       : task === "vocab"
-      ? "Extract important vocabulary and explain each term briefly."
+      ? "Extract important vocabulary from the entire input and explain each term briefly."
       : task === "news"
-      ? "Translate as professional neutral news content."
-      : "Translate accurately, using DeepL as the precise base translation when provided.";
+      ? "Translate the entire input as professional neutral news content."
+      : "Translate the entire input accurately. Use DeepL as the precise base translation when provided.";
 
   const prompt = `
 You are FluentReply, a professional translation assistant.
@@ -193,52 +199,73 @@ ${deeplText || "No DeepL result provided."}
 Glossary:
 ${glossaryText}
 
-Very important context rules:
-- First understand the full original text as one complete message.
-- Translate according to the full context, not sentence by sentence in isolation.
-- The full_translation must be the best complete translation of the entire input.
-- Then split the original input into natural sentence segments.
-- Each segment translation must match the meaning of the full_translation.
-- Do not change the meaning of a segment just to make it sound natural.
-- Keep pronouns, relationships, tone, and logic consistent across all segments.
-- If a sentence depends on previous or next sentences, use that context.
-- If DeepL result is provided, use it as the precise base for the full meaning.
-- Do not let each small segment create a separate meaning.
-- Do not invent new relationships, subjects, locations, or emotions.
+CRITICAL TRANSLATION RULES:
+- You MUST translate the FULL original input.
+- Do NOT translate only the first sentence.
+- Do NOT drop, skip, shorten, or ignore any sentence.
+- full_translation MUST contain the meaning of EVERY sentence in the original input.
+- First understand the whole message as one complete conversation.
+- Then create a complete full_translation of the whole message.
+- Only AFTER full_translation is complete, split it into segments.
+- Segments are only for display and sentence selection.
+- Segments MUST NOT create new meanings.
+- Segments MUST NOT omit any part of the original text.
+- Every original sentence or phrase must be represented in the final translation.
+- Keep pronouns, relationships, gender references, tone, and logic consistent.
+- If a sentence depends on previous or next sentences, translate using that context.
+- If DeepL result is provided, use it as the precise meaning base.
+- Do not invent subjects, emotions, locations, or relationships.
+- Do not make the wording sound fancy if it changes the meaning.
+- For chat messages, keep the tone natural, human, and conversational.
 
-Option rules:
+SEGMENT RULES:
+- Split the ORIGINAL input into natural sentence-level segments.
+- For each original segment, provide the corresponding translated segment.
+- The combined best values of all segments should equal the full_translation in meaning.
+- The number of segments should match the natural number of sentences or message parts.
+- If the original has 4 sentences, return around 4 segments.
+- Never return only one segment unless the original is truly one short sentence.
+- Never let the first segment replace the whole translation.
+
+OPTION RULES:
 - Each segment must have exactly 3 options:
   1. Closest: most faithful to the original meaning
-  2. Natural: natural spoken expression, but same meaning
+  2. Natural: natural spoken expression, same meaning
   3. Alternative: another natural way to say the same meaning
-- Each option must include a short meaning/explanation in the source language.
+- Each option must translate ONLY that segment, but using full-message context.
+- Each option must include a short explanation in the source language.
 - Apply glossary terms strictly.
+
+OUTPUT RULES:
 - Return ONLY valid JSON.
+- No markdown.
+- No comments.
+- No extra text.
 
 JSON format:
 {
   "detected_language": "detected source language",
   "target_language": "target language",
-  "full_translation": "complete best translation",
+  "full_translation": "complete translation of the entire input, including every sentence",
   "segments": [
     {
       "id": 1,
-      "source": "original sentence",
-      "best": "best translated sentence",
+      "source": "original sentence or message part",
+      "best": "translated sentence or message part",
       "options": [
         {
           "label": "Closest",
-          "text": "closest translation",
+          "text": "closest translation of this segment",
           "meaning": "meaning explanation"
         },
         {
           "label": "Natural",
-          "text": "natural translation",
+          "text": "natural translation of this segment",
           "meaning": "meaning explanation"
         },
         {
           "label": "Alternative",
-          "text": "alternative expression",
+          "text": "alternative translation of this segment",
           "meaning": "meaning explanation"
         }
       ]
@@ -255,7 +282,8 @@ JSON format:
     },
     body: JSON.stringify({
       model: "gpt-4o-mini",
-      input: prompt
+      input: prompt,
+      temperature: 0.2
     })
   });
 
@@ -278,7 +306,40 @@ JSON format:
     .replace(/```/g, "")
     .trim();
 
-  return JSON.parse(cleaned);
+  const parsed = JSON.parse(cleaned);
+
+  if (!parsed.full_translation && Array.isArray(parsed.segments)) {
+    parsed.full_translation = parsed.segments.map(s => s.best).join(" ");
+  }
+
+  if (!Array.isArray(parsed.segments) || parsed.segments.length === 0) {
+    parsed.segments = [
+      {
+        id: 1,
+        source: originalText,
+        best: parsed.full_translation || deeplText || "",
+        options: [
+          {
+            label: "Closest",
+            text: parsed.full_translation || deeplText || "",
+            meaning: "完整翻译。"
+          },
+          {
+            label: "Natural",
+            text: parsed.full_translation || deeplText || "",
+            meaning: "自然表达。"
+          },
+          {
+            label: "Alternative",
+            text: parsed.full_translation || deeplText || "",
+            meaning: "另一种表达。"
+          }
+        ]
+      }
+    ];
+  }
+
+  return parsed;
 }
 
 function mapDeepLLang(lang) {
@@ -298,8 +359,11 @@ function mapDeepLLang(lang) {
     "Polish": "PL",
     "Arabic": "AR",
     "Turkish": "TR",
-    "Ukrainian": "UK"
+    "Ukrainian": "UK",
+    "Thai": null,
+    "Vietnamese": null,
+    "Burmese": null
   };
 
-  return map[lang] || "EN";
+  return map[lang] || null;
 }
