@@ -97,6 +97,24 @@ body {
   line-height: 1.5;
 }
 
+.mode-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #eef4ff;
+  border: 1px solid #d6e5ff;
+  border-radius: 14px;
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  color: #334155;
+}
+
+.mode-badge {
+  font-weight: 800;
+  color: #1a73e8;
+}
+
 .guide-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -320,7 +338,8 @@ textarea {
 }
 
 .news-card,
-.glossary-box {
+.glossary-box,
+.api-box {
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 16px;
@@ -329,13 +348,15 @@ textarea {
 }
 
 .news-card h3,
-.glossary-box h3 {
+.glossary-box h3,
+.api-box h3 {
   margin: 0 0 8px;
   font-size: 17px;
 }
 
 .news-card p,
-.glossary-box p {
+.glossary-box p,
+.api-box p {
   margin: 0 0 14px;
   color: #64748b;
   font-size: 14px;
@@ -353,8 +374,12 @@ textarea {
   cursor: pointer;
 }
 
-.glossary-box {
+.glossary-box, .api-box {
   margin-top: 24px;
+}
+
+.api-box {
+  display: none;
 }
 
 .glossary-form {
@@ -502,6 +527,11 @@ textarea {
   .dropdown-meaning {
     font-size: 11px;
   }
+
+  .mode-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 </style>
 </head>
@@ -529,6 +559,14 @@ textarea {
       <p data-i18n="heroText">Use it instantly as a guest. Sign in later to sync history, glossary, and Pro status.</p>
     </section>
 
+    <section class="mode-bar">
+      <div>
+        <span data-i18n="currentMode">Current mode:</span>
+        <span id="modeName" class="mode-badge">Translate</span>
+      </div>
+      <div id="modeHint" data-i18n="modeHint">Normal translation mode.</div>
+    </section>
+
     <section class="guide-box">
       <div class="guide-grid">
         <div class="guide-card">
@@ -547,11 +585,13 @@ textarea {
     </section>
 
     <section class="feature-tabs">
-      <button class="feature-tab active" data-i18n="translateText">Translate Text</button>
-      <button class="feature-tab" onclick="alertComingSoon()" data-i18n="translateFile">Translate Files</button>
-      <button class="feature-tab" onclick="alertComingSoon()" data-i18n="translateVoice">Translate Voice</button>
-      <button class="feature-tab" onclick="alertComingSoon()" data-i18n="useApi">Use API</button>
+      <button class="feature-tab active" onclick="setFeature('text')" data-i18n="translateText">Translate Text</button>
+      <button class="feature-tab" onclick="triggerFileUpload()" data-i18n="translateFile">Translate Files</button>
+      <button class="feature-tab" onclick="toggleVoiceInput()" data-i18n="translateVoice">Translate Voice</button>
+      <button class="feature-tab" onclick="toggleApiBox()" data-i18n="useApi">Use API</button>
     </section>
+
+    <input id="fileInput" type="file" accept=".txt,.md,.csv,.json,text/plain" style="display:none" onchange="handleFileUpload(event)">
 
     <div class="lang-row">
       <div class="lang-tabs">
@@ -633,6 +673,17 @@ textarea {
       <button class="copy-btn" onclick="goUpgrade()">Upgrade</button>
     </div>
 
+    <section id="apiBox" class="api-box">
+      <h3 data-i18n="apiTitle">API Access</h3>
+      <p data-i18n="apiText">API access will let developers use FluentReply translation in their own apps. This feature is coming soon.</p>
+      <pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:12px;border:1px solid #e5e7eb;">POST /.netlify/functions/translate
+{
+  "text": "Hello",
+  "sourceLanguage": "English",
+  "targetLanguage": "Simplified Chinese"
+}</pre>
+    </section>
+
     <section class="privacy-box">
       <p data-i18n="privacyText">
         Privacy note: Your text is sent only to generate translation results. Do not enter passwords, banking details, or private identification information.
@@ -688,12 +739,15 @@ let currentSegments = [];
 let activeSegmentIndex = null;
 let dropdownVisible = false;
 let currentTask = "translate";
+let recognition = null;
+let isListening = false;
 
 const i18n = {
   en: {
     history: "History", login: "Login", signup: "Sign up",
     heroTitle: "AI Translation for Real Conversations and News",
     heroText: "Use it instantly as a guest. Sign in later to sync history, glossary, and Pro status.",
+    currentMode: "Current mode:", modeHint: "Normal translation mode.",
     guideOneTitle: "Click any sentence", guideOneText: "Choose from 3 alternative expressions.",
     guideTwoTitle: "Use your glossary", guideTwoText: "Keep names, places, and terms consistent.",
     guideThreeTitle: "News mode", guideThreeText: "Rewrite or translate news in a professional tone.",
@@ -706,12 +760,13 @@ const i18n = {
     vocabHelper: "Vocabulary Helper", vocabHelperText: "Extract and explain key news vocabulary from your text.",
     useThis: "Use this", recentHistory: "Recent history",
     glossaryTitle: "Custom Glossary", glossaryText: "Add fixed translations for names, places, brands, movie titles, or professional terms.",
-    addTerm: "Add term"
+    addTerm: "Add term", apiTitle: "API Access", apiText: "API access will let developers use FluentReply translation in their own apps. This feature is coming soon."
   },
   zh: {
     history: "历史记录", login: "登录", signup: "注册",
     heroTitle: "适合真实对话和新闻内容的 AI 翻译",
     heroText: "无需注册即可使用。登录后未来可同步历史、词库和 Pro 状态。",
+    currentMode: "当前模式：", modeHint: "普通翻译模式。",
     guideOneTitle: "点击任意句子", guideOneText: "选择 3 种不同表达。",
     guideTwoTitle: "使用自定义词库", guideTwoText: "保持人名、地名和专业术语一致。",
     guideThreeTitle: "新闻模式", guideThreeText: "用专业语气翻译或改写新闻内容。",
@@ -724,12 +779,13 @@ const i18n = {
     vocabHelper: "新闻关键词解释", vocabHelperText: "提取并解释文本中的重要新闻词汇。",
     useThis: "使用", recentHistory: "最近翻译记录",
     glossaryTitle: "自定义词库", glossaryText: "添加固定翻译，例如人名、地名、品牌、电影名或专业术语。",
-    addTerm: "添加词条"
+    addTerm: "添加词条", apiTitle: "API 接入", apiText: "API 功能未来可以让开发者在自己的应用中使用 FluentReply 翻译。此功能即将上线。"
   },
   ja: {
     history: "履歴", login: "ログイン", signup: "登録",
     heroTitle: "会話とニュース向けのAI翻訳",
     heroText: "登録なしですぐ使えます。ログインすると履歴や用語集を同期できます。",
+    currentMode: "現在のモード：", modeHint: "通常翻訳モード。",
     guideOneTitle: "文をクリック", guideOneText: "3つの別表現を選べます。",
     guideTwoTitle: "用語集を使用", guideTwoText: "名前、地名、専門用語を統一します。",
     guideThreeTitle: "ニュースモード", guideThreeText: "ニュース文を専門的な表現にします。",
@@ -742,7 +798,7 @@ const i18n = {
     vocabHelper: "語彙ヘルパー", vocabHelperText: "ニュース内の重要語彙を説明します。",
     useThis: "使用", recentHistory: "最近の履歴",
     glossaryTitle: "カスタム用語集", glossaryText: "名前、地名、ブランド、映画名、専門用語の固定訳を追加します。",
-    addTerm: "用語を追加"
+    addTerm: "用語を追加", apiTitle: "APIアクセス", apiText: "API機能は今後提供予定です。"
   }
 };
 
@@ -761,6 +817,7 @@ function applyUILanguage() {
     const key = el.getAttribute("data-i18n");
     if (i18n[lang][key]) el.innerText = i18n[lang][key];
   });
+  updateModeUI();
 }
 
 function changeUILanguage() { applyUILanguage(); }
@@ -799,10 +856,6 @@ function openSignup() {
   alert(getUILang() === "zh" ? "注册功能稍后接入。游客现在也可以直接使用。" : "Sign up will be added later. You can use it as a guest now.");
 }
 
-function alertComingSoon() {
-  alert(getUILang() === "zh" ? "这个功能稍后上线。" : "This feature is coming soon.");
-}
-
 function goUpgrade() {
   if (PAYMENT_LINK === "YOUR_PAYMENT_LINK_HERE") {
     alert(getUILang() === "zh" ? "支付功能稍后上线。" : "Upgrade payment will be added later.");
@@ -811,9 +864,100 @@ function goUpgrade() {
   window.location.href = PAYMENT_LINK;
 }
 
+function setFeature(type) {
+  document.querySelectorAll(".feature-tab").forEach(btn => btn.classList.remove("active"));
+  if (type === "text") document.querySelectorAll(".feature-tab")[0].classList.add("active");
+}
+
+function triggerFileUpload() {
+  document.querySelectorAll(".feature-tab").forEach(btn => btn.classList.remove("active"));
+  document.querySelectorAll(".feature-tab")[1].classList.add("active");
+  document.getElementById("fileInput").click();
+}
+
+function handleFileUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    input.value = e.target.result.slice(0, 8000);
+    count.innerText = input.value.length;
+    statusBox.innerText = getUILang() === "zh" ? "文件已载入，正在翻译..." : "File loaded. Translating...";
+    translate();
+  };
+  reader.readAsText(file);
+}
+
+function toggleVoiceInput() {
+  document.querySelectorAll(".feature-tab").forEach(btn => btn.classList.remove("active"));
+  document.querySelectorAll(".feature-tab")[2].classList.add("active");
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    alert(getUILang() === "zh" ? "当前浏览器不支持语音输入。请使用 Chrome。" : "Voice input is not supported. Please use Chrome.");
+    return;
+  }
+
+  if (!recognition) {
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = langCode(sourceSelect.value) || "en-US";
+
+    recognition.onresult = function(event) {
+      const text = event.results[0][0].transcript;
+      input.value = input.value ? input.value + " " + text : text;
+      count.innerText = input.value.length;
+      translate();
+    };
+
+    recognition.onend = function() {
+      isListening = false;
+      statusBox.innerText = getUILang() === "zh" ? "语音输入结束" : "Voice input ended";
+    };
+  }
+
+  if (!isListening) {
+    recognition.lang = langCode(sourceSelect.value) || "en-US";
+    recognition.start();
+    isListening = true;
+    statusBox.innerText = getUILang() === "zh" ? "正在听..." : "Listening...";
+  }
+}
+
+function toggleApiBox() {
+  document.querySelectorAll(".feature-tab").forEach(btn => btn.classList.remove("active"));
+  document.querySelectorAll(".feature-tab")[3].classList.add("active");
+
+  const box = document.getElementById("apiBox");
+  box.style.display = box.style.display === "block" ? "none" : "block";
+}
+
 function setTask(task) {
   currentTask = task;
+  updateModeUI();
   if (input.value.trim()) translate();
+}
+
+function updateModeUI() {
+  const lang = getUILang();
+  const names = {
+    translate: { en: "Translate", zh: "普通翻译", ja: "翻訳" },
+    news: { en: "News Translator", zh: "新闻翻译", ja: "ニュース翻訳" },
+    headline: { en: "Headline Rewriter", zh: "新闻标题优化", ja: "見出しリライト" },
+    vocab: { en: "Vocabulary Helper", zh: "新闻关键词解释", ja: "語彙ヘルパー" }
+  };
+
+  const hints = {
+    translate: { en: "Normal translation mode.", zh: "普通翻译模式。", ja: "通常翻訳モード。" },
+    news: { en: "Translate text in a neutral news style.", zh: "用中立新闻语气翻译内容。", ja: "ニュース調で翻訳します。" },
+    headline: { en: "Rewrite text as a concise headline.", zh: "把内容改写成新闻标题。", ja: "見出し風に書き換えます。" },
+    vocab: { en: "Extract and explain key vocabulary.", zh: "提取并解释关键词。", ja: "重要語彙を説明します。" }
+  };
+
+  document.getElementById("modeName").innerText = names[currentTask][lang];
+  document.getElementById("modeHint").innerText = hints[currentTask][lang];
 }
 
 function changeSourceLanguage() { if (input.value.trim()) translate(); }
@@ -903,7 +1047,7 @@ async function translate() {
   const targetLanguage = targetSelect.value;
   const glossary = getGlossary();
 
-  const cacheKey = "guide_privacy_v1_" + currentTask + "_" + sourceLanguage + "_" + targetLanguage + "_" + JSON.stringify(glossary) + "_" + text;
+  const cacheKey = "full_connected_v1_" + currentTask + "_" + sourceLanguage + "_" + targetLanguage + "_" + JSON.stringify(glossary) + "_" + text;
   const cached = localStorage.getItem(cacheKey);
 
   if (cached) {
@@ -1094,14 +1238,14 @@ function clearResultOnly() {
 }
 
 function saveHistory(source, data) {
-  const history = JSON.parse(localStorage.getItem("history_guide_privacy") || "[]");
+  const history = JSON.parse(localStorage.getItem("history_full_connected") || "[]");
   history.unshift({ source, result: data.full_translation || "", from: sourceSelect.value, to: targetSelect.value, task: currentTask, time: new Date().toLocaleString() });
-  localStorage.setItem("history_guide_privacy", JSON.stringify(history.slice(0, 20)));
+  localStorage.setItem("history_full_connected", JSON.stringify(history.slice(0, 20)));
   renderHistory();
 }
 
 function renderHistory() {
-  const history = JSON.parse(localStorage.getItem("history_guide_privacy") || "[]");
+  const history = JSON.parse(localStorage.getItem("history_full_connected") || "[]");
   historyList.innerHTML = "";
 
   history.forEach(item => {
@@ -1118,6 +1262,7 @@ function renderHistory() {
       targetSelect.value = item.to || "";
       currentTask = item.task || "translate";
       count.innerText = item.source.length;
+      updateModeUI();
       translate();
     };
     historyList.appendChild(div);
