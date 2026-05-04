@@ -27,26 +27,27 @@ exports.handler = async function (event) {
 You are a strict professional translation engine.
 
 Task:
-- Translate the input text accurately.
+- Translate accurately.
 - If sourceLanguage is "auto", detect the input language.
-- If sourceLanguage is provided, treat the input as that language.
+- If sourceLanguage is provided, treat input as that language.
 - Translate into targetLanguage.
 - If targetLanguage is empty:
-  - Chinese -> English
+  - Simplified Chinese -> English
   - English -> Simplified Chinese
   - Other -> English
 
 Supported languages:
 Simplified Chinese, English, Japanese, Korean, Spanish, French, German, Russian, Thai, Vietnamese, Burmese, Arabic.
 
-Strict rules:
+Rules:
 - Translate ONLY.
 - Do not explain outside JSON.
 - Do not add meaning.
 - Do not remove meaning.
-- Keep the translation accurate and natural.
-- Provide exactly 3 whole-text translation options.
-- "meaning" must be the meaning of the option in the source language.
+- Keep translation accurate and natural.
+- Split input into short meaningful sentence segments.
+- Each segment must have exactly 3 translation options.
+- "meaning" must explain the option in the source language.
 - Return ONLY valid JSON. No markdown.
 
 Input:
@@ -62,22 +63,29 @@ JSON format:
 {
   "detected_language": "detected or selected source language",
   "target_language": "target language",
-  "main": "best translation",
-  "options": [
+  "full_translation": "complete translation joined from the best segment translations",
+  "segments": [
     {
-      "label": "Closest",
-      "text": "closest accurate translation",
-      "meaning": "meaning in source language"
-    },
-    {
-      "label": "Natural",
-      "text": "natural translation",
-      "meaning": "meaning in source language"
-    },
-    {
-      "label": "Alternative",
-      "text": "alternative accurate translation",
-      "meaning": "meaning in source language"
+      "id": 1,
+      "source": "original sentence or clause",
+      "best": "best translation for this segment",
+      "options": [
+        {
+          "label": "Closest",
+          "text": "closest accurate translation",
+          "meaning": "meaning in source language"
+        },
+        {
+          "label": "Natural",
+          "text": "natural translation",
+          "meaning": "meaning in source language"
+        },
+        {
+          "label": "Alternative",
+          "text": "alternative accurate translation",
+          "meaning": "meaning in source language"
+        }
+      ]
     }
   ]
 }
