@@ -11,26 +11,34 @@
 body {
   margin: 0;
   font-family: Arial, "Segoe UI", sans-serif;
-  background: #fff;
+  background: #f7f9fc;
   color: #202124;
 }
 
 .header {
-  height: 62px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 26px;
   border-bottom: 1px solid #e0e0e0;
+  background: white;
 }
 
 .logo {
   font-size: 22px;
-  font-weight: 700;
+  font-weight: 800;
   color: #1a73e8;
 }
 
-.header button {
+.header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.header button,
+.header select {
   border: none;
   background: transparent;
   cursor: pointer;
@@ -40,8 +48,27 @@ body {
 
 .app {
   max-width: 1280px;
-  margin: 28px auto;
+  margin: 26px auto;
   padding: 0 20px;
+}
+
+.hero {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 18px 22px;
+  margin-bottom: 18px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+}
+
+.hero h2 {
+  margin: 0 0 8px;
+  font-size: 22px;
+}
+
+.hero p {
+  margin: 0;
+  color: #64748b;
 }
 
 .lang-row {
@@ -82,10 +109,6 @@ body {
   cursor: pointer;
 }
 
-.swap:hover {
-  color: #1a73e8;
-}
-
 .translator {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -96,7 +119,7 @@ body {
   border: 1px solid #dadce0;
   border-radius: 16px;
   overflow: hidden;
-  background: #fff;
+  background: white;
 }
 
 textarea {
@@ -106,15 +129,14 @@ textarea {
   outline: none;
   resize: none;
   padding: 24px;
-  font-size: 25px;
+  font-size: 24px;
   line-height: 1.4;
-  font-family: Arial, "Segoe UI", sans-serif;
 }
 
 .result {
   height: 250px;
   padding: 24px;
-  font-size: 25px;
+  font-size: 24px;
   line-height: 1.4;
   background: #f1f5ff;
   position: relative;
@@ -139,7 +161,7 @@ textarea {
 
 .placeholder {
   color: #9aa0a6;
-  font-size: 22px;
+  font-size: 21px;
 }
 
 .panel-footer {
@@ -204,10 +226,6 @@ textarea {
   cursor: pointer;
 }
 
-.dropdown-item:last-child {
-  border-bottom: none;
-}
-
 .dropdown-item:hover,
 .dropdown-item.active {
   background: #e8f0fe;
@@ -223,7 +241,6 @@ textarea {
 .dropdown-text {
   font-size: 14px;
   line-height: 1.35;
-  color: #202124;
   margin-bottom: 4px;
 }
 
@@ -231,6 +248,43 @@ textarea {
   font-size: 12px;
   line-height: 1.35;
   color: #5f6368;
+}
+
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.news-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+}
+
+.news-card h3 {
+  margin: 0 0 8px;
+  font-size: 17px;
+}
+
+.news-card p {
+  margin: 0 0 14px;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.news-card button {
+  background: #eef4ff;
+  border: none;
+  color: #1a73e8;
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
 }
 
 .status {
@@ -245,6 +299,7 @@ textarea {
   border: 1px solid #dadce0;
   border-radius: 14px;
   padding: 14px;
+  background: white;
 }
 
 .history-title {
@@ -286,16 +341,15 @@ textarea {
 
   .lang-row {
     grid-template-columns: 1fr;
-    gap: 8px;
   }
 
   .swap {
     display: none;
   }
 
-  .translator {
+  .translator,
+  .news-grid {
     grid-template-columns: 1fr;
-    gap: 10px;
   }
 
   textarea,
@@ -323,10 +377,6 @@ textarea {
     max-height: 145px;
   }
 
-  .dropdown-item {
-    padding: 7px 9px;
-  }
-
   .dropdown-text {
     font-size: 13px;
   }
@@ -334,42 +384,46 @@ textarea {
   .dropdown-meaning {
     font-size: 11px;
   }
-
-  .lang-tabs {
-    gap: 10px;
-    padding: 0 4px;
-  }
-
-  .lang-tabs select {
-    font-size: 13px;
-  }
 }
 </style>
 </head>
 
 <body>
   <div class="header">
-    <div class="logo">FluentReply 翻译</div>
-    <button onclick="toggleHistory()">History</button>
+    <div class="logo">FluentReply</div>
+    <div class="header-actions">
+      <select id="uiLangSelect" onchange="changeUILanguage()">
+        <option value="auto">Auto UI</option>
+        <option value="en">English</option>
+        <option value="zh">中文</option>
+        <option value="ja">日本語</option>
+      </select>
+      <button onclick="toggleHistory()" data-i18n="history">History</button>
+    </div>
   </div>
 
   <main class="app">
+    <section class="hero">
+      <h2 data-i18n="heroTitle">AI Translation for Real Conversations and News</h2>
+      <p data-i18n="heroText">Translate naturally, compare alternatives, and improve news-style language.</p>
+    </section>
+
     <div class="lang-row">
       <div class="lang-tabs">
         <select id="sourceSelect" onchange="changeSourceLanguage()">
-          <option value="auto">检测到的语言</option>
+          <option value="auto" data-i18n="autoDetect">Auto detect</option>
           <option value="Simplified Chinese">中文</option>
-          <option value="English">英语</option>
-          <option value="Japanese">日语</option>
-          <option value="Korean">韩语</option>
-          <option value="Spanish">西班牙语</option>
-          <option value="French">法语</option>
-          <option value="German">德语</option>
-          <option value="Russian">俄语</option>
-          <option value="Thai">泰语</option>
-          <option value="Vietnamese">越南语</option>
-          <option value="Burmese">缅甸语</option>
-          <option value="Arabic">阿拉伯语</option>
+          <option value="English">English</option>
+          <option value="Japanese">日本語</option>
+          <option value="Korean">한국어</option>
+          <option value="Spanish">Español</option>
+          <option value="French">Français</option>
+          <option value="German">Deutsch</option>
+          <option value="Russian">Русский</option>
+          <option value="Thai">ไทย</option>
+          <option value="Vietnamese">Tiếng Việt</option>
+          <option value="Burmese">မြန်မာ</option>
+          <option value="Arabic">العربية</option>
         </select>
       </div>
 
@@ -377,47 +431,49 @@ textarea {
 
       <div class="lang-tabs">
         <select id="targetSelect" onchange="changeTargetLanguage()">
-          <option value="">自动</option>
-          <option value="English" selected>英语</option>
+          <option value="">Auto</option>
+          <option value="English" selected>English</option>
           <option value="Simplified Chinese">中文</option>
-          <option value="Japanese">日语</option>
-          <option value="Korean">韩语</option>
-          <option value="Spanish">西班牙语</option>
-          <option value="French">法语</option>
-          <option value="German">德语</option>
-          <option value="Russian">俄语</option>
-          <option value="Thai">泰语</option>
-          <option value="Vietnamese">越南语</option>
-          <option value="Burmese">缅甸语</option>
-          <option value="Arabic">阿拉伯语</option>
+          <option value="Japanese">日本語</option>
+          <option value="Korean">한국어</option>
+          <option value="Spanish">Español</option>
+          <option value="French">Français</option>
+          <option value="German">Deutsch</option>
+          <option value="Russian">Русский</option>
+          <option value="Thai">ไทย</option>
+          <option value="Vietnamese">Tiếng Việt</option>
+          <option value="Burmese">မြန်မာ</option>
+          <option value="Arabic">العربية</option>
         </select>
       </div>
     </div>
 
     <section class="translator">
       <div class="panel">
-        <textarea id="input" placeholder="请输入文本..."></textarea>
+        <textarea id="input" placeholder="Enter text..."></textarea>
 
         <div class="panel-footer">
           <span id="count">0</span>
           <div class="footer-actions">
             <button class="btn" onclick="speakInput()">🔊</button>
-            <button class="btn" onclick="clearAll()">清空</button>
+            <button class="btn" onclick="clearAll()" data-i18n="clear">Clear</button>
           </div>
         </div>
       </div>
 
       <div class="panel">
         <div id="result" class="result" onclick="toggleDropdown(event)">
-          <span class="placeholder">翻译结果会显示在这里</span>
+          <span class="placeholder" data-i18n="placeholder">Translation will appear here</span>
           <div id="dropdown" class="dropdown"></div>
         </div>
 
         <div class="panel-footer">
-          <span id="status">等待输入</span>
+          <span id="status" data-i18n="waiting">Waiting</span>
           <div class="footer-actions">
+            <button class="btn" onclick="feedback(true)">👍</button>
+            <button class="btn" onclick="feedback(false)">👎</button>
             <button class="btn" onclick="speakOutput(event)">🔊</button>
-            <button class="copy-btn" onclick="copyText(event)">复制</button>
+            <button class="copy-btn" onclick="copyText(event)" data-i18n="copy">Copy</button>
           </div>
         </div>
       </div>
@@ -425,8 +481,28 @@ textarea {
 
     <div id="bottomStatus" class="status"></div>
 
+    <section class="news-grid">
+      <div class="news-card">
+        <h3 data-i18n="newsTranslator">News Translator</h3>
+        <p data-i18n="newsTranslatorText">Translate news headlines and paragraphs in a neutral professional tone.</p>
+        <button onclick="setTask('news')" data-i18n="useThis">Use this</button>
+      </div>
+
+      <div class="news-card">
+        <h3 data-i18n="headlineRewriter">Headline Rewriter</h3>
+        <p data-i18n="headlineRewriterText">Turn plain sentences into clear, concise news headlines.</p>
+        <button onclick="setTask('headline')" data-i18n="useThis">Use this</button>
+      </div>
+
+      <div class="news-card">
+        <h3 data-i18n="vocabHelper">Vocabulary Helper</h3>
+        <p data-i18n="vocabHelperText">Extract and explain key news vocabulary from your text.</p>
+        <button onclick="setTask('vocab')" data-i18n="useThis">Use this</button>
+      </div>
+    </section>
+
     <section id="historyBox" class="history">
-      <div class="history-title">最近翻译记录</div>
+      <div class="history-title" data-i18n="recentHistory">Recent history</div>
       <div id="historyList"></div>
     </section>
   </main>
@@ -437,6 +513,86 @@ let currentText = "";
 let currentSegments = [];
 let activeSegmentIndex = null;
 let dropdownVisible = false;
+let currentTask = "translate";
+
+const i18n = {
+  en: {
+    history: "History",
+    heroTitle: "AI Translation for Real Conversations and News",
+    heroText: "Translate naturally, compare alternatives, and improve news-style language.",
+    clear: "Clear",
+    copy: "Copy",
+    waiting: "Waiting",
+    placeholder: "Translation will appear here",
+    autoDetect: "Auto detect",
+    newsTranslator: "News Translator",
+    newsTranslatorText: "Translate news headlines and paragraphs in a neutral professional tone.",
+    headlineRewriter: "Headline Rewriter",
+    headlineRewriterText: "Turn plain sentences into clear, concise news headlines.",
+    vocabHelper: "Vocabulary Helper",
+    vocabHelperText: "Extract and explain key news vocabulary from your text.",
+    useThis: "Use this",
+    recentHistory: "Recent history"
+  },
+  zh: {
+    history: "历史记录",
+    heroTitle: "适合真实对话和新闻内容的 AI 翻译",
+    heroText: "自然翻译、比较表达，并优化新闻风格语言。",
+    clear: "清空",
+    copy: "复制",
+    waiting: "等待输入",
+    placeholder: "翻译结果会显示在这里",
+    autoDetect: "自动检测",
+    newsTranslator: "新闻翻译",
+    newsTranslatorText: "用中立、专业的语气翻译新闻标题和正文。",
+    headlineRewriter: "新闻标题优化",
+    headlineRewriterText: "把普通句子改写成清晰简洁的新闻标题。",
+    vocabHelper: "新闻关键词解释",
+    vocabHelperText: "提取并解释文本中的重要新闻词汇。",
+    useThis: "使用",
+    recentHistory: "最近翻译记录"
+  },
+  ja: {
+    history: "履歴",
+    heroTitle: "会話とニュース向けのAI翻訳",
+    heroText: "自然に翻訳し、表現を比較し、ニュース調の文章を改善します。",
+    clear: "クリア",
+    copy: "コピー",
+    waiting: "待機中",
+    placeholder: "翻訳結果がここに表示されます",
+    autoDetect: "自動検出",
+    newsTranslator: "ニュース翻訳",
+    newsTranslatorText: "ニュース見出しや本文を自然で専門的に翻訳します。",
+    headlineRewriter: "見出しリライト",
+    headlineRewriterText: "普通の文章をニュース見出し風に整えます。",
+    vocabHelper: "語彙ヘルパー",
+    vocabHelperText: "ニュース内の重要語彙を抽出して説明します。",
+    useThis: "使用",
+    recentHistory: "最近の履歴"
+  }
+};
+
+function getUILang() {
+  const selected = document.getElementById("uiLangSelect").value;
+  if (selected !== "auto") return selected;
+
+  const lang = navigator.language.toLowerCase();
+  if (lang.startsWith("zh")) return "zh";
+  if (lang.startsWith("ja")) return "ja";
+  return "en";
+}
+
+function applyUILanguage() {
+  const lang = getUILang();
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    if (i18n[lang][key]) el.innerText = i18n[lang][key];
+  });
+}
+
+function changeUILanguage() {
+  applyUILanguage();
+}
 
 const input = document.getElementById("input");
 const result = document.getElementById("result");
@@ -450,7 +606,6 @@ const historyList = document.getElementById("historyList");
 
 input.addEventListener("input", () => {
   clearTimeout(timer);
-
   const text = input.value.trim();
   count.innerText = text.length;
 
@@ -459,9 +614,14 @@ input.addEventListener("input", () => {
     return;
   }
 
-  statusBox.innerText = "准备翻译...";
+  statusBox.innerText = getUILang() === "zh" ? "准备翻译..." : "Preparing...";
   timer = setTimeout(translate, 700);
 });
+
+function setTask(task) {
+  currentTask = task;
+  if (input.value.trim()) translate();
+}
 
 function changeSourceLanguage() {
   if (input.value.trim()) translate();
@@ -479,10 +639,7 @@ function swapLanguages() {
     sourceSelect.value = target || "auto";
     targetSelect.value = source;
   } else {
-    targetSelect.value =
-      targetSelect.value === "English"
-        ? "Simplified Chinese"
-        : "English";
+    targetSelect.value = targetSelect.value === "English" ? "Simplified Chinese" : "English";
   }
 
   if (input.value.trim()) translate();
@@ -495,16 +652,16 @@ async function translate() {
   const sourceLanguage = sourceSelect.value;
   const targetLanguage = targetSelect.value;
 
-  const cacheKey = "seg_google_dropdown_v1_" + sourceLanguage + "_" + targetLanguage + "_" + text;
+  const cacheKey = "enhanced_news_v1_" + currentTask + "_" + sourceLanguage + "_" + targetLanguage + "_" + text;
   const cached = localStorage.getItem(cacheKey);
 
   if (cached) {
     renderData(JSON.parse(cached));
-    statusBox.innerText = "来自缓存";
+    statusBox.innerText = getUILang() === "zh" ? "来自缓存" : "From cache";
     return;
   }
 
-  statusBox.innerText = "AI 正在翻译...";
+  statusBox.innerText = getUILang() === "zh" ? "AI 正在处理..." : "AI is working...";
 
   try {
     const res = await fetch("/.netlify/functions/translate", {
@@ -513,15 +670,16 @@ async function translate() {
       body: JSON.stringify({
         text,
         sourceLanguage,
-        targetLanguage
+        targetLanguage,
+        task: currentTask
       })
     });
 
     const data = await res.json();
 
     if (!res.ok || data.error) {
-      result.innerHTML = `<span class="error">${escapeHTML(data.error || data.detail || "Translation failed.")}</span><div id="dropdown" class="dropdown"></div>`;
-      statusBox.innerText = "翻译失败";
+      result.innerHTML = `<span class="error">${escapeHTML(data.error || data.detail || "Failed")}</span><div id="dropdown" class="dropdown"></div>`;
+      statusBox.innerText = getUILang() === "zh" ? "处理失败" : "Failed";
       return;
     }
 
@@ -530,8 +688,8 @@ async function translate() {
     renderData(data);
 
   } catch {
-    result.innerHTML = `<span class="error">Network error. Please try again.</span><div id="dropdown" class="dropdown"></div>`;
-    statusBox.innerText = "网络错误";
+    result.innerHTML = `<span class="error">Network error</span><div id="dropdown" class="dropdown"></div>`;
+    statusBox.innerText = "Network error";
   }
 }
 
@@ -555,8 +713,10 @@ function renderData(data) {
   rebuildFullText();
   activeSegmentIndex = null;
   renderSegments();
-  statusBox.innerText = "翻译完成";
-  bottomStatus.innerText = "点击右侧某一句，可查看该句的 3 个替代表达。";
+  statusBox.innerText = getUILang() === "zh" ? "完成" : "Done";
+  bottomStatus.innerText = getUILang() === "zh"
+    ? "点击右侧某一句，可查看该句的 3 个替代表达。"
+    : "Click a sentence to see 3 alternatives.";
 }
 
 function rebuildFullText() {
@@ -567,7 +727,8 @@ function renderSegments() {
   result.innerHTML = "";
 
   if (!currentSegments.length) {
-    result.innerHTML = '<span class="placeholder">翻译结果会显示在这里</span><div id="dropdown" class="dropdown"></div>';
+    result.innerHTML = '<span class="placeholder" data-i18n="placeholder">Translation will appear here</span><div id="dropdown" class="dropdown"></div>';
+    applyUILanguage();
     return;
   }
 
@@ -600,7 +761,7 @@ function showDropdownForSegment(index) {
   dd.innerHTML = "";
 
   if (!seg.options || !seg.options.length) {
-    dd.innerHTML = `<div class="dropdown-item">暂无其他表达</div>`;
+    dd.innerHTML = `<div class="dropdown-item">No alternatives</div>`;
   } else {
     seg.options.forEach((opt, optIndex) => {
       const item = document.createElement("div");
@@ -609,17 +770,16 @@ function showDropdownForSegment(index) {
       item.innerHTML = `
         <div class="dropdown-label">${escapeHTML(opt.label || "Option")}</div>
         <div class="dropdown-text">${escapeHTML(opt.text || "")}</div>
-        <div class="dropdown-meaning">${escapeHTML(opt.meaning || "（无翻译）")}</div>
+        <div class="dropdown-meaning">${escapeHTML(opt.meaning || "No explanation")}</div>
       `;
 
       item.onclick = (e) => {
         e.stopPropagation();
-
         currentSegments[index].selected = opt.text || "";
         rebuildFullText();
         renderSegments();
         hideDropdown();
-        statusBox.innerText = "已选择表达";
+        statusBox.innerText = getUILang() === "zh" ? "已选择表达" : "Alternative selected";
       };
 
       dd.appendChild(item);
@@ -632,10 +792,8 @@ function showDropdownForSegment(index) {
 
 function toggleDropdown(event) {
   event.stopPropagation();
-
   const dd = document.getElementById("dropdown");
   if (!dd || !dd.innerHTML.trim()) return;
-
   dd.style.display = dropdownVisible ? "none" : "block";
   dropdownVisible = !dropdownVisible;
 }
@@ -649,9 +807,23 @@ function hideDropdown() {
 function copyText(event) {
   if (event) event.stopPropagation();
   if (!currentText) return;
-
   navigator.clipboard.writeText(currentText);
-  statusBox.innerText = "已复制";
+  statusBox.innerText = getUILang() === "zh" ? "已复制" : "Copied";
+}
+
+function feedback(isGood) {
+  if (!currentText) return;
+
+  const feedback = JSON.parse(localStorage.getItem("feedback") || "[]");
+  feedback.push({
+    input: input.value,
+    output: currentText,
+    good: isGood,
+    time: new Date().toISOString()
+  });
+
+  localStorage.setItem("feedback", JSON.stringify(feedback));
+  statusBox.innerText = isGood ? "👍" : "👎";
 }
 
 function speakInput() {
@@ -665,10 +837,8 @@ function speakOutput(event) {
 
 function speak(text, lang) {
   if (!text) return;
-
   const utterance = new SpeechSynthesisUtterance(text);
   if (lang) utterance.lang = lang;
-
   speechSynthesis.cancel();
   speechSynthesis.speak(utterance);
 }
@@ -688,7 +858,6 @@ function langCode(lang) {
     "Burmese": "my-MM",
     "Arabic": "ar-SA"
   };
-
   return map[lang] || "";
 }
 
@@ -702,28 +871,30 @@ function clearResultOnly() {
   currentText = "";
   currentSegments = [];
   activeSegmentIndex = null;
-  result.innerHTML = '<span class="placeholder">翻译结果会显示在这里</span><div id="dropdown" class="dropdown"></div>';
-  statusBox.innerText = "等待输入";
+  result.innerHTML = '<span class="placeholder" data-i18n="placeholder">Translation will appear here</span><div id="dropdown" class="dropdown"></div>';
+  applyUILanguage();
+  statusBox.innerText = i18n[getUILang()].waiting;
   bottomStatus.innerText = "";
 }
 
 function saveHistory(source, data) {
-  const history = JSON.parse(localStorage.getItem("history_seg_google_dropdown") || "[]");
+  const history = JSON.parse(localStorage.getItem("history_enhanced_news") || "[]");
 
   history.unshift({
     source,
     result: data.full_translation || "",
     from: sourceSelect.value,
     to: targetSelect.value,
+    task: currentTask,
     time: new Date().toLocaleString()
   });
 
-  localStorage.setItem("history_seg_google_dropdown", JSON.stringify(history.slice(0, 20)));
+  localStorage.setItem("history_enhanced_news", JSON.stringify(history.slice(0, 20)));
   renderHistory();
 }
 
 function renderHistory() {
-  const history = JSON.parse(localStorage.getItem("history_seg_google_dropdown") || "[]");
+  const history = JSON.parse(localStorage.getItem("history_enhanced_news") || "[]");
   historyList.innerHTML = "";
 
   history.forEach(item => {
@@ -732,13 +903,14 @@ function renderHistory() {
     div.innerHTML = `
       <strong>${escapeHTML(item.source)}</strong><br>
       ${escapeHTML(item.result)}<br>
-      <small>${escapeHTML(item.from || "auto")} → ${escapeHTML(item.to || "auto")} · ${escapeHTML(item.time)}</small>
+      <small>${escapeHTML(item.task)} · ${escapeHTML(item.from || "auto")} → ${escapeHTML(item.to || "auto")} · ${escapeHTML(item.time)}</small>
     `;
 
     div.onclick = () => {
       input.value = item.source;
       sourceSelect.value = item.from || "auto";
       targetSelect.value = item.to || "";
+      currentTask = item.task || "translate";
       count.innerText = item.source.length;
       translate();
     };
@@ -766,6 +938,8 @@ function escapeHTML(str) {
     return chars[tag] || tag;
   });
 }
+
+applyUILanguage();
 </script>
 </body>
 </html>
