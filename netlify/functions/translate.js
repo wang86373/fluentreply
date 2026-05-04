@@ -7,7 +7,7 @@ exports.handler = async function (event) {
       };
     }
 
-    const { text, targetLanguage } = JSON.parse(event.body || "{}");
+    const { text, targetLanguage, mode } = JSON.parse(event.body || "{}");
 
     if (!text || !text.trim()) {
       return {
@@ -26,56 +26,69 @@ exports.handler = async function (event) {
     const prompt = `
 You are a strict professional translation engine.
 
+Task:
+- Detect the input language automatically.
+- If targetLanguage is provided, translate into that target language.
+- If no targetLanguage:
+  - Chinese input -> English
+  - English input -> Simplified Chinese
+  - Other language -> English
+
+Mode:
+${mode || "full"}
+
 Rules:
 - Translate ONLY.
-- Do NOT explain outside JSON.
-- Do NOT add meaning.
-- Do NOT remove meaning.
-- Keep translation accurate and natural.
-
-Direction:
-- If targetLanguage exists → use it
-- Otherwise:
-  - Chinese → English
-  - English → Simplified Chinese
-
-CRITICAL:
-- Always return EXACT SAME meaning in BOTH languages
-- NO generic text like "简短翻译"
-- meaning MUST be full sentence meaning
-
-Output EXACTLY 3 options.
-
-JSON ONLY:
-
-{
-  "detected_language": "...",
-  "target_language": "...",
-  "main": "...",
-  "options": [
-    {
-      "label": "Closest",
-      "text": "...",
-      "meaning": "完整对应翻译（另一种语言）"
-    },
-    {
-      "label": "Natural",
-      "text": "...",
-      "meaning": "完整对应翻译（另一种语言）"
-    },
-    {
-      "label": "Alternative",
-      "text": "...",
-      "meaning": "完整对应翻译（另一种语言）"
-    }
-  ]
-}
+- Do not add meaning.
+- Do not remove meaning.
+- Do not explain outside JSON.
+- Keep translation accurate, natural, and close to the original.
+- Split the input into short meaningful sentence segments.
+- Each segment should be a sentence or short clause.
+- For each segment, provide exactly 3 translation options.
+- The first option should be the closest accurate translation.
+- The second option should be natural.
+- The third option should be an alternative expression.
+- If translating into English, each option's meaning must be Simplified Chinese.
+- If translating into Simplified Chinese, each option's meaning must be English.
+- Return ONLY valid JSON. No markdown.
 
 Input:
 ${text}
 
-Target:
+Target language:
 ${targetLanguage || "auto"}
+
+JSON format:
+{
+  "detected_language": "Chinese or English or Other",
+  "target_language": "English or Simplified Chinese",
+  "full_translation": "complete translation joined from the best segment translations",
+  "segments": [
+    {
+      "id": 1,
+      "source": "original sentence or clause",
+      "best": "best translation for this segment",
+      "options": [
+        {
+          "label": "Closest",
+          "text": "closest accurate translation",
+          "meaning": "meaning in the opposite language"
+        },
+        {
+          "label": "Natural",
+          "text": "natural translation",
+          "meaning": "meaning in the opposite language"
+        },
+        {
+          "label": "Alternative",
+          "text": "alternative translation",
+          "meaning": "meaning in the opposite language"
+        }
+      ]
+    }
+  ]
+}
 `;
 
     const response = await fetch("https://api.openai.com/v1/responses", {
@@ -92,9 +105,27 @@ ${targetLanguage || "auto"}
 
     const data = await response.json();
 
+    if (!response.ok) {
+      return {
+        statusCode: response.status,
+        body: JSON.stringify({
+          error: data.error?.message || "OpenAI API error"
+        })
+      };
+    }
+
     const outputText =
       data.output_text ||
       data.output?.[0]?.content?.[0]?.text;
+
+    if (!outputText) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          error: "No output from OpenAI"
+        })
+      };
+    }
 
     const cleaned = outputText
       .replace(/```json/g, "")
@@ -105,7 +136,9 @@ ${targetLanguage || "auto"}
 
     return {
       statusCode: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify(parsed)
     };
 
