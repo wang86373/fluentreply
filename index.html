@@ -81,29 +81,42 @@ body {
 
 textarea {
   width: 100%;
-  height: 240px;
+  height: 250px;
   border: none;
   outline: none;
   resize: none;
   padding: 24px;
-  font-size: 26px;
-  line-height: 1.35;
+  font-size: 24px;
+  line-height: 1.4;
 }
 
 .result {
-  height: 240px;
-  padding: 24px;
-  font-size: 26px;
-  line-height: 1.35;
+  height: 250px;
+  padding: 20px;
+  font-size: 21px;
+  line-height: 1.45;
   background: #f1f5ff;
-  position: relative;
-  cursor: pointer;
   overflow-y: auto;
 }
 
 .placeholder {
   color: #9aa0a6;
-  font-size: 22px;
+  font-size: 21px;
+}
+
+.segment {
+  display: inline;
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 2px 4px;
+}
+
+.segment:hover {
+  background: #dbeafe;
+}
+
+.segment.active {
+  background: #bfdbfe;
 }
 
 .panel-footer {
@@ -135,52 +148,54 @@ textarea {
   cursor: pointer;
 }
 
-.dropdown {
+.options-box {
   display: none;
-  position: absolute;
-  left: 18px;
-  top: 56px;
-  width: min(480px, calc(100% - 36px));
-  max-height: 180px;
-  overflow-y: auto;
-  background: white;
+  margin-top: 16px;
   border: 1px solid #dadce0;
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.16);
-  z-index: 20;
-  font-size: 14px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
 }
 
-.dropdown-item {
-  padding: 9px 12px;
+.options-title {
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #5f6368;
+  border-bottom: 1px solid #eef2f7;
+  background: #fafafa;
+}
+
+.option-item {
+  padding: 10px 14px;
   border-bottom: 1px solid #eef2f7;
   cursor: pointer;
 }
 
-.dropdown-item:last-child {
+.option-item:last-child {
   border-bottom: none;
 }
 
-.dropdown-item:hover,
-.dropdown-item.active {
+.option-item:hover,
+.option-item.active {
   background: #e8f0fe;
 }
 
-.dropdown-label {
+.option-label {
   color: #1a73e8;
   font-size: 11px;
   font-weight: 700;
   margin-bottom: 4px;
 }
 
-.dropdown-text {
+.option-text {
   color: #202124;
-  font-size: 14px;
-  line-height: 1.35;
+  font-size: 15px;
+  line-height: 1.4;
   margin-bottom: 4px;
 }
 
-.dropdown-meaning {
+.option-meaning {
   color: #5f6368;
   font-size: 12px;
   line-height: 1.35;
@@ -215,13 +230,19 @@ textarea {
   background: #e8f0fe;
 }
 
-.paywall {
+.selection-bar {
+  margin-top: 12px;
   display: none;
-  margin-top: 18px;
-  padding: 18px;
-  border: 1px solid #dadce0;
-  border-radius: 12px;
-  background: #fff8e1;
+  padding: 12px;
+  background: #f8fbff;
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+}
+
+.selection-text {
+  font-size: 14px;
+  color: #334155;
+  margin-bottom: 8px;
 }
 
 .error { color: #b00020; }
@@ -247,7 +268,7 @@ textarea {
 
   textarea,
   .result {
-    height: 160px;
+    height: 170px;
     font-size: 18px;
     padding: 14px;
   }
@@ -268,24 +289,6 @@ textarea {
     font-size: 13px;
   }
 
-  .dropdown {
-    top: 48px;
-    max-height: 140px;
-    font-size: 12px;
-  }
-
-  .dropdown-item {
-    padding: 6px 8px;
-  }
-
-  .dropdown-text {
-    font-size: 13px;
-  }
-
-  .dropdown-meaning {
-    font-size: 11px;
-  }
-
   .lang-tabs {
     font-size: 13px;
     gap: 16px;
@@ -299,6 +302,14 @@ textarea {
 
   .logo {
     font-size: 18px;
+  }
+
+  .option-text {
+    font-size: 13px;
+  }
+
+  .option-meaning {
+    font-size: 11px;
   }
 }
 </style>
@@ -328,7 +339,7 @@ textarea {
 
     <section class="translator">
       <div class="panel">
-        <textarea id="input" placeholder="请输入中文或英文..."></textarea>
+        <textarea id="input" placeholder="请输入中文或英文。选中文字后可单独翻译..."></textarea>
 
         <div class="panel-footer">
           <span id="count">0</span>
@@ -340,19 +351,12 @@ textarea {
       </div>
 
       <div class="panel">
-        <div id="result" class="result" onclick="toggleDropdown(event)">
+        <div id="result" class="result">
           <span class="placeholder">翻译结果会显示在这里</span>
-          <div id="dropdown" class="dropdown"></div>
         </div>
 
         <div class="panel-footer">
-          <div>
-            <button class="btn" onclick="feedback(true)">👍</button>
-            <button class="btn" onclick="feedback(false)">👎</button>
-          </div>
-
           <span id="status">等待输入</span>
-
           <div>
             <button class="btn" onclick="speakOutput(event)">🔊</button>
             <button class="copy-btn" onclick="copyText(event)">复制</button>
@@ -361,13 +365,17 @@ textarea {
       </div>
     </section>
 
-    <div id="bottomStatus" class="status"></div>
-
-    <div id="paywall" class="paywall">
-      免费 200 次已用完。请升级后继续使用。
-      <br><br>
-      <button class="copy-btn" onclick="goPay()">Upgrade</button>
+    <div id="selectionBar" class="selection-bar">
+      <div id="selectionText" class="selection-text"></div>
+      <button class="copy-btn" onclick="translateSelectedText()">翻译选中内容</button>
     </div>
+
+    <div id="optionsBox" class="options-box">
+      <div id="optionsTitle" class="options-title">当前句子的其他表达</div>
+      <div id="optionsList"></div>
+    </div>
+
+    <div id="bottomStatus" class="status"></div>
 
     <section id="historyBox" class="history">
       <div class="history-title">最近翻译记录</div>
@@ -376,13 +384,10 @@ textarea {
   </main>
 
 <script>
-const FREE_LIMIT = 200;
-const PAYMENT_LINK = "YOUR_PAYMENT_LINK_HERE";
-
 let timer;
 let currentText = "";
-let dropdownVisible = false;
-let currentOptions = [];
+let currentSegments = [];
+let activeSegmentIndex = null;
 let forcedTarget = "";
 
 const input = document.getElementById("input");
@@ -392,9 +397,13 @@ const statusBox = document.getElementById("status");
 const bottomStatus = document.getElementById("bottomStatus");
 const sourceLang = document.getElementById("sourceLang");
 const targetLang = document.getElementById("targetLang");
-const paywall = document.getElementById("paywall");
 const historyBox = document.getElementById("historyBox");
 const historyList = document.getElementById("historyList");
+const optionsBox = document.getElementById("optionsBox");
+const optionsList = document.getElementById("optionsList");
+const optionsTitle = document.getElementById("optionsTitle");
+const selectionBar = document.getElementById("selectionBar");
+const selectionText = document.getElementById("selectionText");
 
 input.addEventListener("input", () => {
   clearTimeout(timer);
@@ -408,29 +417,46 @@ input.addEventListener("input", () => {
   }
 
   statusBox.innerText = "准备翻译...";
-  timer = setTimeout(translate, 700);
+  timer = setTimeout(() => translateText(text, "full"), 800);
 });
 
-async function translate() {
-  const text = input.value.trim();
+input.addEventListener("mouseup", handleSelection);
+input.addEventListener("keyup", handleSelection);
+
+function handleSelection() {
+  const selected = input.value.substring(input.selectionStart, input.selectionEnd).trim();
+
+  if (selected) {
+    selectionBar.style.display = "block";
+    selectionText.innerText = "已选择：" + selected;
+  } else {
+    selectionBar.style.display = "none";
+    selectionText.innerText = "";
+  }
+}
+
+async function translateSelectedText() {
+  const selected = input.value.substring(input.selectionStart, input.selectionEnd).trim();
+
+  if (!selected) return;
+
+  selectionBar.style.display = "none";
+  await translateText(selected, "selected");
+}
+
+async function translateText(text, mode) {
   if (!text) return;
 
-  if (getUsage() >= FREE_LIMIT && !isPro()) {
-    paywall.style.display = "block";
-    statusBox.innerText = "免费次数已用完";
-    return;
-  }
+  statusBox.innerText = mode === "selected" ? "AI 正在翻译选中内容..." : "AI 正在翻译...";
 
-  const cacheKey = "cache_v3_" + text + "_" + forcedTarget;
+  const cacheKey = "seg_cache_v1_" + text + "_" + forcedTarget + "_" + mode;
   const cached = localStorage.getItem(cacheKey);
 
   if (cached) {
-    renderData(JSON.parse(cached));
+    renderData(JSON.parse(cached), mode);
     statusBox.innerText = "来自缓存";
     return;
   }
-
-  statusBox.innerText = "AI 正在翻译...";
 
   try {
     const res = await fetch("/.netlify/functions/translate", {
@@ -438,95 +464,120 @@ async function translate() {
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({
         text,
-        targetLanguage: forcedTarget
+        targetLanguage: forcedTarget,
+        mode
       })
     });
 
     const data = await res.json();
 
     if (!res.ok || data.error) {
-      result.innerHTML = `<span class="error">${escapeHTML(data.error || data.detail || "Translation failed.")}</span><div id="dropdown" class="dropdown"></div>`;
+      result.innerHTML = `<span class="error">${escapeHTML(data.error || data.detail || "Translation failed.")}</span>`;
       statusBox.innerText = "翻译失败";
       return;
     }
 
-    increaseUsage();
     localStorage.setItem(cacheKey, JSON.stringify(data));
     saveHistory(text, data);
-    renderData(data);
+    renderData(data, mode);
 
   } catch {
-    result.innerHTML = `<span class="error">Network error. Please try again.</span><div id="dropdown" class="dropdown"></div>`;
+    result.innerHTML = `<span class="error">Network error. Please try again.</span>`;
     statusBox.innerText = "网络错误";
   }
 }
 
-function renderData(data) {
-  currentText = data.main || "";
-  currentOptions = data.options || [];
+function renderData(data, mode) {
+  currentSegments = (data.segments || []).map((seg, index) => ({
+    id: seg.id || index + 1,
+    source: seg.source || "",
+    selected: seg.best || "",
+    options: seg.options || []
+  }));
+
+  if (!currentSegments.length && data.full_translation) {
+    currentSegments = [{
+      id: 1,
+      source: input.value,
+      selected: data.full_translation,
+      options: []
+    }];
+  }
 
   sourceLang.innerText = data.detected_language || "检测到的语言";
   targetLang.innerText = data.target_language || "翻译结果";
 
-  renderMainText(currentText);
-  renderDropdown(currentOptions);
+  activeSegmentIndex = null;
+  rebuildFullText();
+  renderSegments();
 
-  statusBox.innerText = "翻译完成";
-  bottomStatus.innerText = "点击翻译结果可查看 3 个替代表达。";
+  optionsBox.style.display = "none";
+  statusBox.innerText = mode === "selected" ? "选中内容翻译完成" : "翻译完成";
+  bottomStatus.innerText = "点击右侧某一句，可查看这句话的 3 个替代表达。";
 }
 
-function renderMainText(text) {
-  result.innerHTML = `
-    <span>${escapeHTML(text)}</span>
-    <div id="dropdown" class="dropdown"></div>
-  `;
+function rebuildFullText() {
+  currentText = currentSegments.map(seg => seg.selected).join(" ");
 }
 
-function renderDropdown(optionsList) {
-  const dd = document.getElementById("dropdown");
-  dd.innerHTML = "";
+function renderSegments() {
+  result.innerHTML = "";
 
-  optionsList.forEach((opt, index) => {
-    const item = document.createElement("div");
-    item.className = "dropdown-item" + (index === 0 ? " active" : "");
+  if (!currentSegments.length) {
+    result.innerHTML = '<span class="placeholder">翻译结果会显示在这里</span>';
+    return;
+  }
 
-    item.innerHTML = `
-      <div class="dropdown-label">${escapeHTML(opt.label || "Option")}</div>
-      <div class="dropdown-text">${escapeHTML(opt.text || "")}</div>
-      <div class="dropdown-meaning">${escapeHTML(opt.meaning || "（无翻译）")}</div>
-    `;
+  currentSegments.forEach((seg, index) => {
+    const span = document.createElement("span");
+    span.className = "segment" + (activeSegmentIndex === index ? " active" : "");
+    span.innerText = seg.selected + " ";
 
-    item.onclick = (e) => {
+    span.onclick = (e) => {
       e.stopPropagation();
-
-      currentText = opt.text || "";
-      renderMainText(currentText);
-      renderDropdown(optionsList);
-      hideDropdown();
-
-      statusBox.innerText = "已选择表达";
+      showSegmentOptions(index);
     };
 
-    dd.appendChild(item);
+    result.appendChild(span);
+  });
+}
+
+function showSegmentOptions(index) {
+  activeSegmentIndex = index;
+  renderSegments();
+
+  const seg = currentSegments[index];
+  optionsTitle.innerText = "当前句子：" + seg.source;
+  optionsList.innerHTML = "";
+
+  if (!seg.options || !seg.options.length) {
+    optionsList.innerHTML = '<div class="option-item">暂无其他表达</div>';
+    optionsBox.style.display = "block";
+    return;
+  }
+
+  seg.options.forEach((opt, optIndex) => {
+    const item = document.createElement("div");
+    item.className = "option-item" + (opt.text === seg.selected || optIndex === 0 ? " active" : "");
+
+    item.innerHTML = `
+      <div class="option-label">${escapeHTML(opt.label || "Option")}</div>
+      <div class="option-text">${escapeHTML(opt.text || "")}</div>
+      <div class="option-meaning">${escapeHTML(opt.meaning || "（无翻译）")}</div>
+    `;
+
+    item.onclick = () => {
+      currentSegments[index].selected = opt.text || "";
+      rebuildFullText();
+      renderSegments();
+      showSegmentOptions(index);
+      statusBox.innerText = "已替换当前句子";
+    };
+
+    optionsList.appendChild(item);
   });
 
-  hideDropdown();
-}
-
-function toggleDropdown(event) {
-  event.stopPropagation();
-
-  const dd = document.getElementById("dropdown");
-  if (!dd || !dd.innerHTML.trim()) return;
-
-  dropdownVisible = dd.style.display !== "block";
-  dd.style.display = dropdownVisible ? "block" : "none";
-}
-
-function hideDropdown() {
-  const dd = document.getElementById("dropdown");
-  if (dd) dd.style.display = "none";
-  dropdownVisible = false;
+  optionsBox.style.display = "block";
 }
 
 function swapLanguages() {
@@ -538,7 +589,9 @@ function swapLanguages() {
     targetLang.innerText = "English";
   }
 
-  if (input.value.trim()) translate();
+  if (input.value.trim()) {
+    translateText(input.value.trim(), "full");
+  }
 }
 
 function copyText(event) {
@@ -547,23 +600,6 @@ function copyText(event) {
 
   navigator.clipboard.writeText(currentText);
   statusBox.innerText = "已复制";
-}
-
-function feedback(isGood) {
-  if (!currentText) return;
-
-  const feedbackData = JSON.parse(localStorage.getItem("feedback") || "[]");
-
-  feedbackData.push({
-    input: input.value,
-    output: currentText,
-    good: isGood,
-    time: new Date().toISOString()
-  });
-
-  localStorage.setItem("feedback", JSON.stringify(feedbackData));
-
-  statusBox.innerText = isGood ? "已记录 👍" : "已记录 👎";
 }
 
 function speakInput() {
@@ -600,49 +636,33 @@ function clearAll() {
 
 function clearResultOnly() {
   currentText = "";
-  currentOptions = [];
+  currentSegments = [];
+  activeSegmentIndex = null;
   sourceLang.innerText = "检测到的语言";
   targetLang.innerText = forcedTarget || "英语";
-  result.innerHTML = '<span class="placeholder">翻译结果会显示在这里</span><div id="dropdown" class="dropdown"></div>';
+  result.innerHTML = '<span class="placeholder">翻译结果会显示在这里</span>';
+  optionsBox.style.display = "none";
+  optionsList.innerHTML = "";
   statusBox.innerText = "等待输入";
   bottomStatus.innerText = "";
-}
-
-function getUsage() {
-  return Number(localStorage.getItem("usage_count") || "0");
-}
-
-function increaseUsage() {
-  localStorage.setItem("usage_count", String(getUsage() + 1));
-}
-
-function isPro() {
-  return localStorage.getItem("pro_user") === "true";
-}
-
-function goPay() {
-  if (PAYMENT_LINK === "YOUR_PAYMENT_LINK_HERE") {
-    alert("请先设置支付链接");
-    return;
-  }
-  window.location.href = PAYMENT_LINK;
+  selectionBar.style.display = "none";
 }
 
 function saveHistory(source, data) {
-  const history = JSON.parse(localStorage.getItem("history") || "[]");
+  const history = JSON.parse(localStorage.getItem("history_v2") || "[]");
 
   history.unshift({
     source,
-    result: data.main,
+    result: data.full_translation || "",
     time: new Date().toLocaleString()
   });
 
-  localStorage.setItem("history", JSON.stringify(history.slice(0, 20)));
+  localStorage.setItem("history_v2", JSON.stringify(history.slice(0, 20)));
   renderHistory();
 }
 
 function renderHistory() {
-  const history = JSON.parse(localStorage.getItem("history") || "[]");
+  const history = JSON.parse(localStorage.getItem("history_v2") || "[]");
   historyList.innerHTML = "";
 
   history.forEach(item => {
@@ -657,7 +677,7 @@ function renderHistory() {
     div.onclick = () => {
       input.value = item.source;
       count.innerText = item.source.length;
-      translate();
+      translateText(item.source, "full");
     };
 
     historyList.appendChild(div);
@@ -668,8 +688,6 @@ function toggleHistory() {
   renderHistory();
   historyBox.style.display = historyBox.style.display === "block" ? "none" : "block";
 }
-
-document.addEventListener("click", hideDropdown);
 
 function escapeHTML(str) {
   return String(str).replace(/[&<>'"]/g, tag => {
