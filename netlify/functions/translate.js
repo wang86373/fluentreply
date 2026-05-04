@@ -1,36 +1,37 @@
 exports.handler = async function (event) {
   try {
     if (event.httpMethod !== "POST") {
-      return {
-        statusCode: 405,
-        body: JSON.stringify({ error: "Method not allowed" })
-      };
+      return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
     }
 
-    const { text, sourceLanguage, targetLanguage } = JSON.parse(event.body || "{}");
+    const { text, sourceLanguage, targetLanguage, task } = JSON.parse(event.body || "{}");
 
     if (!text || !text.trim()) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "Missing text" })
-      };
+      return { statusCode: 400, body: JSON.stringify({ error: "Missing text" }) };
     }
 
     if (!process.env.OPENAI_API_KEY) {
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: "Missing OPENAI_API_KEY" })
-      };
+      return { statusCode: 500, body: JSON.stringify({ error: "Missing OPENAI_API_KEY" }) };
     }
 
+    const taskPrompt = task === "headline"
+      ? "Rewrite or translate the input as a professional news headline. Keep it accurate and concise."
+      : task === "vocab"
+      ? "Extract important news vocabulary from the input and explain each term briefly."
+      : task === "news"
+      ? "Translate the input as professional news content. Keep it accurate, neutral, and journalistic."
+      : "Translate accurately.";
+
     const prompt = `
-You are a strict professional translation engine.
+You are a strict professional AI translation and news writing assistant.
 
 Task:
-- Translate accurately.
+${taskPrompt}
+
+Language rules:
 - If sourceLanguage is "auto", detect the input language.
 - If sourceLanguage is provided, treat input as that language.
-- Translate into targetLanguage.
+- Translate or rewrite into targetLanguage.
 - If targetLanguage is empty:
   - Simplified Chinese -> English
   - English -> Simplified Chinese
@@ -39,16 +40,13 @@ Task:
 Supported languages:
 Simplified Chinese, English, Japanese, Korean, Spanish, French, German, Russian, Thai, Vietnamese, Burmese, Arabic.
 
-Rules:
-- Translate ONLY.
-- Do not explain outside JSON.
-- Do not add meaning.
-- Do not remove meaning.
-- Keep translation accurate and natural.
-- Split input into short meaningful sentence segments.
-- Each segment must have exactly 3 translation options.
+Strict rules:
+- Do not add false information.
+- Keep the meaning accurate.
+- Return ONLY valid JSON.
+- Split input into meaningful sentence segments.
+- Each segment must have exactly 3 options.
 - "meaning" must explain the option in the source language.
-- Return ONLY valid JSON. No markdown.
 
 Input:
 ${text}
@@ -63,26 +61,26 @@ JSON format:
 {
   "detected_language": "detected or selected source language",
   "target_language": "target language",
-  "full_translation": "complete translation joined from the best segment translations",
+  "full_translation": "complete result joined from best segment results",
   "segments": [
     {
       "id": 1,
       "source": "original sentence or clause",
-      "best": "best translation for this segment",
+      "best": "best result for this segment",
       "options": [
         {
           "label": "Closest",
-          "text": "closest accurate translation",
+          "text": "closest accurate result",
           "meaning": "meaning in source language"
         },
         {
           "label": "Natural",
-          "text": "natural translation",
+          "text": "natural result",
           "meaning": "meaning in source language"
         },
         {
-          "label": "Alternative",
-          "text": "alternative accurate translation",
+          "label": "News Style",
+          "text": "professional news-style result",
           "meaning": "meaning in source language"
         }
       ]
@@ -108,28 +106,17 @@ JSON format:
     if (!response.ok) {
       return {
         statusCode: response.status,
-        body: JSON.stringify({
-          error: data.error?.message || "OpenAI API error"
-        })
+        body: JSON.stringify({ error: data.error?.message || "OpenAI API error" })
       };
     }
 
-    const outputText =
-      data.output_text ||
-      data.output?.[0]?.content?.[0]?.text;
+    const outputText = data.output_text || data.output?.[0]?.content?.[0]?.text;
 
     if (!outputText) {
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: "No output from OpenAI" })
-      };
+      return { statusCode: 500, body: JSON.stringify({ error: "No output from OpenAI" }) };
     }
 
-    const cleaned = outputText
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
-      .trim();
-
+    const cleaned = outputText.replace(/```json/g, "").replace(/```/g, "").trim();
     const parsed = JSON.parse(cleaned);
 
     return {
