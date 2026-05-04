@@ -1,26 +1,46 @@
 exports.handler = async function (event) {
   try {
     if (event.httpMethod !== "POST") {
-      return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
+      return {
+        statusCode: 405,
+        body: JSON.stringify({ error: "Method not allowed" })
+      };
     }
 
-    const { text, sourceLanguage, targetLanguage, task } = JSON.parse(event.body || "{}");
+    const {
+      text,
+      sourceLanguage,
+      targetLanguage,
+      task,
+      glossary
+    } = JSON.parse(event.body || "{}");
 
     if (!text || !text.trim()) {
-      return { statusCode: 400, body: JSON.stringify({ error: "Missing text" }) };
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "Missing text" })
+      };
     }
 
     if (!process.env.OPENAI_API_KEY) {
-      return { statusCode: 500, body: JSON.stringify({ error: "Missing OPENAI_API_KEY" }) };
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: "Missing OPENAI_API_KEY" })
+      };
     }
 
-    const taskPrompt = task === "headline"
-      ? "Rewrite or translate the input as a professional news headline. Keep it accurate and concise."
-      : task === "vocab"
-      ? "Extract important news vocabulary from the input and explain each term briefly."
-      : task === "news"
-      ? "Translate the input as professional news content. Keep it accurate, neutral, and journalistic."
-      : "Translate accurately.";
+    const glossaryText = Array.isArray(glossary) && glossary.length
+      ? glossary.map(item => `${item.source} = ${item.target}`).join("\n")
+      : "No glossary provided.";
+
+    const taskPrompt =
+      task === "headline"
+        ? "Rewrite or translate the input as a professional news headline. Keep it accurate and concise."
+        : task === "vocab"
+        ? "Extract important news vocabulary from the input and explain each term briefly."
+        : task === "news"
+        ? "Translate the input as professional news content. Keep it accurate, neutral, and journalistic."
+        : "Translate accurately.";
 
     const prompt = `
 You are a strict professional AI translation and news writing assistant.
@@ -40,8 +60,17 @@ Language rules:
 Supported languages:
 Simplified Chinese, English, Japanese, Korean, Spanish, French, German, Russian, Thai, Vietnamese, Burmese, Arabic.
 
+Glossary rules:
+- If a glossary is provided, you MUST prioritize these translations.
+- Keep proper names, brand names, movie titles, places, and custom terms consistent.
+- Do not ignore glossary terms if they appear in the input.
+
+Glossary:
+${glossaryText}
+
 Strict rules:
 - Do not add false information.
+- Do not remove meaning.
 - Keep the meaning accurate.
 - Return ONLY valid JSON.
 - Split input into meaningful sentence segments.
@@ -106,17 +135,28 @@ JSON format:
     if (!response.ok) {
       return {
         statusCode: response.status,
-        body: JSON.stringify({ error: data.error?.message || "OpenAI API error" })
+        body: JSON.stringify({
+          error: data.error?.message || "OpenAI API error"
+        })
       };
     }
 
-    const outputText = data.output_text || data.output?.[0]?.content?.[0]?.text;
+    const outputText =
+      data.output_text ||
+      data.output?.[0]?.content?.[0]?.text;
 
     if (!outputText) {
-      return { statusCode: 500, body: JSON.stringify({ error: "No output from OpenAI" }) };
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: "No output from OpenAI" })
+      };
     }
 
-    const cleaned = outputText.replace(/```json/g, "").replace(/```/g, "").trim();
+    const cleaned = outputText
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
     const parsed = JSON.parse(cleaned);
 
     return {
