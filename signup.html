@@ -4,71 +4,74 @@
 <meta charset="UTF-8" />
 <title>Sign up - FluentReply</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-<!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+*{box-sizing:border-box}
 body{
   margin:0;
-  font-family:Arial;
+  font-family:Arial,sans-serif;
   background:#f5f7fb;
+  min-height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
-  height:100vh;
+  padding:20px;
 }
-
 .card{
   width:100%;
-  max-width:420px;
+  max-width:560px;
   background:white;
-  border-radius:20px;
-  padding:30px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.1);
+  border-radius:24px;
+  padding:38px;
+  box-shadow:0 20px 60px rgba(15,23,42,.10);
 }
-
-h1{margin:0 0 10px}
-.sub{color:#666;margin-bottom:20px}
-
+h1{
+  margin:0 0 12px;
+  font-size:34px;
+}
+.sub{
+  margin:0 0 26px;
+  color:#333;
+  font-size:18px;
+}
 input{
   width:100%;
-  padding:12px;
-  margin-top:10px;
-  border-radius:10px;
-  border:1px solid #ddd;
-  font-size:14px;
+  padding:15px;
+  margin-top:12px;
+  border-radius:14px;
+  border:1px solid #d1d5db;
+  font-size:16px;
 }
-
 button{
   width:100%;
-  padding:12px;
-  margin-top:14px;
+  padding:15px;
+  margin-top:18px;
   border:none;
   border-radius:999px;
   background:#1a73e8;
   color:white;
-  font-weight:bold;
+  font-weight:900;
+  font-size:16px;
   cursor:pointer;
 }
-
-button:hover{
-  opacity:0.9;
+button:disabled{
+  opacity:.65;
+  cursor:not-allowed;
 }
-
 .secondary{
   background:white;
-  border:1px solid #ddd;
-  color:#1a73e8;
+  color:#111827;
+  border:1px solid #d1d5db;
 }
-
 .status{
-  margin-top:12px;
-  font-size:14px;
+  min-height:24px;
+  margin-top:18px;
+  font-size:15px;
+  line-height:1.45;
 }
-
-.error{color:red}
-.success{color:green}
+.error{color:#ef4444}
+.success{color:#16a34a}
 </style>
 </head>
 
@@ -76,15 +79,15 @@ button:hover{
 
 <div class="card">
   <h1>Create account</h1>
-  <p class="sub">Register with email and password</p>
+  <p class="sub">Sign up with email</p>
 
-  <input id="email" placeholder="Email" />
-  <input id="password" type="password" placeholder="Password (min 6 chars)" />
+  <input id="email" type="email" placeholder="Email" autocomplete="email" />
+  <input id="password" type="password" placeholder="Password" autocomplete="new-password" />
 
-  <button onclick="signup()">Sign up</button>
+  <button id="signupBtn" onclick="signupUser()">Sign up</button>
 
   <button class="secondary" onclick="location.href='login.html'">
-    Already have account? Login
+    Already have account
   </button>
 
   <div id="status" class="status"></div>
@@ -94,61 +97,77 @@ button:hover{
 const SUPABASE_URL = "https://smwclefrunxnzzjammnu.supabase.co";
 const SUPABASE_KEY = "sb_publishable_DWI3c__Tq7P9z7GSJqhT6g_dzKxwMrb";
 
-const supabase = window.supabase.createClient(
+const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
 
-function msg(text, type=""){
-  const el = document.getElementById("status");
-  el.className = "status " + type;
-  el.innerText = text;
+function setStatus(text,type=""){
+  const el=document.getElementById("status");
+  el.className="status "+type;
+  el.innerText=text;
 }
 
-async function signup(){
+function setLoading(isLoading){
+  const btn=document.getElementById("signupBtn");
+  btn.disabled=isLoading;
+  btn.innerText=isLoading ? "Creating account..." : "Sign up";
+}
+
+window.signupUser = async function(){
   try{
-    const email = document.getElementById("email").value.trim().toLowerCase();
-    const password = document.getElementById("password").value;
+    const email=document.getElementById("email").value.trim().toLowerCase();
+    const password=document.getElementById("password").value;
 
     if(!email){
-      msg("Please enter email","error");
+      setStatus("Please enter your email.","error");
       return;
     }
 
     if(!password){
-      msg("Please enter password","error");
+      setStatus("Please enter your password.","error");
       return;
     }
 
     if(password.length < 6){
-      msg("Password must be at least 6 characters","error");
+      setStatus("Password must be at least 6 characters.","error");
       return;
     }
 
-    msg("Creating account...");
+    setLoading(true);
+    setStatus("Creating account...");
 
-    const { data, error } = await supabase.auth.signUp({
-      email: email,
-      password: password
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password
     });
 
+    setLoading(false);
+
     if(error){
-      msg(error.message,"error");
-      console.error(error);
+      setStatus(error.message,"error");
+      console.error("Signup error:",error);
       return;
     }
 
-    msg("Account created successfully","success");
+    setStatus("Account created successfully. Redirecting to login...","success");
 
     setTimeout(()=>{
-      location.href = "login.html";
-    },1000);
+      location.href="login.html";
+    },1200);
 
   }catch(err){
-    console.error(err);
-    msg("Signup error: "+err.message,"error");
+    setLoading(false);
+    console.error("Unexpected signup error:",err);
+    setStatus("Signup error: "+err.message,"error");
   }
-}
+};
+
+document.getElementById("password").addEventListener("keydown",function(e){
+  if(e.key==="Enter"){
+    signupUser();
+  }
+});
 </script>
 
 </body>
