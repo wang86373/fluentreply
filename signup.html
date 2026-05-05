@@ -133,7 +133,10 @@ async function signup(){
 
   const { error } = await supabaseClient.auth.signUp({
     email,
-    password
+    password,
+    options:{
+      emailRedirectTo: location.origin + "/index.html"
+    }
   });
 
   setLoading(false);
@@ -153,15 +156,12 @@ async function signup(){
 function init(){
   const btn=document.getElementById("signupBtn");
 
-  // 绑定按钮（关键）
   btn.addEventListener("click", signup);
 
-  // Enter 提交
   document.getElementById("password").addEventListener("keydown",(e)=>{
     if(e.key==="Enter") signup();
   });
 
-  // 检查 Supabase 是否加载
   if(!window.supabase){
     setStatus("Supabase CDN blocked","error");
     return;
@@ -175,7 +175,6 @@ function init(){
   setStatus("Ready.");
 }
 
-// 确保 DOM 加载后执行
 document.addEventListener("DOMContentLoaded", init);
 </script>
 
