@@ -1,5 +1,20 @@
+const corsHeaders = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS"
+};
+
 exports.handler = async function (event) {
   try {
+    if (event.httpMethod === "OPTIONS") {
+      return {
+        statusCode: 200,
+        headers: corsHeaders,
+        body: ""
+      };
+    }
+
     if (event.httpMethod !== "POST") {
       return jsonError(405, "Method not allowed");
     }
@@ -33,21 +48,35 @@ exports.handler = async function (event) {
 
     if (shouldUseDeepL) {
       try {
-        deeplText = await translateWithDeepL(text, sourceLanguage, targetLanguage);
+        deeplText = await translateWithDeepL(
+          text,
+          sourceLanguage,
+          targetLanguage
+        );
         deeplUsed = Boolean(deeplText);
       } catch (error) {
         deeplError = error.message || "DeepL failed";
       }
     }
 
-    if (engineMode === "deepl" && deeplText) {
-      return json(buildDeepLOnlyResult({
-        text,
-        deeplText,
-        sourceLanguage,
-        targetLanguage,
-        uiLanguage
-      }));
+    if (engineMode === "deepl") {
+      if (!deeplText) {
+        return jsonError(
+          500,
+          "DeepL failed",
+          deeplError || "No DeepL result"
+        );
+      }
+
+      return json(
+        buildDeepLOnlyResult({
+          text,
+          deeplText,
+          sourceLanguage,
+          targetLanguage,
+          uiLanguage
+        })
+      );
     }
 
     const aiResult = await enhanceWithAI({
@@ -65,11 +94,13 @@ exports.handler = async function (event) {
     aiResult.deepl_used = deeplUsed;
     aiResult.deepl_error = deeplError;
 
-    return json(normalizeResult(aiResult, {
-      originalText: text,
-      fallbackText: deeplText,
-      uiLanguage
-    }));
+    return json(
+      normalizeResult(aiResult, {
+        originalText: text,
+        fallbackText: deeplText,
+        uiLanguage
+      })
+    );
 
   } catch (error) {
     return jsonError(500, "Server error", error.message);
@@ -79,7 +110,7 @@ exports.handler = async function (event) {
 function json(body) {
   return {
     statusCode: 200,
-    headers: { "Content-Type": "application/json" },
+    headers: corsHeaders,
     body: JSON.stringify(body)
   };
 }
@@ -87,12 +118,21 @@ function json(body) {
 function jsonError(statusCode, error, detail = "") {
   return {
     statusCode,
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ error, detail })
+    headers: corsHeaders,
+    body: JSON.stringify({
+      error,
+      detail
+    })
   };
 }
 
-function buildDeepLOnlyResult({ text, deeplText, sourceLanguage, targetLanguage, uiLanguage }) {
+function buildDeepLOnlyResult({
+  text,
+  deeplText,
+  sourceLanguage,
+  targetLanguage,
+  uiLanguage
+}) {
   return {
     detected_language: sourceLanguage,
     target_language: targetLanguage,
@@ -107,9 +147,19 @@ function buildDeepLOnlyResult({ text, deeplText, sourceLanguage, targetLanguage,
         best: deeplText,
         options: [
           {
-            label: "DeepL",
+            label: "Closest",
             text: deeplText,
-            meaning: meaning(uiLanguage, "deepl")
+            meaning: meaning(uiLanguage, "closest")
+          },
+          {
+            label: "Natural",
+            text: deeplText,
+            meaning: meaning(uiLanguage, "natural")
+          },
+          {
+            label: "Alternative",
+            text: deeplText,
+            meaning: meaning(uiLanguage, "alternative")
           }
         ]
       }
@@ -129,15 +179,16 @@ async function translateWithDeepL(text, sourceLanguage, targetLanguage) {
   params.append("target_lang", target);
 
   const source = mapDeepLLang(sourceLanguage);
+
   if (sourceLanguage !== "auto" && source) {
     params.append("source_lang", source);
   }
 
-  const endpoint = process.env.DEEPL_API_KEY.endsWith(":fx")
-    ? "https://api-free.deepl.com/v2/translate"
-    : "https://api.deepl.com/v2/translate";
+  const endpoint =
+    process.env.DEEPL_API_URL ||
+    "https://api-free.deepl.com/v2/translate";
 
-  const res = await fetch(endpoint, {
+  const response = await fetch(endpoint, {
     method: "POST",
     headers: {
       Authorization: `DeepL-Auth-Key ${process.env.DEEPL_API_KEY}`,
@@ -146,9 +197,9 @@ async function translateWithDeepL(text, sourceLanguage, targetLanguage) {
     body: params
   });
 
-  const data = await res.json();
+  const data = await response.json();
 
-  if (!res.ok) {
+  if (!response.ok) {
     throw new Error(data.message || "DeepL failed");
   }
 
@@ -182,6 +233,7 @@ async function enhanceWithAI({
   const explanationLanguage = getExplanationLanguage(uiLanguage);
   const glossaryText = buildGlossaryText(glossary);
   const taskPrompt = getTaskPrompt(task);
+
   const segmentationRule = sentenceMode
     ? `
 Sentence mode is ON:
@@ -286,7 +338,7 @@ JSON format:
       Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
     },
     body: JSON.stringify({
-      model: "gpt-4o-mini",
+      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
       input: prompt,
       temperature: 0.2
     })
@@ -320,7 +372,10 @@ function normalizeResult(parsed, { originalText, fallbackText, uiLanguage }) {
   }
 
   if (!parsed.full_translation && Array.isArray(parsed.segments)) {
-    parsed.full_translation = parsed.segments.map(s => s.best || "").join(" ").trim();
+    parsed.full_translation = parsed.segments
+      .map(s => s.best || "")
+      .join(" ")
+      .trim();
   }
 
   if (!parsed.full_translation) {
@@ -359,16 +414,24 @@ function normalizeResult(parsed, { originalText, fallbackText, uiLanguage }) {
 
     while (options.length < 3) {
       const type =
-        options.length === 0 ? "closest" :
-        options.length === 1 ? "natural" :
-        "alternative";
+        options.length === 0
+          ? "closest"
+          : options.length === 1
+          ? "natural"
+          : "alternative";
 
       options.push({
         label:
-          type === "closest" ? "Closest" :
-          type === "natural" ? "Natural" :
-          "Alternative",
-        text: seg.best || parsed.full_translation || fallbackText || "",
+          type === "closest"
+            ? "Closest"
+            : type === "natural"
+            ? "Natural"
+            : "Alternative",
+        text:
+          seg.best ||
+          parsed.full_translation ||
+          fallbackText ||
+          "",
         meaning: meaning(uiLanguage, type)
       });
     }
@@ -376,18 +439,38 @@ function normalizeResult(parsed, { originalText, fallbackText, uiLanguage }) {
     options = options.slice(0, 3).map((opt, optIndex) => ({
       label:
         opt.label ||
-        (optIndex === 0 ? "Closest" : optIndex === 1 ? "Natural" : "Alternative"),
-      text: opt.text || seg.best || parsed.full_translation || fallbackText || "",
-      meaning: opt.meaning || meaning(
-        uiLanguage,
-        optIndex === 0 ? "closest" : optIndex === 1 ? "natural" : "alternative"
-      )
+        (optIndex === 0
+          ? "Closest"
+          : optIndex === 1
+          ? "Natural"
+          : "Alternative"),
+      text:
+        opt.text ||
+        seg.best ||
+        parsed.full_translation ||
+        fallbackText ||
+        "",
+      meaning:
+        opt.meaning ||
+        meaning(
+          uiLanguage,
+          optIndex === 0
+            ? "closest"
+            : optIndex === 1
+            ? "natural"
+            : "alternative"
+        )
     }));
 
     return {
       id: seg.id || index + 1,
       source: seg.source || originalText,
-      best: seg.best || options[0].text || parsed.full_translation || fallbackText || "",
+      best:
+        seg.best ||
+        options[0].text ||
+        parsed.full_translation ||
+        fallbackText ||
+        "",
       options
     };
   });
@@ -430,21 +513,18 @@ function getTaskPrompt(task) {
 
 function meaning(lang, type) {
   const zh = {
-    deepl: "基于 DeepL 的快速精准整段翻译。",
     closest: "最贴近原文意思的翻译。",
     natural: "更自然、更口语化的表达，但意思不变。",
     alternative: "另一种自然表达方式，意思保持一致。"
   };
 
   const ja = {
-    deepl: "DeepL に基づく高速で正確な全文翻訳です。",
     closest: "原文の意味に最も忠実な翻訳です。",
     natural: "より自然な表現ですが、意味は同じです。",
     alternative: "同じ意味を持つ別の自然な表現です。"
   };
 
   const en = {
-    deepl: "Fast precise full translation based on DeepL.",
     closest: "The closest translation to the original meaning.",
     natural: "A more natural expression with the same meaning.",
     alternative: "Another natural way to express the same meaning."
