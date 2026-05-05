@@ -8,13 +8,13 @@ exports.handler = async function (event) {
       };
     }
 
-    const { email } = JSON.parse(event.body || "{}");
+    const { email, plan = "pro" } = JSON.parse(event.body || "{}");
 
-    if (!email) {
+    if (!email || !String(email).includes("@")) {
       return {
         statusCode: 400,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Missing email" })
+        body: JSON.stringify({ error: "Missing or invalid email" })
       };
     }
 
@@ -33,14 +33,18 @@ exports.handler = async function (event) {
       return {
         statusCode: 500,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          error: "SITE_URL must be a valid https URL",
-          current_SITE_URL: SITE_URL
-        })
+        body: JSON.stringify({ error: "Invalid SITE_URL" })
       };
     }
 
-    const orderId = `fluentreply_${Date.now()}`;
+    const normalizedEmail = String(email).trim().toLowerCase();
+
+    const selectedPlan = plan === "pro_plus" ? "pro_plus" : "pro";
+
+    const priceAmount = selectedPlan === "pro_plus" ? 29 : 12;
+    const planName = selectedPlan === "pro_plus" ? "FluentReply Pro+" : "FluentReply Pro";
+
+    const orderId = `fluentreply_${selectedPlan}_${Date.now()}`;
 
     const response = await fetch("https://api.nowpayments.io/v1/invoice", {
       method: "POST",
@@ -49,11 +53,11 @@ exports.handler = async function (event) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        price_amount: 12,
+        price_amount: priceAmount,
         price_currency: "usd",
         order_id: orderId,
-        order_description: `FluentReply Pro | ${email}`,
-        success_url: `${SITE_URL}/success.html?order_id=${orderId}`,
+        order_description: `${planName} | ${normalizedEmail}`,
+        success_url: `${SITE_URL}/success.html?order_id=${orderId}&plan=${selectedPlan}`,
         cancel_url: SITE_URL,
         ipn_callback_url: `${SITE_URL}/.netlify/functions/payment-webhook`
       })
@@ -66,7 +70,7 @@ exports.handler = async function (event) {
         statusCode: response.status,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          error: data.message || "NOWPayments invoice creation failed",
+          error: data.message || "Payment creation failed",
           detail: data
         })
       };
@@ -78,7 +82,8 @@ exports.handler = async function (event) {
       body: JSON.stringify({
         invoice_url: data.invoice_url,
         order_id: orderId,
-        raw: data
+        plan: selectedPlan,
+        amount: priceAmount
       })
     };
 
