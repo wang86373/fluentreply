@@ -4,6 +4,8 @@
 <meta charset="UTF-8" />
 <title>Sign up - FluentReply</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
@@ -23,12 +25,19 @@ body{
   background:white;
   border-radius:20px;
   padding:30px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.1);
 }
+
+h1{margin:0 0 10px}
+.sub{color:#666;margin-bottom:20px}
 
 input{
   width:100%;
   padding:12px;
   margin-top:10px;
+  border-radius:10px;
+  border:1px solid #ddd;
+  font-size:14px;
 }
 
 button{
@@ -40,9 +49,26 @@ button{
   background:#1a73e8;
   color:white;
   font-weight:bold;
+  cursor:pointer;
 }
 
-.status{margin-top:10px}
+button:hover{
+  opacity:0.9;
+}
+
+.secondary{
+  background:white;
+  border:1px solid #ddd;
+  color:#1a73e8;
+}
+
+.status{
+  margin-top:12px;
+  font-size:14px;
+}
+
+.error{color:red}
+.success{color:green}
 </style>
 </head>
 
@@ -50,32 +76,78 @@ button{
 
 <div class="card">
   <h1>Create account</h1>
+  <p class="sub">Register with email and password</p>
 
   <input id="email" placeholder="Email" />
-  <input id="password" type="password" placeholder="Password" />
+  <input id="password" type="password" placeholder="Password (min 6 chars)" />
 
   <button onclick="signup()">Sign up</button>
+
+  <button class="secondary" onclick="location.href='login.html'">
+    Already have account? Login
+  </button>
 
   <div id="status" class="status"></div>
 </div>
 
 <script>
+const SUPABASE_URL = "https://smwclefrunxnzzjammnu.supabase.co";
+const SUPABASE_KEY = "sb_publishable_DWI3c__Tq7P9z7GSJqhT6g_dzKxwMrb";
+
 const supabase = window.supabase.createClient(
-  "https://smwclefrunxnzzjammnu.supabase.co",
-  "sb_publishable_DWI3c__Tq7P9z7GSJqhT6g_dzKxwMrb"
+  SUPABASE_URL,
+  SUPABASE_KEY
 );
 
-function msg(t){document.getElementById("status").innerText=t;}
+function msg(text, type=""){
+  const el = document.getElementById("status");
+  el.className = "status " + type;
+  el.innerText = text;
+}
 
 async function signup(){
-  const email=document.getElementById("email").value;
-  const password=document.getElementById("password").value;
+  try{
+    const email = document.getElementById("email").value.trim().toLowerCase();
+    const password = document.getElementById("password").value;
 
-  const {error}=await supabase.auth.signUp({email,password});
+    if(!email){
+      msg("Please enter email","error");
+      return;
+    }
 
-  if(error){msg(error.message);return;}
+    if(!password){
+      msg("Please enter password","error");
+      return;
+    }
 
-  msg("Check your email");
+    if(password.length < 6){
+      msg("Password must be at least 6 characters","error");
+      return;
+    }
+
+    msg("Creating account...");
+
+    const { data, error } = await supabase.auth.signUp({
+      email: email,
+      password: password
+    });
+
+    if(error){
+      msg(error.message,"error");
+      console.error(error);
+      return;
+    }
+
+    msg("Account created successfully","success");
+
+    setTimeout(()=>{
+      location.href = "login.html";
+    },1000);
+
+  }catch(err){
+    console.error(err);
+    msg("Signup error: "+err.message,"error");
+  }
 }
 </script>
 
