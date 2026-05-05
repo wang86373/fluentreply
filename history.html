@@ -8,47 +8,114 @@
 
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,"Segoe UI",sans-serif;background:#f5f7fb;color:#202124}
-.header{height:66px;background:white;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;padding:0 24px}
-.logo{font-size:22px;font-weight:900;color:#1a73e8}
-.header button{border:none;background:#1a73e8;color:white;border-radius:999px;padding:9px 17px;font-weight:800;cursor:pointer}
-.app{max-width:980px;margin:30px auto;padding:0 18px}
-.card{background:white;border:1px solid #e5e7eb;border-radius:18px;padding:20px;box-shadow:0 8px 26px rgba(0,0,0,.04)}
-.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
-h1{margin:0}
-input{width:100%;border:1px solid #dadce0;border-radius:12px;padding:12px;font-size:15px;margin-bottom:16px}
-.item{border:1px solid #e5e7eb;border-radius:14px;padding:14px;margin-bottom:10px;background:#fafafa;cursor:pointer}
-.item:hover{background:#eef4ff}
-.source{font-weight:800;margin-bottom:6px}
-.result{color:#334155;margin-bottom:8px;line-height:1.45}
-.meta{font-size:12px;color:#64748b}
-.actions{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
-.secondary{background:white!important;color:#1a73e8!important;border:1px solid #dadce0!important}
-.empty{color:#64748b;padding:20px;text-align:center}
+:root{
+  --bg:#f5f7fb;--card:#fff;--text:#111827;--muted:#64748b;--border:#d1d5db;
+  --soft:#f1f5ff;--blue:#1a73e8;--dark:#0f2b46;--shadow:0 14px 40px rgba(15,23,42,.06);
+}
+body.dark{
+  --bg:#0f172a;--card:#111827;--text:#e5e7eb;--muted:#94a3b8;--border:#334155;
+  --soft:#1e293b;--blue:#60a5fa;--dark:#2563eb;--shadow:0 14px 40px rgba(0,0,0,.35);
+}
+body{margin:0;font-family:Arial,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
+.header{min-height:72px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:14px 34px;gap:12px;flex-wrap:wrap}
+.logo{font-size:24px;font-weight:900;color:var(--blue)}
+.header-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+button,select,input{font-family:inherit}
+select,input{border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);padding:10px 14px;font-size:14px}
+button{border:none;border-radius:999px;padding:10px 18px;font-weight:900;cursor:pointer}
+.primary{background:var(--blue);color:white}
+.secondary{background:var(--card);color:var(--text);border:1px solid var(--border)}
+.danger{background:#fee2e2;color:#b91c1c}
+.app{max-width:1050px;margin:32px auto;padding:0 22px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:22px;box-shadow:var(--shadow)}
+.top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+h1{margin:0 0 8px;font-size:30px}
+.sub{color:var(--muted);margin:0}
+.search-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;margin:18px 0}
+.list{display:grid;gap:12px}
+.item{background:var(--soft);border:1px solid var(--border);border-radius:16px;padding:15px;cursor:pointer}
+.item:hover{border-color:var(--blue)}
+.source{font-weight:900;margin-bottom:8px;line-height:1.45}
+.result{color:var(--text);line-height:1.45;margin-bottom:10px}
+.meta{font-size:12px;color:var(--muted)}
+.empty{text-align:center;color:var(--muted);padding:40px 10px}
+.badge{display:inline-block;background:rgba(96,165,250,.18);color:var(--blue);padding:4px 9px;border-radius:999px;font-size:12px;font-weight:900;margin-left:6px}
+@media(max-width:760px){
+  .header{padding:14px}
+  .logo{font-size:20px}
+  .search-row{grid-template-columns:1fr}
+  .top{display:block}
+  .top .header-actions{margin-top:12px}
+}
 </style>
 </head>
 
 <body>
 <header class="header">
   <div class="logo">FluentReply History</div>
-  <button onclick="location.href='index.html'">Back</button>
+  <div class="header-actions">
+    <select id="themeSelect" onchange="changeTheme()">
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+      <option value="auto">Auto</option>
+    </select>
+
+    <select id="uiLangSelect" onchange="changeUILanguage()">
+      <option value="auto">Auto UI</option>
+      <option value="English">English</option>
+      <option value="Simplified Chinese">中文</option>
+      <option value="Japanese">日本語</option>
+      <option value="Korean">한국어</option>
+      <option value="Spanish">Español</option>
+      <option value="French">Français</option>
+      <option value="German">Deutsch</option>
+      <option value="Russian">Русский</option>
+      <option value="Arabic">العربية</option>
+      <option value="Portuguese">Português</option>
+      <option value="Italian">Italiano</option>
+    </select>
+
+    <button class="primary" onclick="location.href='index.html'" data-i18n="back">Back</button>
+  </div>
 </header>
 
 <main class="app">
   <section class="card">
     <div class="top">
-      <h1>History</h1>
-      <span id="loginStatus"></span>
+      <div>
+        <h1 data-i18n="title">Translation History</h1>
+        <p class="sub">
+          <span id="loginStatus"></span>
+          <span id="countBadge" class="badge"></span>
+        </p>
+      </div>
+      <div class="header-actions">
+        <button class="secondary" onclick="loadAllHistory()" data-i18n="refresh">Refresh</button>
+        <button class="danger" onclick="clearLocalHistory()" data-i18n="clearLocal">Clear local</button>
+      </div>
     </div>
 
-    <input id="search" placeholder="Search history..." oninput="renderHistory()" />
-
-    <div class="actions">
-      <button onclick="loadAllHistory()">Refresh</button>
-      <button class="secondary" onclick="clearLocalHistory()">Clear local history</button>
+    <div class="search-row">
+      <input id="searchInput" placeholder="Search history..." oninput="renderHistory()" />
+      <select id="filterEngine" onchange="renderHistory()">
+        <option value="all">All engines</option>
+        <option value="DeepL">DeepL</option>
+        <option value="AI">AI</option>
+        <option value="Cloud">Cloud</option>
+      </select>
+      <select id="filterLang" onchange="renderHistory()">
+        <option value="all">All languages</option>
+        <option value="English">English</option>
+        <option value="Simplified Chinese">中文</option>
+        <option value="Japanese">日本語</option>
+        <option value="Korean">한국어</option>
+        <option value="Spanish">Español</option>
+        <option value="French">Français</option>
+        <option value="German">Deutsch</option>
+      </select>
     </div>
 
-    <div id="historyList"></div>
+    <div id="historyList" class="list"></div>
   </section>
 </main>
 
@@ -60,102 +127,201 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
 let historyData = [];
 
-async function init(){
-  const {data} = await supabaseClient.auth.getUser();
-  currentUser = data?.user || null;
+const i18n = {
+  English:{
+    back:"Back",title:"Translation History",refresh:"Refresh",clearLocal:"Clear local",
+    guest:"Guest history",logged:"Logged in",empty:"No history yet.",search:"Search history...",
+    allEngines:"All engines",allLanguages:"All languages",items:"items"
+  },
+  "Simplified Chinese":{
+    back:"返回",title:"翻译历史记录",refresh:"刷新",clearLocal:"清空本地",
+    guest:"游客本地历史",logged:"已登录",empty:"暂无历史记录",search:"搜索历史记录...",
+    allEngines:"全部引擎",allLanguages:"全部语言",items:"条"
+  },
+  Japanese:{
+    back:"戻る",title:"翻訳履歴",refresh:"更新",clearLocal:"ローカル削除",
+    guest:"ゲスト履歴",logged:"ログイン中",empty:"履歴はまだありません",search:"履歴を検索...",
+    allEngines:"全エンジン",allLanguages:"全言語",items:"件"
+  },
+  Korean:{back:"뒤로",title:"번역 기록",refresh:"새로고침",clearLocal:"로컬 삭제",guest:"게스트 기록",logged:"로그인됨",empty:"기록이 없습니다.",search:"기록 검색...",allEngines:"모든 엔진",allLanguages:"모든 언어",items:"개"},
+  Spanish:{back:"Volver",title:"Historial de traducción",refresh:"Actualizar",clearLocal:"Borrar local",guest:"Historial invitado",logged:"Conectado",empty:"Aún no hay historial.",search:"Buscar historial...",allEngines:"Todos los motores",allLanguages:"Todos los idiomas",items:"elementos"},
+  French:{back:"Retour",title:"Historique des traductions",refresh:"Actualiser",clearLocal:"Effacer local",guest:"Historique invité",logged:"Connecté",empty:"Aucun historique.",search:"Rechercher...",allEngines:"Tous les moteurs",allLanguages:"Toutes les langues",items:"éléments"},
+  German:{back:"Zurück",title:"Übersetzungsverlauf",refresh:"Aktualisieren",clearLocal:"Lokal löschen",guest:"Gastverlauf",logged:"Angemeldet",empty:"Noch kein Verlauf.",search:"Verlauf suchen...",allEngines:"Alle Engines",allLanguages:"Alle Sprachen",items:"Einträge"},
+  Russian:{back:"Назад",title:"История переводов",refresh:"Обновить",clearLocal:"Очистить локально",guest:"История гостя",logged:"Вход выполнен",empty:"Истории пока нет.",search:"Поиск...",allEngines:"Все движки",allLanguages:"Все языки",items:"записей"},
+  Arabic:{back:"رجوع",title:"سجل الترجمة",refresh:"تحديث",clearLocal:"مسح المحلي",guest:"سجل الضيف",logged:"تم تسجيل الدخول",empty:"لا يوجد سجل بعد.",search:"ابحث في السجل...",allEngines:"كل المحركات",allLanguages:"كل اللغات",items:"عنصر"},
+  Portuguese:{back:"Voltar",title:"Histórico de tradução",refresh:"Atualizar",clearLocal:"Limpar local",guest:"Histórico de convidado",logged:"Conectado",empty:"Ainda sem histórico.",search:"Pesquisar histórico...",allEngines:"Todos os motores",allLanguages:"Todos os idiomas",items:"itens"},
+  Italian:{back:"Indietro",title:"Cronologia traduzioni",refresh:"Aggiorna",clearLocal:"Cancella locale",guest:"Cronologia ospite",logged:"Accesso effettuato",empty:"Nessuna cronologia.",search:"Cerca cronologia...",allEngines:"Tutti i motori",allLanguages:"Tutte le lingue",items:"elementi"}
+};
 
-  document.getElementById("loginStatus").innerText = currentUser
-    ? `Logged in: ${currentUser.email}`
-    : "Guest history";
+function browserUILang(){
+  const lang=navigator.language.toLowerCase();
+  if(lang.startsWith("zh")) return "Simplified Chinese";
+  if(lang.startsWith("ja")) return "Japanese";
+  if(lang.startsWith("ko")) return "Korean";
+  if(lang.startsWith("es")) return "Spanish";
+  if(lang.startsWith("fr")) return "French";
+  if(lang.startsWith("de")) return "German";
+  if(lang.startsWith("ru")) return "Russian";
+  if(lang.startsWith("ar")) return "Arabic";
+  if(lang.startsWith("pt")) return "Portuguese";
+  if(lang.startsWith("it")) return "Italian";
+  return "English";
+}
+
+function getUILang(){
+  const selected=document.getElementById("uiLangSelect").value;
+  return selected==="auto"?browserUILang():selected;
+}
+
+function applyUILanguage(){
+  const pack=i18n[getUILang()]||i18n.English;
+
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const key=el.getAttribute("data-i18n");
+    if(pack[key]) el.innerText=pack[key];
+  });
+
+  document.getElementById("searchInput").placeholder=pack.search;
+  document.querySelector("#filterEngine option[value='all']").innerText=pack.allEngines;
+  document.querySelector("#filterLang option[value='all']").innerText=pack.allLanguages;
+
+  updateLoginStatus();
+  renderHistory();
+}
+
+function changeUILanguage(){
+  localStorage.setItem("ui_language",document.getElementById("uiLangSelect").value);
+  applyUILanguage();
+}
+
+function changeTheme(){
+  localStorage.setItem("theme_mode",document.getElementById("themeSelect").value);
+  applyTheme();
+}
+
+function applyTheme(){
+  const theme=localStorage.getItem("theme_mode")||"light";
+  document.getElementById("themeSelect").value=theme;
+  const autoDark=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;
+  document.body.classList.toggle("dark",theme==="dark"||(theme==="auto"&&autoDark));
+}
+
+async function init(){
+  const savedUI=localStorage.getItem("ui_language");
+  if(savedUI) document.getElementById("uiLangSelect").value=savedUI;
+
+  applyTheme();
+
+  const {data}=await supabaseClient.auth.getUser();
+  currentUser=data?.user||null;
 
   await loadAllHistory();
+  applyUILanguage();
+}
+
+function updateLoginStatus(){
+  const pack=i18n[getUILang()]||i18n.English;
+  document.getElementById("loginStatus").innerText=currentUser
+    ? `${pack.logged}: ${currentUser.email}`
+    : pack.guest;
 }
 
 async function loadAllHistory(){
-  const local = JSON.parse(localStorage.getItem("history_folded_tools") || "[]");
+  const local=JSON.parse(localStorage.getItem("history_folded_tools")||"[]");
 
   if(currentUser){
-    const {data,error} = await supabaseClient
+    const {data,error}=await supabaseClient
       .from("translation_history")
       .select("*")
       .order("created_at",{ascending:false})
-      .limit(100);
+      .limit(150);
 
-    if(!error && data){
-      const cloud = data.map(item=>({
-        source:item.source_text,
-        result:item.result_text,
-        from:item.from_lang,
-        to:item.to_lang,
-        task:item.task,
+    if(!error&&data){
+      const cloud=data.map(item=>({
+        source:item.source_text||"",
+        result:item.result_text||"",
+        from:item.from_lang||"auto",
+        to:item.to_lang||"",
+        task:item.task||"translate",
         engine:"Cloud",
-        time:new Date(item.created_at).toLocaleString()
+        time:item.created_at?new Date(item.created_at).toLocaleString():""
       }));
 
-      historyData = mergeHistory(cloud, local);
-      localStorage.setItem("history_folded_tools", JSON.stringify(historyData.slice(0,100)));
+      historyData=mergeHistory(cloud,local);
+      localStorage.setItem("history_folded_tools",JSON.stringify(historyData.slice(0,150)));
       renderHistory();
+      updateLoginStatus();
       return;
     }
   }
 
-  historyData = local;
+  historyData=local;
   renderHistory();
+  updateLoginStatus();
 }
 
 function mergeHistory(a,b){
-  const map = new Map();
+  const map=new Map();
   [...a,...b].forEach(item=>{
-    const key = (item.source || "") + "::" + (item.result || "");
+    const key=(item.source||"")+"::"+(item.result||"");
     if(!map.has(key)) map.set(key,item);
   });
   return Array.from(map.values());
 }
 
 function renderHistory(){
-  const q = document.getElementById("search").value.toLowerCase();
-  const box = document.getElementById("historyList");
-  box.innerHTML = "";
+  const pack=i18n[getUILang()]||i18n.English;
+  const q=document.getElementById("searchInput").value.toLowerCase();
+  const engine=document.getElementById("filterEngine").value;
+  const lang=document.getElementById("filterLang").value;
+  const box=document.getElementById("historyList");
+  box.innerHTML="";
 
-  const filtered = historyData.filter(item =>
-    String(item.source || "").toLowerCase().includes(q) ||
-    String(item.result || "").toLowerCase().includes(q)
-  );
+  const filtered=historyData.filter(item=>{
+    const matchQuery=String(item.source||"").toLowerCase().includes(q)||String(item.result||"").toLowerCase().includes(q);
+    const matchEngine=engine==="all"||String(item.engine||"").includes(engine);
+    const matchLang=lang==="all"||item.from===lang||item.to===lang;
+    return matchQuery&&matchEngine&&matchLang;
+  });
+
+  document.getElementById("countBadge").innerText=`${filtered.length} ${pack.items}`;
 
   if(!filtered.length){
-    box.innerHTML = `<div class="empty">No history yet.</div>`;
+    box.innerHTML=`<div class="empty">${pack.empty}</div>`;
     return;
   }
 
   filtered.forEach(item=>{
-    const div = document.createElement("div");
-    div.className = "item";
-    div.innerHTML = `
-      <div class="source">${escapeHTML(item.source || "")}</div>
-      <div class="result">${escapeHTML(item.result || "")}</div>
-      <div class="meta">${escapeHTML(item.engine || "")} · ${escapeHTML(item.from || "auto")} → ${escapeHTML(item.to || "")} · ${escapeHTML(item.time || "")}</div>
+    const div=document.createElement("div");
+    div.className="item";
+    div.innerHTML=`
+      <div class="source">${escapeHTML(item.source||"")}</div>
+      <div class="result">${escapeHTML(item.result||"")}</div>
+      <div class="meta">${escapeHTML(item.engine||"")} · ${escapeHTML(item.from||"auto")} → ${escapeHTML(item.to||"")} · ${escapeHTML(item.task||"translate")} · ${escapeHTML(item.time||"")}</div>
     `;
-    div.onclick = ()=>{
-      localStorage.setItem("history_reopen_text", item.source || "");
-      localStorage.setItem("history_reopen_from", item.from || "auto");
-      localStorage.setItem("history_reopen_to", item.to || "English");
-      location.href = "index.html";
+    div.onclick=()=>{
+      localStorage.setItem("history_reopen_text",item.source||"");
+      localStorage.setItem("history_reopen_from",item.from||"auto");
+      localStorage.setItem("history_reopen_to",item.to||"English");
+      location.href="index.html";
     };
     box.appendChild(div);
   });
 }
 
 function clearLocalHistory(){
-  if(!confirm("Clear local history?")) return;
+  const pack=i18n[getUILang()]||i18n.English;
+  if(!confirm(pack.clearLocal+"?")) return;
   localStorage.removeItem("history_folded_tools");
-  historyData = [];
+  historyData=[];
   renderHistory();
 }
 
 function escapeHTML(str){
-  return String(str).replace(/[&<>'"]/g, tag=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[tag] || tag));
+  return String(str).replace(/[&<>'"]/g,tag=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[tag]||tag));
 }
 
+window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",applyTheme);
 init();
 </script>
 </body>
