@@ -18,7 +18,7 @@ body.dark{
 }
 body{margin:0;font-family:Arial,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
 .header{min-height:72px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:14px 34px;gap:12px;flex-wrap:wrap}
-.logo{font-size:24px;font-weight:900;color:var(--blue)}
+.logo{font-size:24px;font-weight:900;color:var(--blue);cursor:pointer}
 .header-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .header button,.header select{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:14px}
 .auth-btn{border:1px solid var(--border)!important;border-radius:12px;padding:9px 15px!important;background:var(--card)!important;color:var(--text)!important}
@@ -36,7 +36,7 @@ body{margin:0;font-family:Arial,"Segoe UI",sans-serif;background:var(--bg);color
 .engine-left label{font-weight:800;color:var(--text)}
 select{border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);padding:10px 14px;font-size:14px}
 #engineStatus{font-size:13px;font-weight:900;color:var(--blue)}
-.pro-badge{font-size:13px;font-weight:900;color:var(--blue)}
+.pro-badge{font-size:13px;font-weight:900;color:#16a34a}
 .sentence-toggle{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text);font-weight:800}
 .lang-row{display:grid;grid-template-columns:1fr 54px 1fr;gap:14px;align-items:center;margin-bottom:14px}
 .lang-row select{width:100%;border:none;border-bottom:2px solid var(--blue);border-radius:0;color:var(--blue);font-weight:900;background:transparent;font-size:16px}
@@ -86,6 +86,7 @@ summary{cursor:pointer;font-weight:900}
 .glossary-form button{background:var(--soft);border:none;color:var(--blue);border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer}
 .glossary-list{margin-top:12px;display:grid;gap:8px}
 .glossary-item{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--soft);border:1px solid var(--border);border-radius:12px;padding:11px 13px}
+.glossary-item button{border:none;background:transparent;color:#ef4444;cursor:pointer;font-weight:900}
 .status{margin-top:14px;font-size:14px;color:var(--muted)}
 .error{color:#ef4444}
 .footer-note{text-align:center;color:var(--muted);margin:60px 0 20px;font-size:14px}
@@ -106,7 +107,7 @@ summary{cursor:pointer;font-weight:900}
 
 <body>
 <header class="header">
-  <div class="logo">FluentReply</div>
+  <div class="logo" onclick="location.href='index.html'">FluentReply</div>
   <div class="header-actions">
     <select id="themeSelect" onchange="changeTheme()">
       <option value="light">Light</option>
@@ -131,7 +132,7 @@ summary{cursor:pointer;font-weight:900}
 
     <button onclick="syncUILanguageToTarget()" data-i18n="sync">Sync UI</button>
     <button onclick="location.href='history.html'" data-i18n="history">History</button>
-    <button class="upgrade-btn" onclick="buyPro()">Unlock Unlimited 🚀</button>
+    <button class="upgrade-btn" onclick="buyPro('pro')">Unlock Unlimited 🚀</button>
     <button class="auth-btn" onclick="location.href='login.html'" data-i18n="login">Login</button>
     <button class="auth-primary" onclick="location.href='signup.html'" data-i18n="signup">Sign up</button>
   </div>
@@ -139,8 +140,8 @@ summary{cursor:pointer;font-weight:900}
 
 <main class="app">
   <section class="hero">
-    <h1>Translate Smarter, Not Harder</h1>
-    <p>DeepL + AI powered translation with sentence-level alternatives.</p>
+    <h1 data-i18n="heroTitle">Translate Smarter, Not Harder</h1>
+    <p data-i18n="heroText">DeepL + AI powered translation with sentence-level alternatives.</p>
     <div class="hero-cta">
       <button class="primary-cta" onclick="input.focus()">Start Translating 🚀</button>
       <button class="secondary-cta" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">View Plans</button>
@@ -268,7 +269,7 @@ summary{cursor:pointer;font-weight:900}
         <h3>Free</h3>
         <div class="plan-price">$0</div>
         <ul>
-          <li>200 translations</li>
+          <li>100 translations</li>
           <li>Basic usage</li>
           <li>Local history</li>
         </ul>
@@ -284,7 +285,7 @@ summary{cursor:pointer;font-weight:900}
           <li>Sentence alternatives</li>
           <li>Glossary tools</li>
         </ul>
-        <button onclick="buyPro()">Unlock Now</button>
+        <button onclick="buyPro('pro')">Unlock Now</button>
       </div>
 
       <div class="plan secondary">
@@ -295,7 +296,7 @@ summary{cursor:pointer;font-weight:900}
           <li>Priority speed</li>
           <li>Future premium tools</li>
         </ul>
-        <button onclick="buyPro()">Upgrade</button>
+        <button onclick="buyPro('pro_plus')">Upgrade</button>
       </div>
     </div>
   </section>
@@ -342,9 +343,9 @@ summary{cursor:pointer;font-weight:900}
 <script>
 const SUPABASE_URL = "https://smwclefrunxnzzjammnu.supabase.co";
 const SUPABASE_KEY = "sb_publishable_DWI3c__Tq7P9z7GSJqhT6g_dzKxwMrb";
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const LOCAL_FREE_LIMIT = 200;
+const LOCAL_FREE_LIMIT = 100;
 
 let currentUser = null;
 let currentProfile = null;
@@ -370,36 +371,30 @@ const glossaryList = document.getElementById("glossaryList");
 const i18n = {
   English:{
     history:"History",login:"Login",signup:"Sign up",sync:"Sync UI",
-    heroTitle:"AI Translation with DeepL Precision",
-    heroText:"Fast full-message translation with sentence-level alternatives.",
+    heroTitle:"Translate Smarter, Not Harder",
+    heroText:"DeepL + AI powered translation with sentence-level alternatives.",
     engineLabel:"Translation engine:",sentenceMode:"Sentence mode",autoDetect:"Auto detect",
     clear:"Clear",copy:"Copy",waiting:"Waiting",placeholder:"Translation will appear here",
-    translateFile:"Translate Files",translateVoice:"Translate Voice",normalMode:"Normal",
-    newsTranslator:"News Translator",headlineRewriter:"Headline Rewriter",vocabHelper:"Vocabulary Helper",
     glossarySummary:"📚 Glossary",addTerm:"Add term",
     privacyText:"Privacy note: Your text is sent only to generate translation results. Do not enter passwords, banking details, or private identification information."
   },
   "Simplified Chinese":{
     history:"历史记录",login:"登录",signup:"注册",sync:"同步界面",
-    heroTitle:"结合 DeepL 精准度的 AI 翻译",
-    heroText:"快速整段翻译，并支持每句多种表达。",
+    heroTitle:"更聪明地翻译，而不是更费力",
+    heroText:"DeepL + AI 翻译，并支持每句多种自然表达。",
     engineLabel:"翻译引擎：",sentenceMode:"分句模式",autoDetect:"自动检测",
     clear:"清空",copy:"复制",waiting:"等待输入",placeholder:"翻译结果会显示在这里",
-    translateFile:"翻译文件",translateVoice:"语音翻译",normalMode:"普通翻译",
-    newsTranslator:"新闻翻译",headlineRewriter:"标题优化",vocabHelper:"关键词解释",
     glossarySummary:"📚 自定义词库",addTerm:"添加词条",
     privacyText:"隐私提示：您的文本仅用于生成翻译结果。请不要输入密码、银行信息或私人身份信息。"
   },
   Japanese:{
     history:"履歴",login:"ログイン",signup:"登録",sync:"UI同期",
-    heroTitle:"DeepL精度を備えたAI翻訳",
-    heroText:"高速な全文翻訳と文ごとの別表現に対応。",
+    heroTitle:"よりスマートに翻訳",
+    heroText:"DeepL + AI 翻訳と文ごとの自然な別表現。",
     engineLabel:"翻訳エンジン：",sentenceMode:"文単位モード",autoDetect:"自動検出",
     clear:"クリア",copy:"コピー",waiting:"待機中",placeholder:"翻訳結果がここに表示されます",
-    translateFile:"ファイル翻訳",translateVoice:"音声翻訳",normalMode:"通常",
-    newsTranslator:"ニュース翻訳",headlineRewriter:"見出しリライト",vocabHelper:"語彙ヘルパー",
     glossarySummary:"📚 用語集",addTerm:"用語を追加",
-    privacyText:"プライバシー注記：入力テキストは翻訳結果の生成にのみ使用されます。パスワード、銀行情報、個人識別情報は入力しないでください。"
+    privacyText:"プライバシー注記：入力テキストは翻訳結果の生成にのみ使用されます。"
   }
 };
 
@@ -464,7 +459,10 @@ input.addEventListener("input",()=>{
   clearTimeout(timer);
   const text=input.value.trim();
   count.innerText=text.length;
-  if(!text){clearResultOnly();return}
+  if(!text){
+    clearResultOnly();
+    return;
+  }
   const delay=document.getElementById("engineMode").value==="deepl"?300:700;
   statusBox.innerText=getUILang()==="Simplified Chinese"?"准备翻译...":"Preparing...";
   timer=setTimeout(translate,delay);
@@ -487,46 +485,48 @@ async function initAuth(){
 }
 
 async function loadProfile(){
-  if(!currentUser?.email)return;
+  if(!currentUser?.email) return;
+
   const {data,error}=await supabaseClient
     .from("profiles")
     .select("*")
     .eq("email",currentUser.email.toLowerCase())
     .maybeSingle();
 
-  if(!error && data) currentProfile=data;
+  if(!error && data){
+    currentProfile=data;
+  }
 }
 
 function userIsPro(){
-  if(!currentProfile?.is_pro)return false;
-  if(!currentProfile.pro_until)return true;
-  return new Date(currentProfile.pro_until).getTime() > Date.now();
+  if(!currentProfile?.is_pro) return false;
+  if(!currentProfile.pro_until) return true;
+  return new Date(currentProfile.pro_until).getTime()>Date.now();
 }
 
 function updateProBadge(){
   const badge=document.getElementById("proBadge");
-  if(userIsPro()){
-    badge.innerText="PRO";
-  }else{
-    const used=getUsage();
-    badge.innerText=`Free ${used}/${LOCAL_FREE_LIMIT}`;
-  }
+  if(!badge) return;
+  badge.innerText=userIsPro() ? "PRO" : "";
 }
 
 function updateAuthUI(){
   const loginBtn=document.querySelector(".auth-btn");
   const signupBtn=document.querySelector(".auth-primary");
   const pack=i18n[getUILang()]||i18n.English;
-  if(!loginBtn||!signupBtn)return;
+
+  if(!loginBtn || !signupBtn) return;
 
   if(currentUser){
     loginBtn.innerText=currentUser.email;
     loginBtn.onclick=()=>alert(currentUser.email);
+
     signupBtn.innerText=getUILang()==="Simplified Chinese"?"退出":"Logout";
     signupBtn.onclick=logout;
   }else{
     loginBtn.innerText=pack.login;
     loginBtn.onclick=()=>location.href="login.html";
+
     signupBtn.innerText=pack.signup;
     signupBtn.onclick=()=>location.href="signup.html";
   }
@@ -540,28 +540,36 @@ async function logout(){
   updateProBadge();
 }
 
-async function buyPro(){
+async function buyPro(plan="pro"){
   let email=currentUser?.email||"";
+
   if(!email){
-    email=prompt("请输入邮箱，用于付款后开通 Pro 会员：");
+    email=prompt("Please enter your email to activate Pro after payment:");
   }
-  if(!email)return;
+
+  if(!email) return;
 
   try{
     const res=await fetch("/.netlify/functions/create-payment",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({email})
+      body:JSON.stringify({
+        email:email.trim().toLowerCase(),
+        plan
+      })
     });
+
     const data=await res.json();
+
     if(data.invoice_url){
       window.location.href=data.invoice_url;
     }else{
-      alert(data.error||"支付创建失败，请稍后再试。");
+      alert(data.error||"Payment creation failed");
       console.log(data);
     }
   }catch(err){
-    alert("支付接口连接失败，请检查 Netlify Function 是否已部署。");
+    alert("Payment function error");
+    console.error(err);
   }
 }
 
@@ -573,17 +581,17 @@ function getUsage(){
 }
 
 function increaseUsage(){
-  if(userIsPro())return;
+  if(userIsPro()) return;
+
   if(currentUser?.email){
     localStorage.setItem("usage_"+currentUser.email,String(getUsage()+1));
   }else{
     localStorage.setItem("guest_usage",String(getUsage()+1));
   }
-  updateProBadge();
 }
 
 function canUseTranslate(){
-  if(userIsPro())return true;
+  if(userIsPro()) return true;
   return getUsage() < LOCAL_FREE_LIMIT;
 }
 
@@ -592,28 +600,41 @@ function setTask(task){
   if(input.value.trim()) translate();
 }
 
-function changeSourceLanguage(){if(input.value.trim()) translate()}
-function changeTargetLanguage(){if(input.value.trim()) translate()}
+function changeSourceLanguage(){
+  if(input.value.trim()) translate();
+}
+
+function changeTargetLanguage(){
+  if(input.value.trim()) translate();
+}
 
 function swapLanguages(){
   const source=sourceSelect.value;
   const target=targetSelect.value;
+
   if(source!=="auto"){
     sourceSelect.value=target||"auto";
     targetSelect.value=source;
   }else{
     targetSelect.value=targetSelect.value==="English"?"Simplified Chinese":"English";
   }
+
   if(input.value.trim()) translate();
 }
 
-function getGlossary(){return JSON.parse(localStorage.getItem("custom_glossary")||"[]")}
-function saveGlossary(list){localStorage.setItem("custom_glossary",JSON.stringify(list))}
+function getGlossary(){
+  return JSON.parse(localStorage.getItem("custom_glossary")||"[]");
+}
+
+function saveGlossary(list){
+  localStorage.setItem("custom_glossary",JSON.stringify(list));
+}
 
 async function addGlossaryTerm(){
   const source=document.getElementById("glossarySource").value.trim();
   const target=document.getElementById("glossaryTarget").value.trim();
-  if(!source||!target)return;
+
+  if(!source||!target) return;
 
   const glossary=getGlossary();
   glossary.unshift({source,target});
@@ -621,6 +642,7 @@ async function addGlossaryTerm(){
 
   document.getElementById("glossarySource").value="";
   document.getElementById("glossaryTarget").value="";
+
   renderGlossary();
 
   if(input.value.trim()) translate();
@@ -631,12 +653,14 @@ function deleteGlossaryTerm(index){
   glossary.splice(index,1);
   saveGlossary(glossary);
   renderGlossary();
+
   if(input.value.trim()) translate();
 }
 
 function renderGlossary(){
   const glossary=getGlossary();
   glossaryList.innerHTML="";
+
   glossary.forEach((item,index)=>{
     const div=document.createElement("div");
     div.className="glossary-item";
@@ -651,7 +675,7 @@ async function loadCloudGlossary(){
 
 async function translate(){
   const text=input.value.trim();
-  if(!text)return;
+  if(!text) return;
 
   if(!canUseTranslate()){
     result.innerHTML=`<span class="error">${getUILang()==="Simplified Chinese"?"免费次数已用完，请升级 Pro。":"Free limit reached. Please upgrade to Pro."}</span><div id="dropdown" class="dropdown"></div>`;
@@ -669,6 +693,7 @@ async function translate(){
 
   const cacheKey=`cache_${currentTask}_${engineMode}_${sentenceMode}_${sourceLanguage}_${targetLanguage}_${uiLanguage}_${JSON.stringify(glossary)}_${text}`;
   const cached=localStorage.getItem(cacheKey);
+
   if(cached){
     renderData(JSON.parse(cached));
     statusBox.innerText=getUILang()==="Simplified Chinese"?"来自缓存":"From cache";
@@ -724,8 +749,13 @@ function renderData(data){
     options:seg.options||[]
   }));
 
-  if(!currentSegments.length&&data.full_translation){
-    currentSegments=[{id:1,source:input.value,selected:data.full_translation,options:[]}];
+  if(!currentSegments.length && data.full_translation){
+    currentSegments=[{
+      id:1,
+      source:input.value,
+      selected:data.full_translation,
+      options:[]
+    }];
   }
 
   rebuildFullText();
@@ -744,6 +774,7 @@ function rebuildFullText(){
 
 function renderSegments(){
   result.innerHTML="";
+
   if(!currentSegments.length){
     result.innerHTML='<span class="placeholder" data-i18n="placeholder">Translation will appear here</span><div id="dropdown" class="dropdown"></div>';
     applyUILanguage();
@@ -786,6 +817,7 @@ function showDropdownForSegment(index){
         <div class="dropdown-text">${escapeHTML(opt.text||"")}</div>
         <div class="dropdown-meaning">${escapeHTML(opt.meaning||"")}</div>
       `;
+
       item.onclick=e=>{
         e.stopPropagation();
         currentSegments[index].selected=opt.text||"";
@@ -793,6 +825,7 @@ function showDropdownForSegment(index){
         renderSegments();
         hideDropdown();
       };
+
       dd.appendChild(item);
     });
   }
@@ -804,53 +837,77 @@ function showDropdownForSegment(index){
 function toggleDropdown(event){
   event.stopPropagation();
   const dd=document.getElementById("dropdown");
-  if(!dd||!dd.innerHTML.trim())return;
+  if(!dd||!dd.innerHTML.trim()) return;
   dd.style.display=dropdownVisible?"none":"block";
   dropdownVisible=!dropdownVisible;
 }
 
 function hideDropdown(){
   const dd=document.getElementById("dropdown");
-  if(dd)dd.style.display="none";
+  if(dd) dd.style.display="none";
   dropdownVisible=false;
 }
 
 function copyText(event){
-  if(event)event.stopPropagation();
-  if(!currentText)return;
+  if(event) event.stopPropagation();
+  if(!currentText) return;
+
   navigator.clipboard.writeText(currentText);
   statusBox.innerText=getUILang()==="Simplified Chinese"?"已复制":"Copied";
 }
 
 function feedback(isGood){
-  if(!currentText)return;
+  if(!currentText) return;
+
   const feedback=JSON.parse(localStorage.getItem("feedback")||"[]");
-  feedback.push({input:input.value,output:currentText,good:isGood,time:new Date().toISOString()});
+  feedback.push({
+    input:input.value,
+    output:currentText,
+    good:isGood,
+    time:new Date().toISOString()
+  });
+
   localStorage.setItem("feedback",JSON.stringify(feedback));
   statusBox.innerText=isGood?"👍":"👎";
 }
 
-function speakInput(){speak(input.value.trim(),langCode(sourceSelect.value))}
+function speakInput(){
+  speak(input.value.trim(),langCode(sourceSelect.value));
+}
+
 function speakOutput(event){
-  if(event)event.stopPropagation();
+  if(event) event.stopPropagation();
   speak(currentText,langCode(targetSelect.value||"English"));
 }
 
 function speak(text,lang){
-  if(!text)return;
+  if(!text) return;
+
   const utterance=new SpeechSynthesisUtterance(text);
-  if(lang)utterance.lang=lang;
+  if(lang) utterance.lang=lang;
+
   speechSynthesis.cancel();
   speechSynthesis.speak(utterance);
 }
 
 function langCode(lang){
   const map={
-    "Simplified Chinese":"zh-CN","English":"en-US","Japanese":"ja-JP","Korean":"ko-KR",
-    "Spanish":"es-ES","French":"fr-FR","German":"de-DE","Russian":"ru-RU",
-    "Arabic":"ar-SA","Portuguese":"pt-PT","Italian":"it-IT",
-    "Thai":"th-TH","Vietnamese":"vi-VN","Burmese":"my-MM"
+    "Simplified Chinese":"zh-CN",
+    "English":"en-US",
+    "Japanese":"ja-JP",
+    "Korean":"ko-KR",
+    "Spanish":"es-ES",
+    "French":"fr-FR",
+    "German":"de-DE",
+    "Russian":"ru-RU",
+    "Arabic":"ar-SA",
+    "Portuguese":"pt-PT",
+    "Italian":"it-IT",
+    "Thai":"th-TH",
+    "Vietnamese":"vi-VN",
+    "Burmese":"my-MM"
   };
+
   return map[lang]||"";
 }
 
@@ -864,7 +921,9 @@ function clearResultOnly(){
   currentText="";
   currentSegments=[];
   activeSegmentIndex=null;
+
   result.innerHTML='<span class="placeholder" data-i18n="placeholder">Translation will appear here</span><div id="dropdown" class="dropdown"></div>';
+
   applyUILanguage();
   statusBox.innerText=(i18n[getUILang()]||i18n.English).waiting;
   bottomStatus.innerText="";
@@ -876,18 +935,22 @@ function triggerFileUpload(){
 
 function handleFileUpload(event){
   const file=event.target.files[0];
-  if(!file)return;
+  if(!file) return;
+
   const reader=new FileReader();
+
   reader.onload=e=>{
     input.value=e.target.result.slice(0,8000);
     count.innerText=input.value.length;
     translate();
   };
+
   reader.readAsText(file);
 }
 
 function toggleVoiceInput(){
   const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+
   if(!SpeechRecognition){
     alert(getUILang()==="Simplified Chinese"?"当前浏览器不支持语音输入，请使用 Chrome。":"Voice input is not supported. Please use Chrome.");
     return;
@@ -897,12 +960,14 @@ function toggleVoiceInput(){
     recognition=new SpeechRecognition();
     recognition.continuous=false;
     recognition.interimResults=false;
+
     recognition.onresult=e=>{
       const text=e.results[0][0].transcript;
       input.value=input.value?input.value+" "+text:text;
       count.innerText=input.value.length;
       translate();
     };
+
     recognition.onend=()=>{
       isListening=false;
       statusBox.innerText=getUILang()==="Simplified Chinese"?"语音输入结束":"Voice input ended";
@@ -919,6 +984,7 @@ function toggleVoiceInput(){
 
 async function saveHistory(source,data){
   const resultText=data.full_translation||currentText||"";
+
   const item={
     source,
     result:resultText,
@@ -931,6 +997,7 @@ async function saveHistory(source,data){
 
   const history=JSON.parse(localStorage.getItem("history_folded_tools")||"[]");
   const key=item.source+item.result;
+
   if(lastSavedKey!==key){
     history.unshift(item);
     localStorage.setItem("history_folded_tools",JSON.stringify(history.slice(0,50)));
@@ -938,12 +1005,21 @@ async function saveHistory(source,data){
   }
 }
 
-document.addEventListener("click",hideDropdown);
-window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",applyTheme);
-
 function escapeHTML(str){
-  return String(str).replace(/[&<>'"]/g,tag=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[tag]||tag));
+  return String(str).replace(/[&<>'"]/g,tag=>({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    "'":"&#39;",
+    '"':"&quot;"
+  }[tag]||tag));
 }
+
+document.addEventListener("click",hideDropdown);
+
+window.matchMedia &&
+window.matchMedia("(prefers-color-scheme: dark)")
+  .addEventListener?.("change",applyTheme);
 
 applyTheme();
 applyUILanguage();
