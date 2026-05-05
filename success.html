@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Payment Success</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#f5f7fb;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
+}
+
+.card{
+  background:white;
+  padding:40px;
+  border-radius:20px;
+  text-align:center;
+  box-shadow:0 10px 30px rgba(0,0,0,0.1);
+}
+
+h1{
+  color:#16a34a;
+}
+
+button{
+  margin-top:20px;
+  padding:12px 20px;
+  border:none;
+  border-radius:999px;
+  background:#1a73e8;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h1>🎉 Payment Successful</h1>
+  <p>Your Pro plan is being activated...</p>
+  <button onclick="goHome()">Go to Home</button>
+</div>
+
+<script>
+const SUPABASE_URL = "https://smwclefrunxnzzjammnu.supabase.co";
+const SUPABASE_KEY = "sb_publishable_DWI3c__Tq7P9z7GSJqhT6g_dzKxwMrb";
+
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+async function goHome(){
+  location.href = "index.html";
+}
+
+// 自动检查登录状态
+async function init(){
+  const { data } = await supabase.auth.getUser();
+
+  if(data.user){
+    console.log("User logged in:", data.user.email);
+  }else{
+    console.log("No user logged in");
+  }
+}
+
+init();
+</script>
+
+</body>
+</html>
