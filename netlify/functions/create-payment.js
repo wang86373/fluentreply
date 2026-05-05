@@ -34,8 +34,8 @@ exports.handler = async function (event) {
         statusCode: 500,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          error: "SITE_URL must be a valid https URL",
-          detail: "Example: https://gorgeous-tapioca-d7dc80.netlify.app"
+          error: "SITE_URL must start with https://",
+          current_SITE_URL: SITE_URL
         })
       };
     }
@@ -54,8 +54,7 @@ exports.handler = async function (event) {
         order_id: orderId,
         order_description: `FluentReply Pro | ${email}`,
         success_url: `${SITE_URL}/success.html?order_id=${orderId}`,
-        cancel_url: SITE_URL,
-        ipn_callback_url: `${SITE_URL}/.netlify/functions/payment-webhook`
+        cancel_url: SITE_URL
       })
     });
 
