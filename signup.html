@@ -7,82 +7,56 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-*{box-sizing:border-box}
-:root{
-  --bg:#f5f7fb;--card:#fff;--text:#111827;--muted:#64748b;--border:#d1d5db;
-  --soft:#f1f5ff;--blue:#1a73e8;--dark:#0f2b46;
+body{
+  margin:0;
+  font-family:Arial;
+  background:#f5f7fb;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
 }
-body.dark{
-  --bg:#0f172a;--card:#111827;--text:#e5e7eb;--muted:#94a3b8;--border:#334155;
-  --soft:#1e293b;--blue:#60a5fa;--dark:#2563eb;
-}
-body{margin:0;font-family:Arial;background:var(--bg);color:var(--text)}
-.app{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+
 .card{
-  width:100%;max-width:420px;
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:24px;
-  padding:28px;
+  width:100%;
+  max-width:420px;
+  background:white;
+  border-radius:20px;
+  padding:30px;
 }
-h1{margin:0 0 10px}
-.sub{color:var(--muted);margin-bottom:20px}
+
 input{
-  width:100%;margin-top:10px;
-  padding:12px;border-radius:12px;
-  border:1px solid var(--border);
-  background:var(--card);color:var(--text)
+  width:100%;
+  padding:12px;
+  margin-top:10px;
 }
+
 button{
-  width:100%;margin-top:14px;
-  padding:12px;border:none;border-radius:999px;
-  font-weight:bold;cursor:pointer
+  width:100%;
+  padding:12px;
+  margin-top:14px;
+  border:none;
+  border-radius:999px;
+  background:#1a73e8;
+  color:white;
+  font-weight:bold;
 }
-.primary{background:var(--blue);color:white}
-.secondary{background:transparent;border:1px solid var(--border)}
-.tabs{display:flex;gap:8px;margin-bottom:14px}
-.tab{flex:1;padding:10px;border-radius:999px;border:none;cursor:pointer}
-.tab.active{background:var(--blue);color:white}
-.status{margin-top:12px;font-size:14px}
-.error{color:red}
-.success{color:green}
+
+.status{margin-top:10px}
 </style>
 </head>
 
 <body>
-<div class="app">
-  <div class="card">
-    <h1>Create account</h1>
-    <p class="sub">Sign up with password or email code</p>
 
-    <div class="tabs">
-      <button id="tabPwd" class="tab active" onclick="setMode('pwd')">Password</button>
-      <button id="tabCode" class="tab" onclick="setMode('code')">Code</button>
-    </div>
+<div class="card">
+  <h1>Create account</h1>
 
-    <input id="email" placeholder="Email" />
+  <input id="email" placeholder="Email" />
+  <input id="password" type="password" placeholder="Password" />
 
-    <div id="pwdBox">
-      <input id="password" type="password" placeholder="Password" />
-      <button class="primary" onclick="signupPwd()">Sign up</button>
-    </div>
+  <button onclick="signup()">Sign up</button>
 
-    <div id="codeBox" style="display:none">
-      <button class="primary" onclick="sendCode()">Send code</button>
-      <input id="code" placeholder="Enter code" />
-      <button class="primary" onclick="verifyCode()">Verify & Sign up</button>
-    </div>
-
-    <button class="secondary" onclick="location.href='index.html'">
-      Continue as guest
-    </button>
-
-    <div id="status" class="status"></div>
-
-    <div style="margin-top:14px">
-      <a href="login.html">Already have account?</a>
-    </div>
-  </div>
+  <div id="status" class="status"></div>
 </div>
 
 <script>
@@ -91,55 +65,19 @@ const supabase = window.supabase.createClient(
   "sb_publishable_DWI3c__Tq7P9z7GSJqhT6g_dzKxwMrb"
 );
 
-function setMode(m){
-  document.getElementById("tabPwd").classList.toggle("active",m==="pwd");
-  document.getElementById("tabCode").classList.toggle("active",m==="code");
-  document.getElementById("pwdBox").style.display=m==="pwd"?"block":"none";
-  document.getElementById("codeBox").style.display=m==="code"?"block":"none";
-}
+function msg(t){document.getElementById("status").innerText=t;}
 
-function msg(t,c=""){ 
-  const el=document.getElementById("status");
-  el.className="status "+c;
-  el.innerText=t;
-}
-
-async function signupPwd(){
+async function signup(){
   const email=document.getElementById("email").value;
   const password=document.getElementById("password").value;
-  if(!email||!password){msg("Missing info","error");return;}
 
-  msg("Signing up...");
   const {error}=await supabase.auth.signUp({email,password});
-  if(error){msg(error.message,"error");return;}
-  msg("Success! Check your email.","success");
-}
 
-async function sendCode(){
-  const email=document.getElementById("email").value;
-  if(!email){msg("Enter email","error");return;}
-  msg("Sending...");
-  const {error}=await supabase.auth.signInWithOtp({email});
-  if(error){msg(error.message,"error");return;}
-  msg("Code sent","success");
-}
+  if(error){msg(error.message);return;}
 
-async function verifyCode(){
-  const email=document.getElementById("email").value;
-  const code=document.getElementById("code").value;
-  if(!email||!code){msg("Missing","error");return;}
-
-  msg("Verifying...");
-  const {error}=await supabase.auth.verifyOtp({
-    email,
-    token:code,
-    type:"email"
-  });
-
-  if(error){msg(error.message,"error");return;}
-  msg("Success! Redirecting...","success");
-  setTimeout(()=>location.href="index.html",800);
+  msg("Check your email");
 }
 </script>
+
 </body>
 </html>
