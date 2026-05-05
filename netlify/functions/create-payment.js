@@ -1,52 +1,54 @@
+// netlify/functions/create-payment.js
+
 exports.handler = async function (event) {
   try {
     if (event.httpMethod !== "POST") {
       return {
         statusCode: 405,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Method not allowed" })
-      };
-    }
-
-    const { email, plan = "pro" } = JSON.parse(event.body || "{}");
-
-    if (!email || !String(email).includes("@")) {
-      return {
-        statusCode: 400,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Missing or invalid email" })
+        body: "Method Not Allowed"
       };
     }
 
     const NOWPAYMENTS_API_KEY = process.env.NOWPAYMENTS_API_KEY;
-    const SITE_URL = (process.env.SITE_URL || "").replace(/\/$/, "");
+    const SITE_URL = process.env.SITE_URL;
 
-    if (!NOWPAYMENTS_API_KEY) {
+    if (!NOWPAYMENTS_API_KEY || !SITE_URL) {
       return {
         statusCode: 500,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Missing NOWPAYMENTS_API_KEY" })
+        body: JSON.stringify({
+          error: "Missing server configuration"
+        })
       };
     }
 
-    if (!SITE_URL || !SITE_URL.startsWith("https://")) {
+    const body = JSON.parse(event.body || "{}");
+
+    const email = (body.email || "").trim().toLowerCase();
+    const plan = body.plan || "pro";
+
+    if (!email || !email.includes("@")) {
       return {
-        statusCode: 500,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Invalid SITE_URL" })
+        statusCode: 400,
+        body: JSON.stringify({
+          error: "Invalid email"
+        })
       };
     }
 
-    const normalizedEmail = String(email).trim().toLowerCase();
+    // ✅ 价格设置
+    let priceAmount = 12;
+    let planName = "Pro Plan";
 
-    const selectedPlan = plan === "pro_plus" ? "pro_plus" : "pro";
+    if (plan === "pro_plus") {
+      priceAmount = 29;
+      planName = "Pro Plus Plan";
+    }
 
-    const priceAmount = selectedPlan === "pro_plus" ? 29 : 12;
-    const planName = selectedPlan === "pro_plus" ? "FluentReply Pro+" : "FluentReply Pro";
+    // ✅ 订单ID（必须唯一）
+    const orderId = `fluentreply_${Date.now()}_${plan}`;
 
-    const orderId = `fluentreply_${selectedPlan}_${Date.now()}`;
-
-    const response = await fetch("https://api.nowpayments.io/v1/invoice", {
+    // ✅ 创建支付（核心）
+    const paymentRes = await fetch("https://api.nowpayments.io/v1/invoice", {
       method: "POST",
       headers: {
         "x-api-key": NOWPAYMENTS_API_KEY,
@@ -55,45 +57,47 @@ exports.handler = async function (event) {
       body: JSON.stringify({
         price_amount: priceAmount,
         price_currency: "usd",
+
         order_id: orderId,
-        order_description: `${planName} | ${normalizedEmail}`,
-        success_url: `${SITE_URL}/success.html?order_id=${orderId}&plan=${selectedPlan}`,
+        order_description: `${planName} | ${email}`,
+
+        success_url: `${SITE_URL}/success.html?order_id=${orderId}&plan=${plan}`,
         cancel_url: SITE_URL,
-        ipn_callback_url: `${SITE_URL}/.netlify/functions/payment-webhook`
+
+        ipn_callback_url: `${SITE_URL}/.netlify/functions/payment-webhook`,
+
+        // 🔥 关键修复：手续费由用户承担
+        is_fee_paid_by_user: true
       })
     });
 
-    const data = await response.json();
+    const data = await paymentRes.json();
 
-    if (!response.ok) {
+    if (!paymentRes.ok) {
       return {
-        statusCode: response.status,
-        headers: { "Content-Type": "application/json" },
+        statusCode: 500,
         body: JSON.stringify({
-          error: data.message || "Payment creation failed",
+          error: "Payment creation failed",
           detail: data
         })
       };
     }
 
+    // ✅ 返回支付页面
     return {
       statusCode: 200,
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         invoice_url: data.invoice_url,
-        order_id: orderId,
-        plan: selectedPlan,
-        amount: priceAmount
+        id: data.id
       })
     };
 
-  } catch (error) {
+  } catch (err) {
     return {
       statusCode: 500,
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         error: "Server error",
-        detail: error.message
+        message: err.message
       })
     };
   }
