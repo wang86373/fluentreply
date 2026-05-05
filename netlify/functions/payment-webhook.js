@@ -9,76 +9,125 @@ exports.handler = async function (event) {
       };
     }
 
-    const body = JSON.parse(event.body || "{}");
-
-    console.log("Webhook received:", body);
-
-    // 🔐 验证签名（安全关键）
     const secret = process.env.NOWPAYMENTS_IPN_SECRET;
-    const signature = event.headers["x-nowpayments-sig"];
+    const SUPABASE_URL = process.env.SUPABASE_URL;
+    const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    const hmac = crypto.createHmac("sha512", secret);
-    hmac.update(JSON.stringify(body));
-    const expectedSignature = hmac.digest("hex");
+    if (!secret || !SUPABASE_URL || !SERVICE_KEY) {
+      return {
+        statusCode: 500,
+        body: "Missing server configuration"
+      };
+    }
+
+    const signature =
+      event.headers["x-nowpayments-sig"] ||
+      event.headers["X-Nowpayments-Sig"];
+
+    if (!signature) {
+      return {
+        statusCode: 401,
+        body: "Missing signature"
+      };
+    }
+
+    const expectedSignature = crypto
+      .createHmac("sha512", secret)
+      .update(event.body || "")
+      .digest("hex");
 
     if (signature !== expectedSignature) {
-      console.log("Invalid signature");
       return {
         statusCode: 401,
         body: "Invalid signature"
       };
     }
 
-    // 🎯 只处理成功支付
-    if (body.payment_status === "finished" || body.payment_status === "confirmed") {
-      const email = body.order_description?.split("|")[1]?.trim();
+    const body = JSON.parse(event.body || "{}");
 
-      console.log("Payment success for:", email);
+    const validPaidStatuses = ["finished", "confirmed"];
 
-      const SUPABASE_URL = process.env.SUPABASE_URL;
-      const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!validPaidStatuses.includes(body.payment_status)) {
+      return {
+        statusCode: 200,
+        body: "Ignored"
+      };
+    }
 
-      const proUntil = new Date();
+    const rawDescription = body.order_description || "";
+    const email = rawDescription.split("|")[1]?.trim()?.toLowerCase();
+
+    if (!email || !email.includes("@")) {
+      return {
+        statusCode: 400,
+        body: "Missing email"
+      };
+    }
+
+    const orderId = String(body.order_id || "");
+    const plan = orderId.includes("pro_plus") ? "pro_plus" : "pro";
+
+    const proUntil = new Date();
+
+    if (plan === "pro_plus") {
       proUntil.setMonth(proUntil.getMonth() + 1);
+    } else {
+      proUntil.setMonth(proUntil.getMonth() + 1);
+    }
 
-      // 💾 更新用户为 Pro
-      await fetch(`${SUPABASE_URL}/rest/v1/profiles`, {
+    const profileRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/profiles?on_conflict=email`,
+      {
         method: "POST",
         headers: {
-          "apikey": SERVICE_KEY,
-          "Authorization": `Bearer ${SERVICE_KEY}`,
+          apikey: SERVICE_KEY,
+          Authorization: `Bearer ${SERVICE_KEY}`,
           "Content-Type": "application/json",
-          "Prefer": "resolution=merge-duplicates"
+          Prefer: "resolution=merge-duplicates"
         },
         body: JSON.stringify({
-          email: email,
+          email,
           is_pro: true,
-          plan: "pro",
+          plan,
           pro_until: proUntil.toISOString(),
           updated_at: new Date().toISOString()
         })
-      });
+      }
+    );
 
-      // 💾 记录支付
-      await fetch(`${SUPABASE_URL}/rest/v1/payments`, {
-        method: "POST",
-        headers: {
-          "apikey": SERVICE_KEY,
-          "Authorization": `Bearer ${SERVICE_KEY}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email: email,
-          order_id: body.order_id,
-          payment_id: body.payment_id,
-          amount: body.price_amount,
-          currency: body.price_currency,
-          status: body.payment_status,
-          raw: body
-        })
-      });
+    if (!profileRes.ok) {
+      const detail = await profileRes.text();
+      return {
+        statusCode: 500,
+        body: "Profile update failed: " + detail
+      };
+    }
 
-      console.log("User upgraded to PRO:", email);
+    const paymentPayload = {
+      email,
+      order_id: body.order_id,
+      payment_id: String(body.payment_id || body.invoice_id || body.order_id),
+      amount: body.price_amount,
+      currency: body.price_currency,
+      status: body.payment_status,
+      plan,
+      raw: body,
+      created_at: new Date().toISOString()
+    };
+
+    const paymentRes = await fetch(`${SUPABASE_URL}/rest/v1/payments`, {
+      method: "POST",
+      headers: {
+        apikey: SERVICE_KEY,
+        Authorization: `Bearer ${SERVICE_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(paymentPayload)
+    });
+
+    if (!paymentRes.ok) {
+      const detail = await paymentRes.text();
+      console.log("Payment record failed:", detail);
     }
 
     return {
@@ -87,11 +136,9 @@ exports.handler = async function (event) {
     };
 
   } catch (err) {
-    console.error("Webhook error:", err);
-
     return {
       statusCode: 500,
-      body: "Server error"
+      body: "Server error: " + err.message
     };
   }
 };
