@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>History - FluentReply</title>
+<title>Login - FluentReply</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -10,49 +10,151 @@
 *{box-sizing:border-box}
 :root{
   --bg:#f5f7fb;--card:#fff;--text:#111827;--muted:#64748b;--border:#d1d5db;
-  --soft:#f1f5ff;--blue:#1a73e8;--dark:#0f2b46;--shadow:0 14px 40px rgba(15,23,42,.06);
+  --soft:#f1f5ff;--blue:#1a73e8;--dark:#0f2b46;--shadow:0 18px 50px rgba(15,23,42,.08);
 }
 body.dark{
   --bg:#0f172a;--card:#111827;--text:#e5e7eb;--muted:#94a3b8;--border:#334155;
-  --soft:#1e293b;--blue:#60a5fa;--dark:#2563eb;--shadow:0 14px 40px rgba(0,0,0,.35);
+  --soft:#1e293b;--blue:#60a5fa;--dark:#2563eb;--shadow:0 18px 50px rgba(0,0,0,.35);
 }
-body{margin:0;font-family:Arial,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
-.header{min-height:72px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:14px 34px;gap:12px;flex-wrap:wrap}
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Arial,"Segoe UI",sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+.header{
+  min-height:72px;
+  background:var(--card);
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 34px;
+  gap:12px;
+  flex-wrap:wrap;
+}
 .logo{font-size:24px;font-weight:900;color:var(--blue)}
 .header-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-button,select,input{font-family:inherit}
-select,input{border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);padding:10px 14px;font-size:14px}
-button{border:none;border-radius:999px;padding:10px 18px;font-weight:900;cursor:pointer}
-.primary{background:var(--blue);color:white}
-.secondary{background:var(--card);color:var(--text);border:1px solid var(--border)}
-.danger{background:#fee2e2;color:#b91c1c}
-.app{max-width:1050px;margin:32px auto;padding:0 22px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:22px;box-shadow:var(--shadow)}
-.top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
-h1{margin:0 0 8px;font-size:30px}
-.sub{color:var(--muted);margin:0}
-.search-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;margin:18px 0}
-.list{display:grid;gap:12px}
-.item{background:var(--soft);border:1px solid var(--border);border-radius:16px;padding:15px;cursor:pointer}
-.item:hover{border-color:var(--blue)}
-.source{font-weight:900;margin-bottom:8px;line-height:1.45}
-.result{color:var(--text);line-height:1.45;margin-bottom:10px}
-.meta{font-size:12px;color:var(--muted)}
-.empty{text-align:center;color:var(--muted);padding:40px 10px}
-.badge{display:inline-block;background:rgba(96,165,250,.18);color:var(--blue);padding:4px 9px;border-radius:999px;font-size:12px;font-weight:900;margin-left:6px}
-@media(max-width:760px){
-  .header{padding:14px}
-  .logo{font-size:20px}
-  .search-row{grid-template-columns:1fr}
-  .top{display:block}
-  .top .header-actions{margin-top:12px}
+select{
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:var(--card);
+  color:var(--text);
+  padding:10px 14px;
+  font-size:14px;
 }
+.link-btn{
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--text);
+  border-radius:999px;
+  padding:10px 18px;
+  font-weight:900;
+  cursor:pointer;
+}
+.app{
+  min-height:calc(100vh - 72px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:32px 18px;
+}
+.card{
+  width:min(460px,100%);
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:26px;
+  padding:30px;
+  box-shadow:var(--shadow);
+}
+h1{margin:0 0 8px;font-size:30px}
+.sub{margin:0 0 22px;color:var(--muted);line-height:1.5}
+.tabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  background:var(--soft);
+  border-radius:999px;
+  padding:6px;
+  margin-bottom:20px;
+}
+.tab{
+  border:none;
+  background:transparent;
+  color:var(--muted);
+  font-weight:900;
+  border-radius:999px;
+  padding:11px;
+  cursor:pointer;
+}
+.tab.active{
+  background:var(--card);
+  color:var(--blue);
+  box-shadow:0 4px 14px rgba(15,23,42,.08);
+}
+label{
+  display:block;
+  font-size:14px;
+  font-weight:900;
+  margin:14px 0 8px;
+}
+input{
+  width:100%;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:var(--card);
+  color:var(--text);
+  padding:13px 14px;
+  font-size:15px;
+  outline:none;
+}
+input:focus{border-color:var(--blue)}
+.primary{
+  width:100%;
+  border:none;
+  background:var(--blue);
+  color:white;
+  font-weight:900;
+  border-radius:999px;
+  padding:13px;
+  margin-top:18px;
+  cursor:pointer;
+}
+.secondary{
+  width:100%;
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--blue);
+  font-weight:900;
+  border-radius:999px;
+  padding:13px;
+  margin-top:10px;
+  cursor:pointer;
+}
+.status{
+  min-height:22px;
+  margin-top:14px;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.45;
+}
+.links{
+  margin-top:20px;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+}
+a{color:var(--blue);font-weight:900;text-decoration:none}
+.hidden{display:none}
+.error{color:#ef4444}
+.success{color:#16a34a}
 </style>
 </head>
 
 <body>
 <header class="header">
-  <div class="logo">FluentReply History</div>
+  <div class="logo">FluentReply</div>
   <div class="header-actions">
     <select id="themeSelect" onchange="changeTheme()">
       <option value="light">Light</option>
@@ -75,47 +177,46 @@ h1{margin:0 0 8px;font-size:30px}
       <option value="Italian">Italiano</option>
     </select>
 
-    <button class="primary" onclick="location.href='index.html'" data-i18n="back">Back</button>
+    <button class="link-btn" onclick="location.href='index.html'" data-i18n="home">Home</button>
   </div>
 </header>
 
 <main class="app">
   <section class="card">
-    <div class="top">
-      <div>
-        <h1 data-i18n="title">Translation History</h1>
-        <p class="sub">
-          <span id="loginStatus"></span>
-          <span id="countBadge" class="badge"></span>
-        </p>
-      </div>
-      <div class="header-actions">
-        <button class="secondary" onclick="loadAllHistory()" data-i18n="refresh">Refresh</button>
-        <button class="danger" onclick="clearLocalHistory()" data-i18n="clearLocal">Clear local</button>
-      </div>
+    <h1 data-i18n="title">Login</h1>
+    <p class="sub" data-i18n="subtitle">Choose password login or email verification code login.</p>
+
+    <div class="tabs">
+      <button id="passwordTab" class="tab active" onclick="setMode('password')" data-i18n="passwordTab">Password</button>
+      <button id="codeTab" class="tab" onclick="setMode('code')" data-i18n="codeTab">Code</button>
     </div>
 
-    <div class="search-row">
-      <input id="searchInput" placeholder="Search history..." oninput="renderHistory()" />
-      <select id="filterEngine" onchange="renderHistory()">
-        <option value="all">All engines</option>
-        <option value="DeepL">DeepL</option>
-        <option value="AI">AI</option>
-        <option value="Cloud">Cloud</option>
-      </select>
-      <select id="filterLang" onchange="renderHistory()">
-        <option value="all">All languages</option>
-        <option value="English">English</option>
-        <option value="Simplified Chinese">中文</option>
-        <option value="Japanese">日本語</option>
-        <option value="Korean">한국어</option>
-        <option value="Spanish">Español</option>
-        <option value="French">Français</option>
-        <option value="German">Deutsch</option>
-      </select>
+    <label data-i18n="emailLabel">Email</label>
+    <input id="email" type="email" placeholder="you@example.com" autocomplete="email" />
+
+    <div id="passwordBox">
+      <label data-i18n="passwordLabel">Password</label>
+      <input id="password" type="password" placeholder="Your password" autocomplete="current-password" />
+      <button class="primary" onclick="loginWithPassword()" data-i18n="loginPassword">Login with password</button>
     </div>
 
-    <div id="historyList" class="list"></div>
+    <div id="codeBox" class="hidden">
+      <button class="primary" onclick="sendLoginCode()" data-i18n="sendCode">Send login code</button>
+
+      <label data-i18n="codeLabel">Verification code</label>
+      <input id="code" placeholder="Enter 6-digit code" inputmode="numeric" />
+
+      <button class="primary" onclick="verifyLoginCode()" data-i18n="loginCode">Login with code</button>
+    </div>
+
+    <button class="secondary" onclick="location.href='index.html'" data-i18n="guest">Continue as guest</button>
+
+    <div id="status" class="status"></div>
+
+    <div class="links">
+      <a href="signup.html" data-i18n="create">Create account</a>
+      <a href="index.html" data-i18n="back">Back home</a>
+    </div>
   </section>
 </main>
 
@@ -124,33 +225,42 @@ const SUPABASE_URL = "https://smwclefrunxnzzjammnu.supabase.co";
 const SUPABASE_KEY = "sb_publishable_DWI3c__Tq7P9z7GSJqhT6g_dzKxwMrb";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let currentUser = null;
-let historyData = [];
-
 const i18n = {
   English:{
-    back:"Back",title:"Translation History",refresh:"Refresh",clearLocal:"Clear local",
-    guest:"Guest history",logged:"Logged in",empty:"No history yet.",search:"Search history...",
-    allEngines:"All engines",allLanguages:"All languages",items:"items"
+    home:"Home",title:"Login",subtitle:"Choose password login or email verification code login.",
+    passwordTab:"Password",codeTab:"Code",emailLabel:"Email",passwordLabel:"Password",
+    loginPassword:"Login with password",sendCode:"Send login code",codeLabel:"Verification code",
+    loginCode:"Login with code",guest:"Continue as guest",create:"Create account",back:"Back home",
+    needEmail:"Please enter your email.",needPassword:"Please enter your password.",
+    needCode:"Please enter email and verification code.",logging:"Logging in...",success:"Login successful. Redirecting...",
+    sending:"Sending login code...",sent:"Login code sent. Please check your email.",verifying:"Verifying..."
   },
   "Simplified Chinese":{
-    back:"返回",title:"翻译历史记录",refresh:"刷新",clearLocal:"清空本地",
-    guest:"游客本地历史",logged:"已登录",empty:"暂无历史记录",search:"搜索历史记录...",
-    allEngines:"全部引擎",allLanguages:"全部语言",items:"条"
+    home:"首页",title:"登录",subtitle:"请选择密码登录或邮箱验证码登录。",
+    passwordTab:"密码登录",codeTab:"验证码",emailLabel:"邮箱",passwordLabel:"密码",
+    loginPassword:"使用密码登录",sendCode:"发送登录验证码",codeLabel:"验证码",
+    loginCode:"使用验证码登录",guest:"游客继续使用",create:"创建账户",back:"返回首页",
+    needEmail:"请输入邮箱。",needPassword:"请输入密码。",
+    needCode:"请输入邮箱和验证码。",logging:"正在登录...",success:"登录成功，正在跳转...",
+    sending:"正在发送验证码...",sent:"验证码已发送，请检查邮箱。",verifying:"正在验证..."
   },
   Japanese:{
-    back:"戻る",title:"翻訳履歴",refresh:"更新",clearLocal:"ローカル削除",
-    guest:"ゲスト履歴",logged:"ログイン中",empty:"履歴はまだありません",search:"履歴を検索...",
-    allEngines:"全エンジン",allLanguages:"全言語",items:"件"
+    home:"ホーム",title:"ログイン",subtitle:"パスワードログインまたはメール認証コードを選択してください。",
+    passwordTab:"パスワード",codeTab:"コード",emailLabel:"メール",passwordLabel:"パスワード",
+    loginPassword:"パスワードでログイン",sendCode:"ログインコードを送信",codeLabel:"認証コード",
+    loginCode:"コードでログイン",guest:"ゲストとして続行",create:"アカウント作成",back:"ホームへ戻る",
+    needEmail:"メールアドレスを入力してください。",needPassword:"パスワードを入力してください。",
+    needCode:"メールと認証コードを入力してください。",logging:"ログイン中...",success:"ログイン成功。移動中...",
+    sending:"コードを送信中...",sent:"ログインコードを送信しました。メールを確認してください。",verifying:"確認中..."
   },
-  Korean:{back:"뒤로",title:"번역 기록",refresh:"새로고침",clearLocal:"로컬 삭제",guest:"게스트 기록",logged:"로그인됨",empty:"기록이 없습니다.",search:"기록 검색...",allEngines:"모든 엔진",allLanguages:"모든 언어",items:"개"},
-  Spanish:{back:"Volver",title:"Historial de traducción",refresh:"Actualizar",clearLocal:"Borrar local",guest:"Historial invitado",logged:"Conectado",empty:"Aún no hay historial.",search:"Buscar historial...",allEngines:"Todos los motores",allLanguages:"Todos los idiomas",items:"elementos"},
-  French:{back:"Retour",title:"Historique des traductions",refresh:"Actualiser",clearLocal:"Effacer local",guest:"Historique invité",logged:"Connecté",empty:"Aucun historique.",search:"Rechercher...",allEngines:"Tous les moteurs",allLanguages:"Toutes les langues",items:"éléments"},
-  German:{back:"Zurück",title:"Übersetzungsverlauf",refresh:"Aktualisieren",clearLocal:"Lokal löschen",guest:"Gastverlauf",logged:"Angemeldet",empty:"Noch kein Verlauf.",search:"Verlauf suchen...",allEngines:"Alle Engines",allLanguages:"Alle Sprachen",items:"Einträge"},
-  Russian:{back:"Назад",title:"История переводов",refresh:"Обновить",clearLocal:"Очистить локально",guest:"История гостя",logged:"Вход выполнен",empty:"Истории пока нет.",search:"Поиск...",allEngines:"Все движки",allLanguages:"Все языки",items:"записей"},
-  Arabic:{back:"رجوع",title:"سجل الترجمة",refresh:"تحديث",clearLocal:"مسح المحلي",guest:"سجل الضيف",logged:"تم تسجيل الدخول",empty:"لا يوجد سجل بعد.",search:"ابحث في السجل...",allEngines:"كل المحركات",allLanguages:"كل اللغات",items:"عنصر"},
-  Portuguese:{back:"Voltar",title:"Histórico de tradução",refresh:"Atualizar",clearLocal:"Limpar local",guest:"Histórico de convidado",logged:"Conectado",empty:"Ainda sem histórico.",search:"Pesquisar histórico...",allEngines:"Todos os motores",allLanguages:"Todos os idiomas",items:"itens"},
-  Italian:{back:"Indietro",title:"Cronologia traduzioni",refresh:"Aggiorna",clearLocal:"Cancella locale",guest:"Cronologia ospite",logged:"Accesso effettuato",empty:"Nessuna cronologia.",search:"Cerca cronologia...",allEngines:"Tutti i motori",allLanguages:"Tutte le lingue",items:"elementi"}
+  Korean:{home:"홈",title:"로그인",subtitle:"비밀번호 로그인 또는 이메일 인증코드를 선택하세요.",passwordTab:"비밀번호",codeTab:"코드",emailLabel:"이메일",passwordLabel:"비밀번호",loginPassword:"비밀번호로 로그인",sendCode:"로그인 코드 보내기",codeLabel:"인증 코드",loginCode:"코드로 로그인",guest:"게스트로 계속",create:"계정 만들기",back:"홈으로",needEmail:"이메일을 입력하세요.",needPassword:"비밀번호를 입력하세요.",needCode:"이메일과 코드를 입력하세요.",logging:"로그인 중...",success:"로그인 성공. 이동 중...",sending:"코드 전송 중...",sent:"로그인 코드가 전송되었습니다.",verifying:"확인 중..."},
+  Spanish:{home:"Inicio",title:"Iniciar sesión",subtitle:"Elige contraseña o código por email.",passwordTab:"Contraseña",codeTab:"Código",emailLabel:"Email",passwordLabel:"Contraseña",loginPassword:"Entrar con contraseña",sendCode:"Enviar código",codeLabel:"Código de verificación",loginCode:"Entrar con código",guest:"Continuar como invitado",create:"Crear cuenta",back:"Volver",needEmail:"Introduce tu email.",needPassword:"Introduce tu contraseña.",needCode:"Introduce email y código.",logging:"Entrando...",success:"Inicio correcto. Redirigiendo...",sending:"Enviando código...",sent:"Código enviado. Revisa tu email.",verifying:"Verificando..."},
+  French:{home:"Accueil",title:"Connexion",subtitle:"Choisissez mot de passe ou code email.",passwordTab:"Mot de passe",codeTab:"Code",emailLabel:"Email",passwordLabel:"Mot de passe",loginPassword:"Connexion par mot de passe",sendCode:"Envoyer le code",codeLabel:"Code de vérification",loginCode:"Connexion par code",guest:"Continuer comme invité",create:"Créer un compte",back:"Retour",needEmail:"Veuillez entrer votre email.",needPassword:"Veuillez entrer votre mot de passe.",needCode:"Veuillez entrer email et code.",logging:"Connexion...",success:"Connexion réussie. Redirection...",sending:"Envoi du code...",sent:"Code envoyé. Vérifiez votre email.",verifying:"Vérification..."},
+  German:{home:"Start",title:"Anmelden",subtitle:"Wählen Sie Passwort oder E-Mail-Code.",passwordTab:"Passwort",codeTab:"Code",emailLabel:"E-Mail",passwordLabel:"Passwort",loginPassword:"Mit Passwort anmelden",sendCode:"Code senden",codeLabel:"Bestätigungscode",loginCode:"Mit Code anmelden",guest:"Als Gast fortfahren",create:"Konto erstellen",back:"Zurück",needEmail:"Bitte E-Mail eingeben.",needPassword:"Bitte Passwort eingeben.",needCode:"Bitte E-Mail und Code eingeben.",logging:"Anmeldung...",success:"Anmeldung erfolgreich. Weiterleitung...",sending:"Code wird gesendet...",sent:"Code gesendet. Bitte E-Mail prüfen.",verifying:"Überprüfung..."},
+  Russian:{home:"Главная",title:"Вход",subtitle:"Выберите пароль или код по email.",passwordTab:"Пароль",codeTab:"Код",emailLabel:"Email",passwordLabel:"Пароль",loginPassword:"Войти с паролем",sendCode:"Отправить код",codeLabel:"Код подтверждения",loginCode:"Войти с кодом",guest:"Продолжить как гость",create:"Создать аккаунт",back:"Назад",needEmail:"Введите email.",needPassword:"Введите пароль.",needCode:"Введите email и код.",logging:"Вход...",success:"Вход выполнен. Переход...",sending:"Отправка кода...",sent:"Код отправлен. Проверьте email.",verifying:"Проверка..."},
+  Arabic:{home:"الرئيسية",title:"تسجيل الدخول",subtitle:"اختر كلمة المرور أو رمز البريد الإلكتروني.",passwordTab:"كلمة المرور",codeTab:"الرمز",emailLabel:"البريد الإلكتروني",passwordLabel:"كلمة المرور",loginPassword:"تسجيل الدخول بكلمة المرور",sendCode:"إرسال الرمز",codeLabel:"رمز التحقق",loginCode:"تسجيل الدخول بالرمز",guest:"المتابعة كضيف",create:"إنشاء حساب",back:"رجوع",needEmail:"أدخل البريد الإلكتروني.",needPassword:"أدخل كلمة المرور.",needCode:"أدخل البريد والرمز.",logging:"جار تسجيل الدخول...",success:"تم تسجيل الدخول. جار التحويل...",sending:"جار إرسال الرمز...",sent:"تم إرسال الرمز. تحقق من بريدك.",verifying:"جار التحقق..."},
+  Portuguese:{home:"Início",title:"Entrar",subtitle:"Escolha senha ou código por email.",passwordTab:"Senha",codeTab:"Código",emailLabel:"Email",passwordLabel:"Senha",loginPassword:"Entrar com senha",sendCode:"Enviar código",codeLabel:"Código de verificação",loginCode:"Entrar com código",guest:"Continuar como convidado",create:"Criar conta",back:"Voltar",needEmail:"Digite seu email.",needPassword:"Digite sua senha.",needCode:"Digite email e código.",logging:"Entrando...",success:"Login bem-sucedido. Redirecionando...",sending:"Enviando código...",sent:"Código enviado. Verifique seu email.",verifying:"Verificando..."},
+  Italian:{home:"Home",title:"Accedi",subtitle:"Scegli password o codice email.",passwordTab:"Password",codeTab:"Codice",emailLabel:"Email",passwordLabel:"Password",loginPassword:"Accedi con password",sendCode:"Invia codice",codeLabel:"Codice di verifica",loginCode:"Accedi con codice",guest:"Continua come ospite",create:"Crea account",back:"Indietro",needEmail:"Inserisci email.",needPassword:"Inserisci password.",needCode:"Inserisci email e codice.",logging:"Accesso...",success:"Accesso riuscito. Reindirizzamento...",sending:"Invio codice...",sent:"Codice inviato. Controlla email.",verifying:"Verifica..."}
 };
 
 function browserUILang(){
@@ -173,20 +283,16 @@ function getUILang(){
   return selected==="auto"?browserUILang():selected;
 }
 
-function applyUILanguage(){
-  const pack=i18n[getUILang()]||i18n.English;
+function pack(){
+  return i18n[getUILang()]||i18n.English;
+}
 
+function applyUILanguage(){
+  const p=pack();
   document.querySelectorAll("[data-i18n]").forEach(el=>{
     const key=el.getAttribute("data-i18n");
-    if(pack[key]) el.innerText=pack[key];
+    if(p[key]) el.innerText=p[key];
   });
-
-  document.getElementById("searchInput").placeholder=pack.search;
-  document.querySelector("#filterEngine option[value='all']").innerText=pack.allEngines;
-  document.querySelector("#filterLang option[value='all']").innerText=pack.allLanguages;
-
-  updateLoginStatus();
-  renderHistory();
 }
 
 function changeUILanguage(){
@@ -206,119 +312,94 @@ function applyTheme(){
   document.body.classList.toggle("dark",theme==="dark"||(theme==="auto"&&autoDark));
 }
 
-async function init(){
+function setMode(mode){
+  const passwordTab=document.getElementById("passwordTab");
+  const codeTab=document.getElementById("codeTab");
+  const passwordBox=document.getElementById("passwordBox");
+  const codeBox=document.getElementById("codeBox");
+  document.getElementById("status").innerText="";
+
+  if(mode==="password"){
+    passwordTab.classList.add("active");
+    codeTab.classList.remove("active");
+    passwordBox.classList.remove("hidden");
+    codeBox.classList.add("hidden");
+  }else{
+    codeTab.classList.add("active");
+    passwordTab.classList.remove("active");
+    codeBox.classList.remove("hidden");
+    passwordBox.classList.add("hidden");
+  }
+}
+
+function setStatus(message,type=""){
+  const box=document.getElementById("status");
+  box.className="status "+type;
+  box.innerText=message;
+}
+
+async function loginWithPassword(){
+  const email=document.getElementById("email").value.trim();
+  const password=document.getElementById("password").value;
+  const p=pack();
+
+  if(!email){setStatus(p.needEmail,"error");return}
+  if(!password){setStatus(p.needPassword,"error");return}
+
+  setStatus(p.logging);
+
+  const {error}=await supabaseClient.auth.signInWithPassword({email,password});
+
+  if(error){setStatus(error.message,"error");return}
+
+  setStatus(p.success,"success");
+  setTimeout(()=>location.href="index.html",700);
+}
+
+async function sendLoginCode(){
+  const email=document.getElementById("email").value.trim();
+  const p=pack();
+
+  if(!email){setStatus(p.needEmail,"error");return}
+
+  setStatus(p.sending);
+
+  const {error}=await supabaseClient.auth.signInWithOtp({
+    email,
+    options:{shouldCreateUser:false}
+  });
+
+  if(error){setStatus(error.message,"error");return}
+
+  setStatus(p.sent,"success");
+}
+
+async function verifyLoginCode(){
+  const email=document.getElementById("email").value.trim();
+  const code=document.getElementById("code").value.trim();
+  const p=pack();
+
+  if(!email||!code){setStatus(p.needCode,"error");return}
+
+  setStatus(p.verifying);
+
+  const {error}=await supabaseClient.auth.verifyOtp({
+    email,
+    token:code,
+    type:"email"
+  });
+
+  if(error){setStatus(error.message,"error");return}
+
+  setStatus(p.success,"success");
+  setTimeout(()=>location.href="index.html",700);
+}
+
+function init(){
   const savedUI=localStorage.getItem("ui_language");
   if(savedUI) document.getElementById("uiLangSelect").value=savedUI;
-
   applyTheme();
-
-  const {data}=await supabaseClient.auth.getUser();
-  currentUser=data?.user||null;
-
-  await loadAllHistory();
   applyUILanguage();
-}
-
-function updateLoginStatus(){
-  const pack=i18n[getUILang()]||i18n.English;
-  document.getElementById("loginStatus").innerText=currentUser
-    ? `${pack.logged}: ${currentUser.email}`
-    : pack.guest;
-}
-
-async function loadAllHistory(){
-  const local=JSON.parse(localStorage.getItem("history_folded_tools")||"[]");
-
-  if(currentUser){
-    const {data,error}=await supabaseClient
-      .from("translation_history")
-      .select("*")
-      .order("created_at",{ascending:false})
-      .limit(150);
-
-    if(!error&&data){
-      const cloud=data.map(item=>({
-        source:item.source_text||"",
-        result:item.result_text||"",
-        from:item.from_lang||"auto",
-        to:item.to_lang||"",
-        task:item.task||"translate",
-        engine:"Cloud",
-        time:item.created_at?new Date(item.created_at).toLocaleString():""
-      }));
-
-      historyData=mergeHistory(cloud,local);
-      localStorage.setItem("history_folded_tools",JSON.stringify(historyData.slice(0,150)));
-      renderHistory();
-      updateLoginStatus();
-      return;
-    }
-  }
-
-  historyData=local;
-  renderHistory();
-  updateLoginStatus();
-}
-
-function mergeHistory(a,b){
-  const map=new Map();
-  [...a,...b].forEach(item=>{
-    const key=(item.source||"")+"::"+(item.result||"");
-    if(!map.has(key)) map.set(key,item);
-  });
-  return Array.from(map.values());
-}
-
-function renderHistory(){
-  const pack=i18n[getUILang()]||i18n.English;
-  const q=document.getElementById("searchInput").value.toLowerCase();
-  const engine=document.getElementById("filterEngine").value;
-  const lang=document.getElementById("filterLang").value;
-  const box=document.getElementById("historyList");
-  box.innerHTML="";
-
-  const filtered=historyData.filter(item=>{
-    const matchQuery=String(item.source||"").toLowerCase().includes(q)||String(item.result||"").toLowerCase().includes(q);
-    const matchEngine=engine==="all"||String(item.engine||"").includes(engine);
-    const matchLang=lang==="all"||item.from===lang||item.to===lang;
-    return matchQuery&&matchEngine&&matchLang;
-  });
-
-  document.getElementById("countBadge").innerText=`${filtered.length} ${pack.items}`;
-
-  if(!filtered.length){
-    box.innerHTML=`<div class="empty">${pack.empty}</div>`;
-    return;
-  }
-
-  filtered.forEach(item=>{
-    const div=document.createElement("div");
-    div.className="item";
-    div.innerHTML=`
-      <div class="source">${escapeHTML(item.source||"")}</div>
-      <div class="result">${escapeHTML(item.result||"")}</div>
-      <div class="meta">${escapeHTML(item.engine||"")} · ${escapeHTML(item.from||"auto")} → ${escapeHTML(item.to||"")} · ${escapeHTML(item.task||"translate")} · ${escapeHTML(item.time||"")}</div>
-    `;
-    div.onclick=()=>{
-      localStorage.setItem("history_reopen_text",item.source||"");
-      localStorage.setItem("history_reopen_from",item.from||"auto");
-      localStorage.setItem("history_reopen_to",item.to||"English");
-      location.href="index.html";
-    };
-    box.appendChild(div);
-  });
-}
-
-function clearLocalHistory(){
-  const pack=i18n[getUILang()]||i18n.English;
-  if(!confirm(pack.clearLocal+"?")) return;
-  localStorage.removeItem("history_folded_tools");
-  historyData=[];
-  renderHistory();
-}
-
-function escapeHTML(str){
-  return String(str).replace(/[&<>'"]/g,tag=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[tag]||tag));
 }
 
 window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",applyTheme);
