@@ -1,10 +1,7 @@
 exports.handler = async function (event) {
   try {
     if (event.httpMethod !== "POST") {
-      return {
-        statusCode: 405,
-        body: JSON.stringify({ error: "Method not allowed" })
-      };
+      return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
     }
 
     const {
@@ -13,26 +10,19 @@ exports.handler = async function (event) {
       targetLanguage = "English",
       task = "translate",
       glossary = [],
-      engineMode = "auto",
+      engineMode = "deepl",
       uiLanguage = "en"
     } = JSON.parse(event.body || "{}");
 
     if (!text || !text.trim()) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "Missing text" })
-      };
+      return { statusCode: 400, body: JSON.stringify({ error: "Missing text" }) };
     }
 
     let deeplText = "";
     let deeplUsed = false;
     let deeplError = "";
 
-    if (
-      process.env.DEEPL_API_KEY &&
-      task === "translate" &&
-      engineMode !== "ai"
-    ) {
+    if (process.env.DEEPL_API_KEY && task === "translate" && engineMode !== "ai") {
       try {
         deeplText = await translateWithDeepL(text, sourceLanguage, targetLanguage);
         deeplUsed = !!deeplText;
@@ -42,32 +32,24 @@ exports.handler = async function (event) {
     }
 
     if (engineMode === "deepl" && deeplText) {
-      return {
-        statusCode: 200,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          detected_language: sourceLanguage,
-          target_language: targetLanguage,
-          full_translation: deeplText,
-          engine_used: "DeepL only",
-          deepl_used: true,
-          deepl_error: "",
-          segments: [
-            {
-              id: 1,
-              source: text,
-              best: deeplText,
-              options: [
-                {
-                  label: "DeepL",
-                  text: deeplText,
-                  meaning: getSimpleMeaning(uiLanguage)
-                }
-              ]
-            }
-          ]
-        })
-      };
+      return json({
+        detected_language: sourceLanguage,
+        target_language: targetLanguage,
+        full_translation: deeplText,
+        engine_used: "DeepL only",
+        deepl_used: true,
+        deepl_error: "",
+        segments: [
+          {
+            id: 1,
+            source: text,
+            best: deeplText,
+            options: [
+              { label: "DeepL", text: deeplText, meaning: meaning(uiLanguage, "deepl") }
+            ]
+          }
+        ]
+      });
     }
 
     const aiResult = await enhanceWithAI({
@@ -84,38 +66,34 @@ exports.handler = async function (event) {
     aiResult.deepl_used = deeplUsed;
     aiResult.deepl_error = deeplError;
 
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(aiResult)
-    };
+    return json(aiResult);
 
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        error: "Server error",
-        detail: error.message
-      })
+      body: JSON.stringify({ error: "Server error", detail: error.message })
     };
   }
 };
 
+function json(body) {
+  return {
+    statusCode: 200,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  };
+}
+
 async function translateWithDeepL(text, sourceLanguage, targetLanguage) {
+  const target = mapDeepLLang(targetLanguage);
+  if (!target) throw new Error("DeepL does not support this target language");
+
   const params = new URLSearchParams();
   params.append("text", text);
-
-  const target = mapDeepLLang(targetLanguage);
-  if (!target) {
-    throw new Error("DeepL does not support this target language");
-  }
-
   params.append("target_lang", target);
 
   const source = mapDeepLLang(sourceLanguage);
-  if (sourceLanguage !== "auto" && source) {
-    params.append("source_lang", source);
-  }
+  if (sourceLanguage !== "auto" && source) params.append("source_lang", source);
 
   const endpoint = process.env.DEEPL_API_KEY.endsWith(":fx")
     ? "https://api-free.deepl.com/v2/translate"
@@ -132,9 +110,7 @@ async function translateWithDeepL(text, sourceLanguage, targetLanguage) {
 
   const data = await res.json();
 
-  if (!res.ok) {
-    throw new Error(data.message || "DeepL failed");
-  }
+  if (!res.ok) throw new Error(data.message || "DeepL failed");
 
   return data.translations?.[0]?.text || "";
 }
@@ -160,17 +136,12 @@ async function enhanceWithAI({
             source: originalText,
             best: deeplText,
             options: [
-              {
-                label: "DeepL",
-                text: deeplText,
-                meaning: getSimpleMeaning(uiLanguage)
-              }
+              { label: "DeepL", text: deeplText, meaning: meaning(uiLanguage, "deepl") }
             ]
           }
         ]
       };
     }
-
     throw new Error("Missing OPENAI_API_KEY");
   }
 
@@ -185,12 +156,12 @@ async function enhanceWithAI({
 
   const taskPrompt =
     task === "headline"
-      ? "Rewrite or translate the entire input as a professional news headline. Do not drop any key information."
+      ? "Rewrite or translate the entire input as a professional news headline. Do not drop key information."
       : task === "vocab"
       ? "Extract important vocabulary from the entire input and explain each term briefly."
       : task === "news"
       ? "Translate the entire input as professional neutral news content."
-      : "Translate the entire input accurately. Use DeepL as the precise base translation when provided.";
+      : "Translate the entire input accurately. If DeepL base translation is provided, use it as the precise meaning base.";
 
   const prompt = `
 You are FluentReply, a professional multilingual translation assistant.
@@ -219,82 +190,50 @@ ${deeplText || "No DeepL result provided."}
 Glossary:
 ${glossaryText}
 
-CRITICAL TRANSLATION RULES:
-- You MUST translate the FULL original input.
-- Do NOT translate only the first sentence.
-- Do NOT drop, skip, shorten, or ignore any sentence.
-- full_translation MUST contain the meaning of EVERY sentence in the original input.
+CRITICAL RULES:
+- Translate the FULL original input.
+- Do not drop, skip, shorten, or ignore any sentence.
+- full_translation must include every sentence and meaning from the original input.
 - First understand the whole message as one complete conversation.
-- Then create a complete full_translation of the whole message.
-- Only AFTER full_translation is complete, split it into segments.
-- Segments are only for display and sentence selection.
-- Segments MUST NOT create new meanings.
-- Segments MUST NOT omit any part of the original text.
-- Every original sentence or phrase must be represented in the final translation.
+- Then create full_translation.
+- Only after that, split the original input into natural sentence-level segments.
+- Segments are only for display and selection.
+- Segment translations must match full_translation in meaning.
+- Do not create new meanings in segments.
 - Keep pronouns, relationships, gender references, tone, and logic consistent.
-- If a sentence depends on previous or next sentences, translate using that context.
-- If DeepL result is provided, use it as the precise meaning base.
-- Do not invent subjects, emotions, locations, or relationships.
-- Do not make the wording sound fancy if it changes the meaning.
-- For chat messages, keep the tone natural, human, and conversational.
-- This product supports all language pairs. Do not assume the target is always English.
 - The translated text must be in the target language.
 - The explanations must be in ${explanationLanguage}.
-
-SEGMENT RULES:
-- Split the ORIGINAL input into natural sentence-level segments.
-- For each original segment, provide the corresponding translated segment.
-- The combined best values of all segments should equal the full_translation in meaning.
-- The number of segments should match the natural number of sentences or message parts.
-- If the original has 4 sentences, return around 4 segments.
-- Never return only one segment unless the original is truly one short sentence.
-- Never let the first segment replace the whole translation.
+- Support all language pairs; do not assume target is English.
+- For chat messages, keep the tone natural and human.
 
 OPTION RULES:
 - Each segment must have exactly 3 options:
-  1. Closest: most faithful to the original meaning
-  2. Natural: natural spoken expression, same meaning
-  3. Alternative: another natural way to say the same meaning
-- Each option must translate ONLY that segment, but using full-message context.
+  1. Closest
+  2. Natural
+  3. Alternative
 - Each option text must be in the target language.
-- Each option meaning/explanation MUST be written in ${explanationLanguage}.
-- If explanationLanguage is Simplified Chinese, explanations must be Chinese.
-- If explanationLanguage is Japanese, explanations must be Japanese.
-- Never default explanations to English unless explanationLanguage is English.
+- Each option meaning/explanation must be in ${explanationLanguage}.
 - Apply glossary terms strictly.
 
 OUTPUT RULES:
 - Return ONLY valid JSON.
 - No markdown.
-- No comments.
 - No extra text.
 
 JSON format:
 {
   "detected_language": "detected source language",
   "target_language": "target language",
-  "full_translation": "complete translation of the entire input, including every sentence",
+  "full_translation": "complete translation of entire input",
   "segments": [
     {
       "id": 1,
-      "source": "original sentence or message part",
-      "best": "translated sentence or message part",
+      "source": "original sentence or phrase",
+      "best": "translated sentence or phrase",
       "options": [
-        {
-          "label": "Closest",
-          "text": "closest translation of this segment",
-          "meaning": "meaning explanation in ${explanationLanguage}"
-        },
-        {
-          "label": "Natural",
-          "text": "natural translation of this segment",
-          "meaning": "meaning explanation in ${explanationLanguage}"
-        },
-        {
-          "label": "Alternative",
-          "text": "alternative translation of this segment",
-          "meaning": "meaning explanation in ${explanationLanguage}"
-        }
+        {"label":"Closest","text":"...","meaning":"..."},
+        {"label":"Natural","text":"...","meaning":"..."},
+        {"label":"Alternative","text":"...","meaning":"..."}
       ]
     }
   ]
@@ -316,23 +255,15 @@ JSON format:
 
   const data = await response.json();
 
-  if (!response.ok) {
-    throw new Error(data.error?.message || "OpenAI API error");
-  }
+  if (!response.ok) throw new Error(data.error?.message || "OpenAI API error");
 
   const outputText =
     data.output_text ||
     data.output?.[0]?.content?.[0]?.text;
 
-  if (!outputText) {
-    throw new Error("No output from OpenAI");
-  }
+  if (!outputText) throw new Error("No output from OpenAI");
 
-  const cleaned = outputText
-    .replace(/```json/g, "")
-    .replace(/```/g, "")
-    .trim();
-
+  const cleaned = outputText.replace(/```json/g, "").replace(/```/g, "").trim();
   const parsed = JSON.parse(cleaned);
 
   if (!parsed.full_translation && Array.isArray(parsed.segments)) {
@@ -346,44 +277,30 @@ JSON format:
         source: originalText,
         best: parsed.full_translation || deeplText || "",
         options: [
-          {
-            label: "Closest",
-            text: parsed.full_translation || deeplText || "",
-            meaning: getClosestMeaning(uiLanguage)
-          },
-          {
-            label: "Natural",
-            text: parsed.full_translation || deeplText || "",
-            meaning: getNaturalMeaning(uiLanguage)
-          },
-          {
-            label: "Alternative",
-            text: parsed.full_translation || deeplText || "",
-            meaning: getAlternativeMeaning(uiLanguage)
-          }
+          { label: "Closest", text: parsed.full_translation || deeplText || "", meaning: meaning(uiLanguage, "closest") },
+          { label: "Natural", text: parsed.full_translation || deeplText || "", meaning: meaning(uiLanguage, "natural") },
+          { label: "Alternative", text: parsed.full_translation || deeplText || "", meaning: meaning(uiLanguage, "alternative") }
         ]
       }
     ];
   }
 
   parsed.segments = parsed.segments.map((seg, index) => {
-    const options = Array.isArray(seg.options) ? seg.options : [];
+    let options = Array.isArray(seg.options) ? seg.options : [];
 
     while (options.length < 3) {
+      const type = options.length === 0 ? "closest" : options.length === 1 ? "natural" : "alternative";
       options.push({
-        label: options.length === 0 ? "Closest" : options.length === 1 ? "Natural" : "Alternative",
+        label: type === "closest" ? "Closest" : type === "natural" ? "Natural" : "Alternative",
         text: seg.best || "",
-        meaning:
-          options.length === 0 ? getClosestMeaning(uiLanguage) :
-          options.length === 1 ? getNaturalMeaning(uiLanguage) :
-          getAlternativeMeaning(uiLanguage)
+        meaning: meaning(uiLanguage, type)
       });
     }
 
     return {
       id: seg.id || index + 1,
       source: seg.source || "",
-      best: seg.best || options[0]?.text || "",
+      best: seg.best || options[0].text || "",
       options: options.slice(0, 3)
     };
   });
@@ -391,28 +308,28 @@ JSON format:
   return parsed;
 }
 
-function getSimpleMeaning(uiLanguage) {
-  if (uiLanguage === "zh") return "基于 DeepL 的精准整段翻译。";
-  if (uiLanguage === "ja") return "DeepL に基づく正確な全文翻訳です。";
-  return "DeepL precise full translation.";
-}
-
-function getClosestMeaning(uiLanguage) {
-  if (uiLanguage === "zh") return "最贴近原文意思的翻译。";
-  if (uiLanguage === "ja") return "原文の意味に最も忠実な翻訳です。";
-  return "The closest translation to the original meaning.";
-}
-
-function getNaturalMeaning(uiLanguage) {
-  if (uiLanguage === "zh") return "更自然、更口语化的表达，但意思不变。";
-  if (uiLanguage === "ja") return "より自然な表現ですが、意味は同じです。";
-  return "A more natural expression with the same meaning.";
-}
-
-function getAlternativeMeaning(uiLanguage) {
-  if (uiLanguage === "zh") return "另一种自然表达方式，意思保持一致。";
-  if (uiLanguage === "ja") return "同じ意味を持つ別の自然な表現です。";
-  return "Another natural way to express the same meaning.";
+function meaning(lang, type) {
+  const zh = {
+    deepl: "基于 DeepL 的快速精准整段翻译。",
+    closest: "最贴近原文意思的翻译。",
+    natural: "更自然、更口语化的表达，但意思不变。",
+    alternative: "另一种自然表达方式，意思保持一致。"
+  };
+  const ja = {
+    deepl: "DeepL に基づく高速で正確な全文翻訳です。",
+    closest: "原文の意味に最も忠実な翻訳です。",
+    natural: "より自然な表現ですが、意味は同じです。",
+    alternative: "同じ意味を持つ別の自然な表現です。"
+  };
+  const en = {
+    deepl: "Fast precise full translation based on DeepL.",
+    closest: "The closest translation to the original meaning.",
+    natural: "A more natural expression with the same meaning.",
+    alternative: "Another natural way to express the same meaning."
+  };
+  if (lang === "zh") return zh[type];
+  if (lang === "ja") return ja[type];
+  return en[type];
 }
 
 function mapDeepLLang(lang) {
@@ -437,6 +354,5 @@ function mapDeepLLang(lang) {
     "Vietnamese": null,
     "Burmese": null
   };
-
   return map[lang] || null;
 }
