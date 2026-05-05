@@ -4,87 +4,280 @@
 <meta charset="UTF-8" />
 <title>Sign up - FluentReply</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 *{box-sizing:border-box}
+:root{
+  --bg:#f5f7fb;
+  --card:#fff;
+  --text:#111827;
+  --muted:#64748b;
+  --border:#d1d5db;
+  --soft:#f1f5ff;
+  --blue:#1a73e8;
+  --dark:#0f2b46;
+  --shadow:0 18px 50px rgba(15,23,42,.08);
+}
+body.dark{
+  --bg:#0f172a;
+  --card:#111827;
+  --text:#e5e7eb;
+  --muted:#94a3b8;
+  --border:#334155;
+  --soft:#1e293b;
+  --blue:#60a5fa;
+  --dark:#2563eb;
+  --shadow:0 18px 50px rgba(0,0,0,.35);
+}
 body{
   margin:0;
-  font-family:Arial,sans-serif;
-  background:#f5f7fb;
   min-height:100vh;
+  font-family:Arial,"Segoe UI",sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+.header{
+  min-height:72px;
+  background:var(--card);
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 34px;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.logo{
+  font-size:24px;
+  font-weight:900;
+  color:var(--blue);
+  cursor:pointer;
+}
+.header-actions{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+select{
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:var(--card);
+  color:var(--text);
+  padding:10px 14px;
+  font-size:14px;
+}
+.link-btn{
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--text);
+  border-radius:999px;
+  padding:10px 18px;
+  font-weight:900;
+  cursor:pointer;
+}
+.app{
+  min-height:calc(100vh - 72px);
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:20px;
+  padding:32px 18px;
 }
 .card{
-  width:100%;
-  max-width:560px;
-  background:white;
-  border-radius:24px;
-  padding:38px;
-  box-shadow:0 20px 60px rgba(15,23,42,.10);
+  width:min(480px,100%);
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:26px;
+  padding:30px;
+  box-shadow:var(--shadow);
 }
-h1{margin:0 0 12px;font-size:34px}
-.sub{margin:0 0 26px;color:#333;font-size:18px}
+h1{
+  margin:0 0 8px;
+  font-size:30px;
+}
+.sub{
+  margin:0 0 22px;
+  color:var(--muted);
+  line-height:1.5;
+}
+.tabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  background:var(--soft);
+  border-radius:999px;
+  padding:6px;
+  margin-bottom:20px;
+}
+.tab{
+  border:none;
+  background:transparent;
+  color:var(--muted);
+  font-weight:900;
+  border-radius:999px;
+  padding:11px;
+  cursor:pointer;
+}
+.tab.active{
+  background:var(--card);
+  color:var(--blue);
+  box-shadow:0 4px 14px rgba(15,23,42,.08);
+}
+label{
+  display:block;
+  font-size:14px;
+  font-weight:900;
+  margin:14px 0 8px;
+}
 input{
   width:100%;
-  padding:15px;
-  margin-top:12px;
+  border:1px solid var(--border);
   border-radius:14px;
-  border:1px solid #d1d5db;
-  font-size:16px;
+  background:var(--card);
+  color:var(--text);
+  padding:13px 14px;
+  font-size:15px;
+  outline:none;
 }
-button{
+input:focus{
+  border-color:var(--blue);
+}
+.primary{
   width:100%;
-  padding:15px;
-  margin-top:18px;
   border:none;
-  border-radius:999px;
-  background:#1a73e8;
+  background:var(--blue);
   color:white;
   font-weight:900;
-  font-size:16px;
+  border-radius:999px;
+  padding:13px;
+  margin-top:18px;
+  cursor:pointer;
+}
+.secondary{
+  width:100%;
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--blue);
+  font-weight:900;
+  border-radius:999px;
+  padding:13px;
+  margin-top:10px;
   cursor:pointer;
 }
 button:disabled{
   opacity:.65;
   cursor:not-allowed;
 }
-.secondary{
-  background:white;
-  color:#111827;
-  border:1px solid #d1d5db;
-}
 .status{
-  min-height:24px;
-  margin-top:18px;
-  font-size:15px;
+  min-height:22px;
+  margin-top:14px;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.45;
+  white-space:pre-wrap;
 }
-.error{color:#ef4444}
-.success{color:#16a34a}
+.links{
+  margin-top:20px;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+}
+a{
+  color:var(--blue);
+  font-weight:900;
+  text-decoration:none;
+}
+.hidden{
+  display:none;
+}
+.error{
+  color:#ef4444;
+}
+.success{
+  color:#16a34a;
+}
+.note{
+  background:var(--soft);
+  color:var(--muted);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:12px;
+  margin-top:16px;
+  font-size:13px;
+  line-height:1.45;
+}
+@media(max-width:700px){
+  .header{padding:14px}
+  .logo{font-size:20px}
+  .card{padding:24px}
+}
 </style>
 </head>
 
 <body>
+<header class="header">
+  <div class="logo" onclick="location.href='index.html'">FluentReply</div>
+  <div class="header-actions">
+    <select id="themeSelect" onchange="changeTheme()">
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+      <option value="auto">Auto</option>
+    </select>
 
-<div class="card">
-  <h1>Create account</h1>
-  <p class="sub">Sign up with email</p>
+    <select id="uiLangSelect" onchange="changeUILanguage()">
+      <option value="auto">Auto UI</option>
+      <option value="English">English</option>
+      <option value="Simplified Chinese">中文</option>
+      <option value="Japanese">日本語</option>
+    </select>
 
-  <input id="email" type="email" placeholder="Email" />
-  <input id="password" type="password" placeholder="Password (min 6 chars)" />
+    <button class="link-btn" onclick="location.href='index.html'" data-i18n="home">Home</button>
+  </div>
+</header>
 
-  <button id="signupBtn" type="button">Sign up</button>
+<main class="app">
+  <section class="card">
+    <h1 data-i18n="title">Create account</h1>
+    <p class="sub" data-i18n="subtitle">Sign up with password or email verification code.</p>
 
-  <button class="secondary" onclick="location.href='login.html'">
-    Already have account
-  </button>
+    <div class="tabs">
+      <button id="passwordTab" class="tab active" type="button" onclick="setMode('password')" data-i18n="passwordTab">Password</button>
+      <button id="codeTab" class="tab" type="button" onclick="setMode('code')" data-i18n="codeTab">Code</button>
+    </div>
 
-  <div id="status" class="status">Loading...</div>
-</div>
+    <label data-i18n="emailLabel">Email</label>
+    <input id="email" type="email" placeholder="you@example.com" autocomplete="email" />
+
+    <div id="passwordBox">
+      <label data-i18n="passwordLabel">Password</label>
+      <input id="password" type="password" placeholder="At least 6 characters" autocomplete="new-password" />
+      <button id="passwordSignupBtn" class="primary" type="button" onclick="signupWithPassword()" data-i18n="signupPassword">Sign up with password</button>
+    </div>
+
+    <div id="codeBox" class="hidden">
+      <button id="sendCodeBtn" class="primary" type="button" onclick="sendSignupCode()" data-i18n="sendCode">Send sign up code</button>
+
+      <label data-i18n="codeLabel">Verification code</label>
+      <input id="code" placeholder="Enter 6-digit code" inputmode="numeric" autocomplete="one-time-code" />
+
+      <button id="codeSignupBtn" class="primary" type="button" onclick="verifySignupCode()" data-i18n="signupCode">Verify & Sign up</button>
+    </div>
+
+    <button class="secondary" type="button" onclick="location.href='index.html'" data-i18n="guest">Continue as guest</button>
+
+    <div id="status" class="status">Loading sign up system...</div>
+
+    <div class="note" data-i18n="note">
+      If email confirmation is enabled in Supabase, please check your inbox after signing up.
+    </div>
+
+    <div class="links">
+      <a href="login.html" data-i18n="login">Already have account?</a>
+      <a href="index.html" data-i18n="back">Back home</a>
+    </div>
+  </section>
+</main>
 
 <script>
 const SUPABASE_URL = "https://smwclefrunxnzzjammnu.supabase.co";
@@ -92,78 +285,315 @@ const SUPABASE_KEY = "sb_publishable_DWI3c__Tq7P9z7GSJqhT6g_dzKxwMrb";
 
 let supabaseClient = null;
 
-function setStatus(text,type=""){
-  const el=document.getElementById("status");
-  el.className="status "+type;
-  el.innerText=text;
-}
-
-function setLoading(loading){
-  const btn=document.getElementById("signupBtn");
-  btn.disabled=loading;
-  btn.innerText = loading ? "Creating..." : "Sign up";
-}
-
-async function signup(){
-  if(!supabaseClient){
-    setStatus("Supabase not loaded","error");
-    return;
+const i18n = {
+  English:{
+    home:"Home",
+    title:"Create account",
+    subtitle:"Sign up with password or email verification code.",
+    passwordTab:"Password",
+    codeTab:"Code",
+    emailLabel:"Email",
+    passwordLabel:"Password",
+    signupPassword:"Sign up with password",
+    sendCode:"Send sign up code",
+    codeLabel:"Verification code",
+    signupCode:"Verify & Sign up",
+    guest:"Continue as guest",
+    login:"Already have account?",
+    back:"Back home",
+    needEmail:"Please enter your email.",
+    needPassword:"Please enter your password.",
+    weakPassword:"Password must be at least 6 characters.",
+    needCode:"Please enter email and verification code.",
+    creating:"Creating account...",
+    success:"Account created successfully. Redirecting...",
+    sending:"Sending code...",
+    sent:"Code sent. Please check your email.",
+    verifying:"Verifying...",
+    redirecting:"Success. Redirecting...",
+    alreadyLogged:"You are already logged in. Redirecting...",
+    ready:"Ready.",
+    supabaseBlocked:"Supabase CDN failed to load. Please refresh or check browser console.",
+    note:"If email confirmation is enabled in Supabase, please check your inbox after signing up."
+  },
+  "Simplified Chinese":{
+    home:"首页",
+    title:"创建账户",
+    subtitle:"请选择密码注册或邮箱验证码注册。",
+    passwordTab:"密码注册",
+    codeTab:"验证码",
+    emailLabel:"邮箱",
+    passwordLabel:"密码",
+    signupPassword:"使用密码注册",
+    sendCode:"发送注册验证码",
+    codeLabel:"验证码",
+    signupCode:"验证并注册",
+    guest:"游客继续使用",
+    login:"已有账户？",
+    back:"返回首页",
+    needEmail:"请输入邮箱。",
+    needPassword:"请输入密码。",
+    weakPassword:"密码至少需要 6 位。",
+    needCode:"请输入邮箱和验证码。",
+    creating:"正在创建账户...",
+    success:"账户创建成功，正在跳转...",
+    sending:"正在发送验证码...",
+    sent:"验证码已发送，请检查邮箱。",
+    verifying:"正在验证...",
+    redirecting:"成功，正在跳转...",
+    alreadyLogged:"您已经登录，正在跳转...",
+    ready:"Ready.",
+    supabaseBlocked:"Supabase CDN 加载失败，请刷新页面或检查浏览器控制台。",
+    note:"如果 Supabase 开启了邮箱确认，注册后请先检查邮箱完成确认。"
+  },
+  Japanese:{
+    home:"ホーム",
+    title:"アカウント作成",
+    subtitle:"パスワードまたはメール認証コードで登録します。",
+    passwordTab:"パスワード",
+    codeTab:"コード",
+    emailLabel:"メール",
+    passwordLabel:"パスワード",
+    signupPassword:"パスワードで登録",
+    sendCode:"登録コードを送信",
+    codeLabel:"認証コード",
+    signupCode:"確認して登録",
+    guest:"ゲストとして続行",
+    login:"アカウントをお持ちですか？",
+    back:"ホームへ戻る",
+    needEmail:"メールアドレスを入力してください。",
+    needPassword:"パスワードを入力してください。",
+    weakPassword:"パスワードは6文字以上必要です。",
+    needCode:"メールと認証コードを入力してください。",
+    creating:"作成中...",
+    success:"アカウント作成成功。移動中...",
+    sending:"コードを送信中...",
+    sent:"コードを送信しました。メールを確認してください。",
+    verifying:"確認中...",
+    redirecting:"成功。移動中...",
+    alreadyLogged:"すでにログインしています。移動中...",
+    ready:"Ready.",
+    supabaseBlocked:"Supabase CDN の読み込みに失敗しました。更新してください。",
+    note:"メール確認が有効な場合、登録後に受信箱を確認してください。"
   }
+};
 
+function browserUILang(){
+  const lang=navigator.language.toLowerCase();
+  if(lang.startsWith("zh")) return "Simplified Chinese";
+  if(lang.startsWith("ja")) return "Japanese";
+  return "English";
+}
+
+function getUILang(){
+  const selected=document.getElementById("uiLangSelect").value;
+  return selected==="auto"?browserUILang():selected;
+}
+
+function pack(){
+  return i18n[getUILang()]||i18n.English;
+}
+
+function applyUILanguage(){
+  const p=pack();
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const key=el.getAttribute("data-i18n");
+    if(p[key]) el.innerText=p[key];
+  });
+}
+
+function changeUILanguage(){
+  localStorage.setItem("ui_language",document.getElementById("uiLangSelect").value);
+  applyUILanguage();
+  setStatus(pack().ready);
+}
+
+function changeTheme(){
+  localStorage.setItem("theme_mode",document.getElementById("themeSelect").value);
+  applyTheme();
+}
+
+function applyTheme(){
+  const theme=localStorage.getItem("theme_mode")||"light";
+  document.getElementById("themeSelect").value=theme;
+  const autoDark=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;
+  document.body.classList.toggle("dark",theme==="dark"||(theme==="auto"&&autoDark));
+}
+
+function setMode(mode){
+  document.getElementById("passwordTab").classList.toggle("active",mode==="password");
+  document.getElementById("codeTab").classList.toggle("active",mode==="code");
+  document.getElementById("passwordBox").classList.toggle("hidden",mode!=="password");
+  document.getElementById("codeBox").classList.toggle("hidden",mode!=="code");
+  setStatus("");
+}
+
+function setStatus(message,type=""){
+  const box=document.getElementById("status");
+  box.className="status "+type;
+  box.innerText=message;
+}
+
+function setLoading(buttonId,isLoading,loadingText,normalText){
+  const btn=document.getElementById(buttonId);
+  if(!btn)return;
+  btn.disabled=isLoading;
+  btn.style.opacity=isLoading?".65":"1";
+  btn.style.cursor=isLoading?"not-allowed":"pointer";
+  if(isLoading && loadingText) btn.innerText=loadingText;
+  if(!isLoading && normalText) btn.innerText=normalText;
+}
+
+async function signupWithPassword(){
   const email=document.getElementById("email").value.trim().toLowerCase();
   const password=document.getElementById("password").value;
+  const p=pack();
 
   if(!email){
-    setStatus("Enter email","error");
+    setStatus(p.needEmail,"error");
     return;
   }
 
   if(!password){
-    setStatus("Enter password","error");
+    setStatus(p.needPassword,"error");
     return;
   }
 
-  if(password.length < 6){
-    setStatus("Password too short","error");
+  if(password.length<6){
+    setStatus(p.weakPassword,"error");
     return;
   }
 
-  setLoading(true);
-  setStatus("Creating account...");
+  if(!supabaseClient){
+    setStatus(p.supabaseBlocked,"error");
+    return;
+  }
 
-  const { error } = await supabaseClient.auth.signUp({
+  setStatus(p.creating);
+  setLoading("passwordSignupBtn",true,p.creating,p.signupPassword);
+
+  const {error}=await supabaseClient.auth.signUp({
     email,
     password,
     options:{
-      emailRedirectTo: location.origin + "/index.html"
+      emailRedirectTo:location.origin + "/index.html"
     }
   });
 
-  setLoading(false);
+  setLoading("passwordSignupBtn",false,"",p.signupPassword);
 
   if(error){
     setStatus(error.message,"error");
     return;
   }
 
-  setStatus("Success! Redirecting...","success");
+  localStorage.setItem("user_email",email);
+  setStatus(p.success,"success");
 
-  setTimeout(()=>{
-    location.href="login.html";
-  },1000);
+  setTimeout(()=>location.href="login.html",900);
+}
+
+async function sendSignupCode(){
+  const email=document.getElementById("email").value.trim().toLowerCase();
+  const p=pack();
+
+  if(!email){
+    setStatus(p.needEmail,"error");
+    return;
+  }
+
+  if(!supabaseClient){
+    setStatus(p.supabaseBlocked,"error");
+    return;
+  }
+
+  setStatus(p.sending);
+  setLoading("sendCodeBtn",true,p.sending,p.sendCode);
+
+  const {error}=await supabaseClient.auth.signInWithOtp({
+    email,
+    options:{
+      shouldCreateUser:true,
+      emailRedirectTo:location.origin + "/index.html"
+    }
+  });
+
+  setLoading("sendCodeBtn",false,"",p.sendCode);
+
+  if(error){
+    setStatus(error.message,"error");
+    return;
+  }
+
+  setStatus(p.sent,"success");
+}
+
+async function verifySignupCode(){
+  const email=document.getElementById("email").value.trim().toLowerCase();
+  const code=document.getElementById("code").value.trim();
+  const p=pack();
+
+  if(!email||!code){
+    setStatus(p.needCode,"error");
+    return;
+  }
+
+  if(!supabaseClient){
+    setStatus(p.supabaseBlocked,"error");
+    return;
+  }
+
+  setStatus(p.verifying);
+  setLoading("codeSignupBtn",true,p.verifying,p.signupCode);
+
+  const {error}=await supabaseClient.auth.verifyOtp({
+    email,
+    token:code,
+    type:"email"
+  });
+
+  setLoading("codeSignupBtn",false,"",p.signupCode);
+
+  if(error){
+    const fallback=await supabaseClient.auth.verifyOtp({
+      email,
+      token:code,
+      type:"magiclink"
+    });
+
+    if(fallback.error){
+      setStatus(error.message || fallback.error.message,"error");
+      return;
+    }
+  }
+
+  localStorage.setItem("user_email",email);
+  setStatus(p.redirecting,"success");
+
+  setTimeout(()=>location.href="index.html",700);
+}
+
+async function checkUser(){
+  if(!supabaseClient)return;
+
+  const p=pack();
+  const {data}=await supabaseClient.auth.getUser();
+
+  if(data?.user){
+    setStatus(p.alreadyLogged,"success");
+    setTimeout(()=>location.href="index.html",500);
+  }
 }
 
 function init(){
-  const btn=document.getElementById("signupBtn");
+  const savedUI=localStorage.getItem("ui_language");
+  if(savedUI) document.getElementById("uiLangSelect").value=savedUI;
 
-  btn.addEventListener("click", signup);
-
-  document.getElementById("password").addEventListener("keydown",(e)=>{
-    if(e.key==="Enter") signup();
-  });
+  applyTheme();
+  applyUILanguage();
 
   if(!window.supabase){
-    setStatus("Supabase CDN blocked","error");
+    setStatus(pack().supabaseBlocked,"error");
     return;
   }
 
@@ -172,11 +602,34 @@ function init(){
     SUPABASE_KEY
   );
 
-  setStatus("Ready.");
+  setStatus(pack().ready);
+
+  document.getElementById("password").addEventListener("keydown",e=>{
+    if(e.key==="Enter") signupWithPassword();
+  });
+
+  document.getElementById("code").addEventListener("keydown",e=>{
+    if(e.key==="Enter") verifySignupCode();
+  });
+
+  document.getElementById("email").addEventListener("keydown",e=>{
+    if(e.key==="Enter"){
+      if(!document.getElementById("passwordBox").classList.contains("hidden")){
+        document.getElementById("password").focus();
+      }else{
+        sendSignupCode();
+      }
+    }
+  });
+
+  checkUser();
 }
 
-document.addEventListener("DOMContentLoaded", init);
-</script>
+window.matchMedia &&
+window.matchMedia("(prefers-color-scheme: dark)")
+  .addEventListener?.("change",applyTheme);
 
+document.addEventListener("DOMContentLoaded",init);
+</script>
 </body>
 </html>
