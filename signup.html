@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <title>Sign up - FluentReply</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
@@ -26,15 +27,8 @@ body{
   padding:38px;
   box-shadow:0 20px 60px rgba(15,23,42,.10);
 }
-h1{
-  margin:0 0 12px;
-  font-size:34px;
-}
-.sub{
-  margin:0 0 26px;
-  color:#333;
-  font-size:18px;
-}
+h1{margin:0 0 12px;font-size:34px}
+.sub{margin:0 0 26px;color:#333;font-size:18px}
 input{
   width:100%;
   padding:15px;
@@ -68,7 +62,6 @@ button:disabled{
   min-height:24px;
   margin-top:18px;
   font-size:15px;
-  line-height:1.45;
 }
 .error{color:#ef4444}
 .success{color:#16a34a}
@@ -81,26 +74,23 @@ button:disabled{
   <h1>Create account</h1>
   <p class="sub">Sign up with email</p>
 
-  <input id="email" type="email" placeholder="Email" autocomplete="email" />
-  <input id="password" type="password" placeholder="Password" autocomplete="new-password" />
+  <input id="email" type="email" placeholder="Email" />
+  <input id="password" type="password" placeholder="Password (min 6 chars)" />
 
-  <button id="signupBtn" onclick="signupUser()">Sign up</button>
+  <button id="signupBtn" type="button">Sign up</button>
 
   <button class="secondary" onclick="location.href='login.html'">
     Already have account
   </button>
 
-  <div id="status" class="status"></div>
+  <div id="status" class="status">Loading...</div>
 </div>
 
 <script>
 const SUPABASE_URL = "https://smwclefrunxnzzjammnu.supabase.co";
 const SUPABASE_KEY = "sb_publishable_DWI3c__Tq7P9z7GSJqhT6g_dzKxwMrb";
 
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+let supabaseClient = null;
 
 function setStatus(text,type=""){
   const el=document.getElementById("status");
@@ -108,66 +98,85 @@ function setStatus(text,type=""){
   el.innerText=text;
 }
 
-function setLoading(isLoading){
+function setLoading(loading){
   const btn=document.getElementById("signupBtn");
-  btn.disabled=isLoading;
-  btn.innerText=isLoading ? "Creating account..." : "Sign up";
+  btn.disabled=loading;
+  btn.innerText = loading ? "Creating..." : "Sign up";
 }
 
-window.signupUser = async function(){
-  try{
-    const email=document.getElementById("email").value.trim().toLowerCase();
-    const password=document.getElementById("password").value;
-
-    if(!email){
-      setStatus("Please enter your email.","error");
-      return;
-    }
-
-    if(!password){
-      setStatus("Please enter your password.","error");
-      return;
-    }
-
-    if(password.length < 6){
-      setStatus("Password must be at least 6 characters.","error");
-      return;
-    }
-
-    setLoading(true);
-    setStatus("Creating account...");
-
-    const { data, error } = await supabaseClient.auth.signUp({
-      email,
-      password
-    });
-
-    setLoading(false);
-
-    if(error){
-      setStatus(error.message,"error");
-      console.error("Signup error:",error);
-      return;
-    }
-
-    setStatus("Account created successfully. Redirecting to login...","success");
-
-    setTimeout(()=>{
-      location.href="login.html";
-    },1200);
-
-  }catch(err){
-    setLoading(false);
-    console.error("Unexpected signup error:",err);
-    setStatus("Signup error: "+err.message,"error");
+async function signup(){
+  if(!supabaseClient){
+    setStatus("Supabase not loaded","error");
+    return;
   }
-};
 
-document.getElementById("password").addEventListener("keydown",function(e){
-  if(e.key==="Enter"){
-    signupUser();
+  const email=document.getElementById("email").value.trim().toLowerCase();
+  const password=document.getElementById("password").value;
+
+  if(!email){
+    setStatus("Enter email","error");
+    return;
   }
-});
+
+  if(!password){
+    setStatus("Enter password","error");
+    return;
+  }
+
+  if(password.length < 6){
+    setStatus("Password too short","error");
+    return;
+  }
+
+  setLoading(true);
+  setStatus("Creating account...");
+
+  const { error } = await supabaseClient.auth.signUp({
+    email,
+    password
+  });
+
+  setLoading(false);
+
+  if(error){
+    setStatus(error.message,"error");
+    return;
+  }
+
+  setStatus("Success! Redirecting...","success");
+
+  setTimeout(()=>{
+    location.href="login.html";
+  },1000);
+}
+
+function init(){
+  const btn=document.getElementById("signupBtn");
+
+  // 绑定按钮（关键）
+  btn.addEventListener("click", signup);
+
+  // Enter 提交
+  document.getElementById("password").addEventListener("keydown",(e)=>{
+    if(e.key==="Enter") signup();
+  });
+
+  // 检查 Supabase 是否加载
+  if(!window.supabase){
+    setStatus("Supabase CDN blocked","error");
+    return;
+  }
+
+  supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+  setStatus("Ready.");
+}
+
+// 确保 DOM 加载后执行
+document.addEventListener("DOMContentLoaded", init);
 </script>
 
 </body>
