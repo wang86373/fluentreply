@@ -25,6 +25,7 @@ body{margin:0;font-family:Arial,"Segoe UI",sans-serif;background:#f5f7fb;color:#
 .engine-left label{font-weight:800;color:#334155}
 select{border:1px solid #dadce0;border-radius:10px;background:white;padding:9px 12px;font-size:14px}
 #engineStatus{font-size:13px;font-weight:800;color:#1a73e8}
+.sentence-toggle{display:flex;align-items:center;gap:6px;font-size:14px;color:#334155;font-weight:700}
 .lang-row{display:grid;grid-template-columns:1fr 46px 1fr;gap:12px;align-items:center;margin-bottom:12px}
 .lang-row select{width:100%;border:none;border-bottom:2px solid #1a73e8;border-radius:0;color:#1a73e8;font-weight:800;background:transparent}
 .swap{font-size:25px;border:none;background:transparent;color:#64748b;cursor:pointer}
@@ -53,19 +54,15 @@ details{background:white;border:1px solid #e5e7eb;border-radius:16px;padding:14p
 summary{cursor:pointer;font-weight:900}
 .glossary-form{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;margin-top:14px}
 .glossary-form input{border:1px solid #dadce0;border-radius:10px;padding:10px}
-.glossary-form button,.news-card button{background:#eef4ff;border:none;color:#1a73e8;border-radius:10px;padding:9px 12px;font-weight:800;cursor:pointer}
+.glossary-form button{background:#eef4ff;border:none;color:#1a73e8;border-radius:10px;padding:9px 12px;font-weight:800;cursor:pointer}
 .glossary-list{margin-top:12px;display:grid;gap:8px}
 .glossary-item{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fafafa;border:1px solid #edf0f5;border-radius:10px;padding:10px 12px}
-.news-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
-.news-card{border:1px solid #e5e7eb;border-radius:14px;padding:15px;background:#fff}
-.news-card h3{margin:0 0 8px}
-.news-card p{margin:0 0 12px;color:#64748b;font-size:14px;line-height:1.45}
 .status{margin-top:12px;font-size:14px;color:#64748b}
 .error{color:#b00020}
 @media(max-width:850px){
 .header{height:auto;padding:12px 14px;flex-wrap:wrap}
 .logo{font-size:19px}
-.translator,.lang-row,.glossary-form,.news-grid{grid-template-columns:1fr}
+.translator,.lang-row,.glossary-form{grid-template-columns:1fr}
 .swap{display:none}
 textarea,.result{height:190px;font-size:18px;padding:15px}
 .panel-footer{height:46px;padding:0 12px}
@@ -94,7 +91,7 @@ textarea,.result{height:190px;font-size:18px;padding:15px}
 <main class="app">
   <section class="hero">
     <h1 data-i18n="heroTitle">AI Translation with DeepL Precision</h1>
-    <p data-i18n="heroText">Fast translation, sentence-level alternatives, glossary, voice, and history.</p>
+    <p data-i18n="heroText">Fast full-message translation with optional sentence alternatives.</p>
   </section>
 
   <section class="engine-box">
@@ -107,7 +104,11 @@ textarea,.result{height:190px;font-size:18px;padding:15px}
       </select>
       <span id="engineStatus"></span>
     </div>
-    <span id="modeBadge">Normal translation</span>
+
+    <label class="sentence-toggle">
+      <input id="sentenceMode" type="checkbox" onchange="if(input.value.trim()) translate()">
+      <span data-i18n="sentenceMode">Sentence mode</span>
+    </label>
   </section>
 
   <div class="lang-row">
@@ -232,27 +233,33 @@ const glossaryList = document.getElementById("glossaryList");
 
 const i18n = {
   en:{
-    history:"History",login:"Login",signup:"Sign up",heroTitle:"AI Translation with DeepL Precision",
-    heroText:"Fast translation, sentence-level alternatives, glossary, voice, and history.",
-    engineLabel:"Translation engine:",autoDetect:"Auto detect",clear:"Clear",copy:"Copy",waiting:"Waiting",
+    history:"History",login:"Login",signup:"Sign up",
+    heroTitle:"AI Translation with DeepL Precision",
+    heroText:"Fast full-message translation with optional sentence alternatives.",
+    engineLabel:"Translation engine:",sentenceMode:"Sentence mode",
+    autoDetect:"Auto detect",clear:"Clear",copy:"Copy",waiting:"Waiting",
     placeholder:"Translation will appear here",translateFile:"Translate Files",translateVoice:"Translate Voice",
     normalMode:"Normal",newsTranslator:"News Translator",headlineRewriter:"Headline Rewriter",vocabHelper:"Vocabulary Helper",
     glossarySummary:"📚 Glossary",addTerm:"Add term",
     privacyText:"Privacy note: Your text is sent only to generate translation results. Do not enter passwords, banking details, or private identification information."
   },
   zh:{
-    history:"历史记录",login:"登录",signup:"注册",heroTitle:"结合 DeepL 精准度的 AI 翻译",
-    heroText:"快速翻译、分句多表达、自定义词库、语音和历史记录。",
-    engineLabel:"翻译引擎：",autoDetect:"自动检测",clear:"清空",copy:"复制",waiting:"等待输入",
+    history:"历史记录",login:"登录",signup:"注册",
+    heroTitle:"结合 DeepL 精准度的 AI 翻译",
+    heroText:"快速整段翻译，可选分句多表达。",
+    engineLabel:"翻译引擎：",sentenceMode:"分句模式",
+    autoDetect:"自动检测",clear:"清空",copy:"复制",waiting:"等待输入",
     placeholder:"翻译结果会显示在这里",translateFile:"翻译文件",translateVoice:"语音翻译",
     normalMode:"普通翻译",newsTranslator:"新闻翻译",headlineRewriter:"标题优化",vocabHelper:"关键词解释",
     glossarySummary:"📚 自定义词库",addTerm:"添加词条",
     privacyText:"隐私提示：您的文本仅用于生成翻译结果。请不要输入密码、银行信息或私人身份信息。"
   },
   ja:{
-    history:"履歴",login:"ログイン",signup:"登録",heroTitle:"DeepL精度を備えたAI翻訳",
-    heroText:"高速翻訳、文ごとの別表現、用語集、音声、履歴に対応。",
-    engineLabel:"翻訳エンジン：",autoDetect:"自動検出",clear:"クリア",copy:"コピー",waiting:"待機中",
+    history:"履歴",login:"ログイン",signup:"登録",
+    heroTitle:"DeepL精度を備えたAI翻訳",
+    heroText:"高速な全文翻訳と、必要に応じた文ごとの別表現。",
+    engineLabel:"翻訳エンジン：",sentenceMode:"文単位モード",
+    autoDetect:"自動検出",clear:"クリア",copy:"コピー",waiting:"待機中",
     placeholder:"翻訳結果がここに表示されます",translateFile:"ファイル翻訳",translateVoice:"音声翻訳",
     normalMode:"通常",newsTranslator:"ニュース翻訳",headlineRewriter:"見出しリライト",vocabHelper:"語彙ヘルパー",
     glossarySummary:"📚 用語集",addTerm:"用語を追加",
@@ -276,7 +283,6 @@ function applyUILanguage(){
     if(i18n[lang][key]) el.innerText = i18n[lang][key];
   });
   updateAuthUI();
-  updateModeBadge();
 }
 function changeUILanguage(){applyUILanguage()}
 
@@ -299,6 +305,18 @@ async function initAuth(){
     await loadCloudGlossary();
   }
   updateAuthUI();
+
+  const reopen = localStorage.getItem("history_reopen_text");
+  if(reopen){
+    input.value = reopen;
+    sourceSelect.value = localStorage.getItem("history_reopen_from") || "auto";
+    targetSelect.value = localStorage.getItem("history_reopen_to") || "English";
+    count.innerText = input.value.length;
+    localStorage.removeItem("history_reopen_text");
+    localStorage.removeItem("history_reopen_from");
+    localStorage.removeItem("history_reopen_to");
+    translate();
+  }
 }
 
 function updateAuthUI(){
@@ -333,21 +351,8 @@ function goUpgrade(){
   location.href = PAYMENT_LINK;
 }
 
-function updateModeBadge(){
-  const badge = document.getElementById("modeBadge");
-  const lang = getUILang();
-  const names = {
-    translate:{en:"Normal translation",zh:"普通翻译",ja:"通常翻訳"},
-    news:{en:"News translation",zh:"新闻翻译",ja:"ニュース翻訳"},
-    headline:{en:"Headline rewriter",zh:"标题优化",ja:"見出しリライト"},
-    vocab:{en:"Vocabulary helper",zh:"关键词解释",ja:"語彙ヘルパー"}
-  };
-  badge.innerText = names[currentTask][lang];
-}
-
 function setTask(task){
   currentTask = task;
-  updateModeBadge();
   if(input.value.trim()) translate();
 }
 
@@ -444,9 +449,10 @@ async function translate(){
   const targetLanguage = targetSelect.value;
   const glossary = getGlossary();
   const engineMode = document.getElementById("engineMode").value;
+  const sentenceMode = document.getElementById("sentenceMode").checked;
   const uiLanguage = getUILang();
 
-  const cacheKey = `cache_v4_${currentTask}_${engineMode}_${sourceLanguage}_${targetLanguage}_${uiLanguage}_${JSON.stringify(glossary)}_${text}`;
+  const cacheKey = `cache_final_${currentTask}_${engineMode}_${sentenceMode}_${sourceLanguage}_${targetLanguage}_${uiLanguage}_${JSON.stringify(glossary)}_${text}`;
   const cached = localStorage.getItem(cacheKey);
   if(cached){
     renderData(JSON.parse(cached));
@@ -462,7 +468,16 @@ async function translate(){
     const res = await fetch("/.netlify/functions/translate",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({text,sourceLanguage,targetLanguage,task:currentTask,glossary,engineMode,uiLanguage})
+      body:JSON.stringify({
+        text,
+        sourceLanguage,
+        targetLanguage,
+        task:currentTask,
+        glossary,
+        engineMode,
+        uiLanguage,
+        sentenceMode
+      })
     });
 
     const data = await res.json();
@@ -503,9 +518,9 @@ function renderData(data){
   renderSegments();
 
   statusBox.innerText = getUILang()==="zh" ? "完成" : "Done";
-  bottomStatus.innerText = getUILang()==="zh"
-    ? "点击右侧某一句，可查看不同表达。"
-    : "Click a sentence to see alternatives.";
+  bottomStatus.innerText = document.getElementById("sentenceMode").checked
+    ? (getUILang()==="zh" ? "分句模式已开启，可点击句子查看表达。" : "Sentence mode is on. Click a sentence to see alternatives.")
+    : (getUILang()==="zh" ? "当前为整段翻译。开启分句模式可查看每句表达。" : "Full-message translation. Turn on sentence mode to see sentence alternatives.");
 }
 
 function rebuildFullText(){
