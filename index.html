@@ -23,7 +23,7 @@ body{margin:0;font-family:Arial,"Segoe UI",sans-serif;background:var(--bg);color
 .header button,.header select{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:14px}
 .auth-btn{border:1px solid var(--border)!important;border-radius:12px;padding:9px 15px!important;background:var(--card)!important;color:var(--text)!important}
 .auth-primary{background:var(--dark)!important;color:white!important;border-radius:999px;padding:10px 20px!important;font-weight:800}
-.upgrade-btn{background:var(--blue)!important;color:white!important;border-radius:999px;padding:10px 20px!important;font-weight:800}
+.upgrade-btn{background:linear-gradient(135deg,#1a73e8,#60a5fa)!important;color:white!important;border-radius:999px;padding:10px 20px!important;font-weight:900}
 .app{max-width:1240px;margin:32px auto;padding:0 22px}
 .hero{margin-bottom:20px}
 .hero h1{font-size:30px;margin:0 0 8px}
@@ -107,7 +107,7 @@ summary{cursor:pointer;font-weight:900}
 
     <button onclick="syncUILanguageToTarget()" data-i18n="sync">Sync UI</button>
     <button onclick="location.href='history.html'" data-i18n="history">History</button>
-    <button class="upgrade-btn" onclick="goUpgrade()">Upgrade</button>
+    <button class="upgrade-btn" onclick="buyPro()">Upgrade Pro</button>
     <button class="auth-btn" onclick="location.href='login.html'" data-i18n="login">Login</button>
     <button class="auth-primary" onclick="location.href='signup.html'" data-i18n="signup">Sign up</button>
   </div>
@@ -238,7 +238,6 @@ const SUPABASE_KEY = "sb_publishable_DWI3c__Tq7P9z7GSJqhT6g_dzKxwMrb";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const FREE_LIMIT = 200;
-const PAYMENT_LINK = "YOUR_PAYMENT_LINK_HERE";
 
 let currentUser = null;
 let timer;
@@ -263,29 +262,13 @@ const glossaryList = document.getElementById("glossaryList");
 const i18n = {
   English:{history:"History",login:"Login",signup:"Sign up",sync:"Sync UI",heroTitle:"AI Translation with DeepL Precision",heroText:"Fast full-message translation with sentence-level alternatives.",engineLabel:"Translation engine:",sentenceMode:"Sentence mode",autoDetect:"Auto detect",clear:"Clear",copy:"Copy",waiting:"Waiting",placeholder:"Translation will appear here",translateFile:"Translate Files",translateVoice:"Translate Voice",normalMode:"Normal",newsTranslator:"News Translator",headlineRewriter:"Headline Rewriter",vocabHelper:"Vocabulary Helper",glossarySummary:"📚 Glossary",addTerm:"Add term",privacyText:"Privacy note: Your text is sent only to generate translation results. Do not enter passwords, banking details, or private identification information."},
   "Simplified Chinese":{history:"历史记录",login:"登录",signup:"注册",sync:"同步界面",heroTitle:"结合 DeepL 精准度的 AI 翻译",heroText:"快速整段翻译，并支持每句多种表达。",engineLabel:"翻译引擎：",sentenceMode:"分句模式",autoDetect:"自动检测",clear:"清空",copy:"复制",waiting:"等待输入",placeholder:"翻译结果会显示在这里",translateFile:"翻译文件",translateVoice:"语音翻译",normalMode:"普通翻译",newsTranslator:"新闻翻译",headlineRewriter:"标题优化",vocabHelper:"关键词解释",glossarySummary:"📚 自定义词库",addTerm:"添加词条",privacyText:"隐私提示：您的文本仅用于生成翻译结果。请不要输入密码、银行信息或私人身份信息。"},
-  Japanese:{history:"履歴",login:"ログイン",signup:"登録",sync:"UI同期",heroTitle:"DeepL精度を備えたAI翻訳",heroText:"高速な全文翻訳と文ごとの別表現に対応。",engineLabel:"翻訳エンジン：",sentenceMode:"文単位モード",autoDetect:"自動検出",clear:"クリア",copy:"コピー",waiting:"待機中",placeholder:"翻訳結果がここに表示されます",translateFile:"ファイル翻訳",translateVoice:"音声翻訳",normalMode:"通常",newsTranslator:"ニュース翻訳",headlineRewriter:"見出しリライト",vocabHelper:"語彙ヘルパー",glossarySummary:"📚 用語集",addTerm:"用語を追加",privacyText:"プライバシー注記：入力テキストは翻訳結果の生成にのみ使用されます。パスワード、銀行情報、個人識別情報は入力しないでください。"},
-  Korean:{history:"기록",login:"로그인",signup:"가입",sync:"UI 동기화",heroTitle:"DeepL 정확도를 더한 AI 번역",heroText:"빠른 전체 번역과 문장별 대체 표현.",engineLabel:"번역 엔진:",sentenceMode:"문장 모드",autoDetect:"자동 감지",clear:"지우기",copy:"복사",waiting:"대기 중",placeholder:"번역 결과가 여기에 표시됩니다",translateFile:"파일 번역",translateVoice:"음성 번역",normalMode:"일반",newsTranslator:"뉴스 번역",headlineRewriter:"제목 최적화",vocabHelper:"어휘 설명",glossarySummary:"📚 용어집",addTerm:"용어 추가",privacyText:"개인정보 안내: 입력한 텍스트는 번역 결과 생성에만 사용됩니다."},
-  Spanish:{history:"Historial",login:"Iniciar sesión",signup:"Registrarse",sync:"Sincronizar UI",heroTitle:"Traducción IA con precisión DeepL",heroText:"Traducción rápida con alternativas por oración.",engineLabel:"Motor:",sentenceMode:"Modo oración",autoDetect:"Detectar auto",clear:"Borrar",copy:"Copiar",waiting:"Esperando",placeholder:"La traducción aparecerá aquí",translateFile:"Traducir archivos",translateVoice:"Traducir voz",normalMode:"Normal",newsTranslator:"Noticias",headlineRewriter:"Titulares",vocabHelper:"Vocabulario",glossarySummary:"📚 Glosario",addTerm:"Agregar término",privacyText:"Nota de privacidad: el texto solo se usa para generar traducciones."},
-  French:{history:"Historique",login:"Connexion",signup:"Inscription",sync:"Sync UI",heroTitle:"Traduction IA avec précision DeepL",heroText:"Traduction rapide avec alternatives par phrase.",engineLabel:"Moteur :",sentenceMode:"Mode phrase",autoDetect:"Détection auto",clear:"Effacer",copy:"Copier",waiting:"En attente",placeholder:"La traduction apparaîtra ici",translateFile:"Traduire fichiers",translateVoice:"Traduire voix",normalMode:"Normal",newsTranslator:"Traduction actualités",headlineRewriter:"Titres",vocabHelper:"Vocabulaire",glossarySummary:"📚 Glossaire",addTerm:"Ajouter",privacyText:"Note de confidentialité : votre texte sert uniquement à générer la traduction."},
-  German:{history:"Verlauf",login:"Anmelden",signup:"Registrieren",sync:"UI synchronisieren",heroTitle:"KI-Übersetzung mit DeepL-Präzision",heroText:"Schnelle Übersetzung mit Satzalternativen.",engineLabel:"Engine:",sentenceMode:"Satzmodus",autoDetect:"Auto erkennen",clear:"Löschen",copy:"Kopieren",waiting:"Warten",placeholder:"Übersetzung erscheint hier",translateFile:"Dateien übersetzen",translateVoice:"Sprache übersetzen",normalMode:"Normal",newsTranslator:"Nachrichten",headlineRewriter:"Überschriften",vocabHelper:"Vokabelhilfe",glossarySummary:"📚 Glossar",addTerm:"Begriff hinzufügen",privacyText:"Datenschutzhinweis: Ihr Text wird nur zur Übersetzung verwendet."},
-  Russian:{history:"История",login:"Вход",signup:"Регистрация",sync:"Синхр. UI",heroTitle:"AI-перевод с точностью DeepL",heroText:"Быстрый перевод с вариантами по предложениям.",engineLabel:"Движок:",sentenceMode:"Режим предложений",autoDetect:"Авто",clear:"Очистить",copy:"Копировать",waiting:"Ожидание",placeholder:"Перевод появится здесь",translateFile:"Файлы",translateVoice:"Голос",normalMode:"Обычный",newsTranslator:"Новости",headlineRewriter:"Заголовки",vocabHelper:"Слова",glossarySummary:"📚 Глоссарий",addTerm:"Добавить",privacyText:"Примечание: текст используется только для перевода."},
-  Arabic:{history:"السجل",login:"تسجيل الدخول",signup:"إنشاء حساب",sync:"مزامنة الواجهة",heroTitle:"ترجمة AI بدقة DeepL",heroText:"ترجمة سريعة مع بدائل لكل جملة.",engineLabel:"المحرك:",sentenceMode:"وضع الجمل",autoDetect:"اكتشاف تلقائي",clear:"مسح",copy:"نسخ",waiting:"انتظار",placeholder:"ستظهر الترجمة هنا",translateFile:"ترجمة الملفات",translateVoice:"ترجمة الصوت",normalMode:"عادي",newsTranslator:"ترجمة الأخبار",headlineRewriter:"العناوين",vocabHelper:"المفردات",glossarySummary:"📚 القاموس",addTerm:"إضافة",privacyText:"ملاحظة الخصوصية: يستخدم النص فقط لإنشاء الترجمة."},
-  Portuguese:{history:"Histórico",login:"Entrar",signup:"Cadastrar",sync:"Sincronizar UI",heroTitle:"Tradução IA com precisão DeepL",heroText:"Tradução rápida com alternativas por frase.",engineLabel:"Motor:",sentenceMode:"Modo frase",autoDetect:"Detectar auto",clear:"Limpar",copy:"Copiar",waiting:"Aguardando",placeholder:"A tradução aparecerá aqui",translateFile:"Traduzir arquivos",translateVoice:"Traduzir voz",normalMode:"Normal",newsTranslator:"Notícias",headlineRewriter:"Títulos",vocabHelper:"Vocabulário",glossarySummary:"📚 Glossário",addTerm:"Adicionar",privacyText:"Nota de privacidade: seu texto é usado apenas para gerar traduções."},
-  Italian:{history:"Cronologia",login:"Accedi",signup:"Registrati",sync:"Sincronizza UI",heroTitle:"Traduzione AI con precisione DeepL",heroText:"Traduzione rapida con alternative per frase.",engineLabel:"Motore:",sentenceMode:"Modalità frase",autoDetect:"Rileva auto",clear:"Cancella",copy:"Copia",waiting:"In attesa",placeholder:"La traduzione apparirà qui",translateFile:"Traduci file",translateVoice:"Traduci voce",normalMode:"Normale",newsTranslator:"Notizie",headlineRewriter:"Titoli",vocabHelper:"Vocabolario",glossarySummary:"📚 Glossario",addTerm:"Aggiungi",privacyText:"Nota privacy: il testo viene usato solo per generare traduzioni."}
+  Japanese:{history:"履歴",login:"ログイン",signup:"登録",sync:"UI同期",heroTitle:"DeepL精度を備えたAI翻訳",heroText:"高速な全文翻訳と文ごとの別表現に対応。",engineLabel:"翻訳エンジン：",sentenceMode:"文単位モード",autoDetect:"自動検出",clear:"クリア",copy:"コピー",waiting:"待機中",placeholder:"翻訳結果がここに表示されます",translateFile:"ファイル翻訳",translateVoice:"音声翻訳",normalMode:"通常",newsTranslator:"ニュース翻訳",headlineRewriter:"見出しリライト",vocabHelper:"語彙ヘルパー",glossarySummary:"📚 用語集",addTerm:"用語を追加",privacyText:"プライバシー注記：入力テキストは翻訳結果の生成にのみ使用されます。パスワード、銀行情報、個人識別情報は入力しないでください。"}
 };
 
 function browserUILang(){
   const lang=navigator.language.toLowerCase();
   if(lang.startsWith("zh")) return "Simplified Chinese";
   if(lang.startsWith("ja")) return "Japanese";
-  if(lang.startsWith("ko")) return "Korean";
-  if(lang.startsWith("es")) return "Spanish";
-  if(lang.startsWith("fr")) return "French";
-  if(lang.startsWith("de")) return "German";
-  if(lang.startsWith("ru")) return "Russian";
-  if(lang.startsWith("ar")) return "Arabic";
-  if(lang.startsWith("pt")) return "Portuguese";
-  if(lang.startsWith("it")) return "Italian";
   return "English";
 }
 
@@ -359,18 +342,6 @@ async function initAuth(){
     await loadCloudGlossary();
   }
   updateAuthUI();
-
-  const reopen=localStorage.getItem("history_reopen_text");
-  if(reopen){
-    input.value=reopen;
-    sourceSelect.value=localStorage.getItem("history_reopen_from")||"auto";
-    targetSelect.value=localStorage.getItem("history_reopen_to")||"English";
-    count.innerText=input.value.length;
-    localStorage.removeItem("history_reopen_text");
-    localStorage.removeItem("history_reopen_from");
-    localStorage.removeItem("history_reopen_to");
-    translate();
-  }
 }
 
 function updateAuthUI(){
@@ -398,12 +369,37 @@ async function logout(){
   updateAuthUI();
 }
 
-function goUpgrade(){
-  if(PAYMENT_LINK==="YOUR_PAYMENT_LINK_HERE"){
-    alert(getUILang()==="Simplified Chinese"?"支付功能稍后上线。":"Upgrade payment will be added later.");
-    return;
+async function buyPro(){
+  let email="";
+
+  try{
+    const {data}=await supabaseClient.auth.getUser();
+    email=data?.user?.email||"";
+  }catch(e){}
+
+  if(!email){
+    email=prompt("请输入邮箱，用于付款后开通 Pro 会员：");
   }
-  location.href=PAYMENT_LINK;
+
+  if(!email)return;
+
+  try{
+    const res=await fetch("/.netlify/functions/create-payment",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({email})
+    });
+
+    const data=await res.json();
+
+    if(data.invoice_url){
+      window.location.href=data.invoice_url;
+    }else{
+      alert(data.error||"支付创建失败，请稍后再试。");
+    }
+  }catch(err){
+    alert("支付接口连接失败，请检查 Netlify Function 是否已部署。");
+  }
 }
 
 function setTask(task){
@@ -442,17 +438,6 @@ async function addGlossaryTerm(){
   glossary.unshift({source,target});
   saveGlossary(glossary.slice(0,100));
 
-  if(currentUser){
-    const {data}=await supabaseClient.from("custom_glossary")
-      .insert({user_id:currentUser.id,source_term:source,target_term:target})
-      .select("id").single();
-    if(data?.id){
-      const updated=getGlossary();
-      updated[0].cloudId=data.id;
-      saveGlossary(updated);
-    }
-  }
-
   document.getElementById("glossarySource").value="";
   document.getElementById("glossaryTarget").value="";
   renderGlossary();
@@ -461,9 +446,6 @@ async function addGlossaryTerm(){
 
 async function deleteGlossaryTerm(index){
   const glossary=getGlossary();
-  if(glossary[index]?.cloudId){
-    await supabaseClient.from("custom_glossary").delete().eq("id",glossary[index].cloudId);
-  }
   glossary.splice(index,1);
   saveGlossary(glossary);
   renderGlossary();
@@ -507,7 +489,7 @@ async function translate(){
   const sentenceMode=document.getElementById("sentenceMode").checked;
   const uiLanguage=backendUILang();
 
-  const cacheKey=`cache_final_optimized_${currentTask}_${engineMode}_${sentenceMode}_${sourceLanguage}_${targetLanguage}_${uiLanguage}_${JSON.stringify(glossary)}_${text}`;
+  const cacheKey=`cache_paid_${currentTask}_${engineMode}_${sentenceMode}_${sourceLanguage}_${targetLanguage}_${uiLanguage}_${JSON.stringify(glossary)}_${text}`;
   const cached=localStorage.getItem(cacheKey);
   if(cached){
     renderData(JSON.parse(cached));
@@ -783,7 +765,6 @@ async function saveHistory(source,data){
 }
 
 document.addEventListener("click",hideDropdown);
-window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",applyTheme);
 
 function escapeHTML(str){
   return String(str).replace(/[&<>'"]/g,tag=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[tag]||tag));
