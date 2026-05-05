@@ -8,65 +8,74 @@
 
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,"Segoe UI",sans-serif;background:#f5f7fb;color:#202124}
-.header{height:66px;background:white;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;padding:0 24px;gap:12px}
-.logo{font-size:22px;font-weight:900;color:#1a73e8}
-.header-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.header button,.header select{border:none;background:transparent;color:#5f6368;cursor:pointer;font-size:14px}
-.auth-btn{border:1px solid #dadce0!important;border-radius:10px;padding:8px 13px!important;background:white!important}
-.auth-primary{background:#0f2b46!important;color:white!important;border-radius:999px;padding:9px 17px!important}
-.upgrade-btn{background:#1a73e8!important;color:white!important;border-radius:999px;padding:9px 17px!important;font-weight:800}
-.app{max-width:1180px;margin:28px auto;padding:0 18px}
-.hero{margin-bottom:18px}
-.hero h1{margin:0 0 8px;font-size:28px}
-.hero p{margin:0;color:#64748b}
-.engine-box{background:white;border:1px solid #e5e7eb;border-radius:16px;padding:14px 18px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
-.engine-left{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.engine-left label{font-weight:800;color:#334155}
-select{border:1px solid #dadce0;border-radius:10px;background:white;padding:9px 12px;font-size:14px}
-#engineStatus{font-size:13px;font-weight:800;color:#1a73e8}
-.sentence-toggle{display:flex;align-items:center;gap:6px;font-size:14px;color:#334155;font-weight:700}
-.lang-row{display:grid;grid-template-columns:1fr 46px 1fr;gap:12px;align-items:center;margin-bottom:12px}
-.lang-row select{width:100%;border:none;border-bottom:2px solid #1a73e8;border-radius:0;color:#1a73e8;font-weight:800;background:transparent}
-.swap{font-size:25px;border:none;background:transparent;color:#64748b;cursor:pointer}
-.translator{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.panel{background:white;border:1px solid #dadce0;border-radius:18px;overflow:hidden;box-shadow:0 8px 26px rgba(0,0,0,.04)}
-textarea{width:100%;height:270px;border:none;outline:none;resize:none;padding:24px;font-size:23px;line-height:1.45}
-.result{height:270px;padding:24px;font-size:23px;line-height:1.45;background:#f1f5ff;overflow-y:auto;position:relative}
-.placeholder{color:#9aa0a6}
-.segment{display:inline;padding:2px 5px;border-radius:7px;cursor:pointer}
-.segment:hover,.segment.active{background:#dbeafe}
-.panel-footer{height:54px;border-top:1px solid #dadce0;display:flex;align-items:center;justify-content:space-between;padding:0 18px;color:#64748b;font-size:13px}
+:root{
+  --bg:#f5f7fb;--card:#fff;--text:#111827;--muted:#64748b;--border:#d1d5db;
+  --soft:#f1f5ff;--blue:#1a73e8;--dark:#0f2b46;--shadow:0 14px 40px rgba(15,23,42,.06);
+}
+body.dark{
+  --bg:#0f172a;--card:#111827;--text:#e5e7eb;--muted:#94a3b8;--border:#334155;
+  --soft:#1e293b;--blue:#60a5fa;--dark:#2563eb;--shadow:0 14px 40px rgba(0,0,0,.35);
+}
+body{margin:0;font-family:Arial,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
+.header{min-height:72px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:14px 34px;gap:12px;flex-wrap:wrap}
+.logo{font-size:24px;font-weight:900;color:var(--blue)}
+.header-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.header button,.header select{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:14px}
+.auth-btn{border:1px solid var(--border)!important;border-radius:12px;padding:9px 15px!important;background:var(--card)!important;color:var(--text)!important}
+.auth-primary{background:var(--dark)!important;color:white!important;border-radius:999px;padding:10px 20px!important;font-weight:800}
+.upgrade-btn{background:var(--blue)!important;color:white!important;border-radius:999px;padding:10px 20px!important;font-weight:800}
+.app{max-width:1240px;margin:32px auto;padding:0 22px}
+.hero{margin-bottom:20px}
+.hero h1{font-size:30px;margin:0 0 8px}
+.hero p{margin:0;color:var(--muted)}
+.engine-box{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px 20px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;gap:14px;box-shadow:var(--shadow);flex-wrap:wrap}
+.engine-left{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.engine-left label{font-weight:800;color:var(--text)}
+select{border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);padding:10px 14px;font-size:14px}
+#engineStatus{font-size:13px;font-weight:900;color:var(--blue)}
+.sentence-toggle{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text);font-weight:800}
+.lang-row{display:grid;grid-template-columns:1fr 54px 1fr;gap:14px;align-items:center;margin-bottom:14px}
+.lang-row select{width:100%;border:none;border-bottom:2px solid var(--blue);border-radius:0;color:var(--blue);font-weight:900;background:transparent;font-size:16px}
+.swap{font-size:28px;border:none;background:transparent;color:var(--muted);cursor:pointer}
+.translator{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:var(--shadow)}
+textarea{width:100%;height:300px;border:none;outline:none;resize:none;padding:28px;font-size:24px;line-height:1.45;background:var(--card);color:var(--text)}
+.result{height:300px;padding:28px;font-size:24px;line-height:1.45;background:var(--soft);overflow-y:auto;position:relative;color:var(--text)}
+.placeholder{color:var(--muted)}
+.segment{display:inline;padding:3px 6px;border-radius:8px;cursor:pointer}
+.segment:hover,.segment.active{background:#dbeafe;color:#111827}
+.panel-footer{height:58px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;color:var(--muted);font-size:13px}
 .footer-actions{display:flex;gap:8px;align-items:center}
-.btn{border:none;background:transparent;color:#5f6368;cursor:pointer;padding:6px 8px;border-radius:8px}
-.btn:hover{background:#f1f3f4}
-.copy-btn{border:none;background:#1a73e8;color:white;border-radius:999px;padding:8px 16px;font-weight:800;cursor:pointer}
-.dropdown{display:none;position:absolute;left:18px;right:18px;top:58px;max-height:210px;overflow-y:auto;background:white;border:1px solid #dadce0;border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.18);z-index:20}
-.dropdown-item{padding:10px 13px;border-bottom:1px solid #edf2f7;cursor:pointer}
-.dropdown-item:hover,.dropdown-item.active{background:#e8f0fe}
-.dropdown-label{font-size:11px;font-weight:900;color:#1a73e8;margin-bottom:4px}
-.dropdown-text{font-size:14px;line-height:1.35;margin-bottom:4px}
-.dropdown-meaning{font-size:12px;color:#64748b;line-height:1.35}
-.tools{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
-.tool-btn{background:white;border:1px solid #dadce0;border-radius:12px;padding:11px 16px;font-weight:800;cursor:pointer;color:#334155}
-.tool-btn:hover{border-color:#1a73e8;color:#1a73e8}
-details{background:white;border:1px solid #e5e7eb;border-radius:16px;padding:14px 18px;margin-top:18px}
+.btn{border:none;background:transparent;color:var(--muted);cursor:pointer;padding:7px 9px;border-radius:9px}
+.btn:hover{background:rgba(148,163,184,.18)}
+.copy-btn{border:none;background:var(--blue);color:white;border-radius:999px;padding:9px 18px;font-weight:900;cursor:pointer}
+.dropdown{display:none;position:absolute;left:20px;right:20px;top:62px;max-height:230px;overflow-y:auto;background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 18px 45px rgba(0,0,0,.28);z-index:20}
+.dropdown-item{padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer}
+.dropdown-item:hover,.dropdown-item.active{background:rgba(96,165,250,.18)}
+.dropdown-label{font-size:12px;font-weight:900;color:var(--blue);margin-bottom:5px}
+.dropdown-text{font-size:15px;line-height:1.4;margin-bottom:5px}
+.dropdown-meaning{font-size:13px;color:var(--muted);line-height:1.4}
+.tools{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+.tool-btn{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 18px;font-weight:900;cursor:pointer;color:var(--text);box-shadow:var(--shadow)}
+.tool-btn:hover{border-color:var(--blue);color:var(--blue)}
+details{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px 20px;margin-top:20px}
 summary{cursor:pointer;font-weight:900}
 .glossary-form{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;margin-top:14px}
-.glossary-form input{border:1px solid #dadce0;border-radius:10px;padding:10px}
-.glossary-form button{background:#eef4ff;border:none;color:#1a73e8;border-radius:10px;padding:9px 12px;font-weight:800;cursor:pointer}
+.glossary-form input{border:1px solid var(--border);border-radius:12px;padding:11px;background:var(--card);color:var(--text)}
+.glossary-form button{background:var(--soft);border:none;color:var(--blue);border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer}
 .glossary-list{margin-top:12px;display:grid;gap:8px}
-.glossary-item{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fafafa;border:1px solid #edf0f5;border-radius:10px;padding:10px 12px}
-.status{margin-top:12px;font-size:14px;color:#64748b}
-.error{color:#b00020}
+.glossary-item{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--soft);border:1px solid var(--border);border-radius:12px;padding:11px 13px}
+.status{margin-top:14px;font-size:14px;color:var(--muted)}
+.error{color:#ef4444}
 @media(max-width:850px){
-.header{height:auto;padding:12px 14px;flex-wrap:wrap}
-.logo{font-size:19px}
-.translator,.lang-row,.glossary-form{grid-template-columns:1fr}
-.swap{display:none}
-textarea,.result{height:190px;font-size:18px;padding:15px}
-.panel-footer{height:46px;padding:0 12px}
-.dropdown{left:10px;right:10px;top:48px;max-height:165px}
+  .header{padding:14px}
+  .logo{font-size:20px}
+  .header-actions{gap:8px}
+  .translator,.lang-row,.glossary-form{grid-template-columns:1fr}
+  .swap{display:none}
+  textarea,.result{height:210px;font-size:18px;padding:16px}
+  .panel-footer{height:48px;padding:0 12px}
+  .dropdown{left:10px;right:10px;top:48px;max-height:170px}
 }
 </style>
 </head>
@@ -75,12 +84,28 @@ textarea,.result{height:190px;font-size:18px;padding:15px}
 <header class="header">
   <div class="logo">FluentReply</div>
   <div class="header-actions">
+    <select id="themeSelect" onchange="changeTheme()">
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+      <option value="auto">Auto</option>
+    </select>
+
     <select id="uiLangSelect" onchange="changeUILanguage()">
       <option value="auto">Auto UI</option>
-      <option value="en">English</option>
-      <option value="zh">中文</option>
-      <option value="ja">日本語</option>
+      <option value="English">English</option>
+      <option value="Simplified Chinese">中文</option>
+      <option value="Japanese">日本語</option>
+      <option value="Korean">한국어</option>
+      <option value="Spanish">Español</option>
+      <option value="French">Français</option>
+      <option value="German">Deutsch</option>
+      <option value="Russian">Русский</option>
+      <option value="Arabic">العربية</option>
+      <option value="Portuguese">Português</option>
+      <option value="Italian">Italiano</option>
     </select>
+
+    <button onclick="syncUILanguageToTarget()" data-i18n="sync">Sync UI</button>
     <button onclick="location.href='history.html'" data-i18n="history">History</button>
     <button class="upgrade-btn" onclick="goUpgrade()">Upgrade</button>
     <button class="auth-btn" onclick="location.href='login.html'" data-i18n="login">Login</button>
@@ -91,22 +116,22 @@ textarea,.result{height:190px;font-size:18px;padding:15px}
 <main class="app">
   <section class="hero">
     <h1 data-i18n="heroTitle">AI Translation with DeepL Precision</h1>
-    <p data-i18n="heroText">Fast full-message translation with optional sentence alternatives.</p>
+    <p data-i18n="heroText">Fast full-message translation with sentence-level alternatives.</p>
   </section>
 
   <section class="engine-box">
     <div class="engine-left">
       <label data-i18n="engineLabel">Translation engine:</label>
       <select id="engineMode" onchange="if(input.value.trim()) translate()">
+        <option value="auto" selected>Auto · DeepL + AI</option>
         <option value="deepl">DeepL only · Fastest</option>
-        <option value="auto">Auto · DeepL + AI</option>
         <option value="ai">AI only · Best alternatives</option>
       </select>
       <span id="engineStatus"></span>
     </div>
 
     <label class="sentence-toggle">
-      <input id="sentenceMode" type="checkbox" onchange="if(input.value.trim()) translate()">
+      <input id="sentenceMode" type="checkbox" checked onchange="if(input.value.trim()) translate()">
       <span data-i18n="sentenceMode">Sentence mode</span>
     </label>
   </section>
@@ -122,10 +147,12 @@ textarea,.result{height:190px;font-size:18px;padding:15px}
       <option value="French">Français</option>
       <option value="German">Deutsch</option>
       <option value="Russian">Русский</option>
+      <option value="Arabic">العربية</option>
+      <option value="Portuguese">Português</option>
+      <option value="Italian">Italiano</option>
       <option value="Thai">ไทย</option>
       <option value="Vietnamese">Tiếng Việt</option>
       <option value="Burmese">မြန်မာ</option>
-      <option value="Arabic">العربية</option>
     </select>
 
     <button class="swap" onclick="swapLanguages()">⇄</button>
@@ -139,10 +166,12 @@ textarea,.result{height:190px;font-size:18px;padding:15px}
       <option value="French">Français</option>
       <option value="German">Deutsch</option>
       <option value="Russian">Русский</option>
+      <option value="Arabic">العربية</option>
+      <option value="Portuguese">Português</option>
+      <option value="Italian">Italiano</option>
       <option value="Thai">ไทย</option>
       <option value="Vietnamese">Tiếng Việt</option>
       <option value="Burmese">မြန်မာ</option>
-      <option value="Arabic">العربية</option>
     </select>
   </div>
 
@@ -232,86 +261,111 @@ const targetSelect = document.getElementById("targetSelect");
 const glossaryList = document.getElementById("glossaryList");
 
 const i18n = {
-  en:{
-    history:"History",login:"Login",signup:"Sign up",
-    heroTitle:"AI Translation with DeepL Precision",
-    heroText:"Fast full-message translation with optional sentence alternatives.",
-    engineLabel:"Translation engine:",sentenceMode:"Sentence mode",
-    autoDetect:"Auto detect",clear:"Clear",copy:"Copy",waiting:"Waiting",
-    placeholder:"Translation will appear here",translateFile:"Translate Files",translateVoice:"Translate Voice",
-    normalMode:"Normal",newsTranslator:"News Translator",headlineRewriter:"Headline Rewriter",vocabHelper:"Vocabulary Helper",
-    glossarySummary:"📚 Glossary",addTerm:"Add term",
-    privacyText:"Privacy note: Your text is sent only to generate translation results. Do not enter passwords, banking details, or private identification information."
-  },
-  zh:{
-    history:"历史记录",login:"登录",signup:"注册",
-    heroTitle:"结合 DeepL 精准度的 AI 翻译",
-    heroText:"快速整段翻译，可选分句多表达。",
-    engineLabel:"翻译引擎：",sentenceMode:"分句模式",
-    autoDetect:"自动检测",clear:"清空",copy:"复制",waiting:"等待输入",
-    placeholder:"翻译结果会显示在这里",translateFile:"翻译文件",translateVoice:"语音翻译",
-    normalMode:"普通翻译",newsTranslator:"新闻翻译",headlineRewriter:"标题优化",vocabHelper:"关键词解释",
-    glossarySummary:"📚 自定义词库",addTerm:"添加词条",
-    privacyText:"隐私提示：您的文本仅用于生成翻译结果。请不要输入密码、银行信息或私人身份信息。"
-  },
-  ja:{
-    history:"履歴",login:"ログイン",signup:"登録",
-    heroTitle:"DeepL精度を備えたAI翻訳",
-    heroText:"高速な全文翻訳と、必要に応じた文ごとの別表現。",
-    engineLabel:"翻訳エンジン：",sentenceMode:"文単位モード",
-    autoDetect:"自動検出",clear:"クリア",copy:"コピー",waiting:"待機中",
-    placeholder:"翻訳結果がここに表示されます",translateFile:"ファイル翻訳",translateVoice:"音声翻訳",
-    normalMode:"通常",newsTranslator:"ニュース翻訳",headlineRewriter:"見出しリライト",vocabHelper:"語彙ヘルパー",
-    glossarySummary:"📚 用語集",addTerm:"用語を追加",
-    privacyText:"プライバシー注記：入力テキストは翻訳結果の生成にのみ使用されます。パスワード、銀行情報、個人識別情報は入力しないでください。"
-  }
+  English:{history:"History",login:"Login",signup:"Sign up",sync:"Sync UI",heroTitle:"AI Translation with DeepL Precision",heroText:"Fast full-message translation with sentence-level alternatives.",engineLabel:"Translation engine:",sentenceMode:"Sentence mode",autoDetect:"Auto detect",clear:"Clear",copy:"Copy",waiting:"Waiting",placeholder:"Translation will appear here",translateFile:"Translate Files",translateVoice:"Translate Voice",normalMode:"Normal",newsTranslator:"News Translator",headlineRewriter:"Headline Rewriter",vocabHelper:"Vocabulary Helper",glossarySummary:"📚 Glossary",addTerm:"Add term",privacyText:"Privacy note: Your text is sent only to generate translation results. Do not enter passwords, banking details, or private identification information."},
+  "Simplified Chinese":{history:"历史记录",login:"登录",signup:"注册",sync:"同步界面",heroTitle:"结合 DeepL 精准度的 AI 翻译",heroText:"快速整段翻译，并支持每句多种表达。",engineLabel:"翻译引擎：",sentenceMode:"分句模式",autoDetect:"自动检测",clear:"清空",copy:"复制",waiting:"等待输入",placeholder:"翻译结果会显示在这里",translateFile:"翻译文件",translateVoice:"语音翻译",normalMode:"普通翻译",newsTranslator:"新闻翻译",headlineRewriter:"标题优化",vocabHelper:"关键词解释",glossarySummary:"📚 自定义词库",addTerm:"添加词条",privacyText:"隐私提示：您的文本仅用于生成翻译结果。请不要输入密码、银行信息或私人身份信息。"},
+  Japanese:{history:"履歴",login:"ログイン",signup:"登録",sync:"UI同期",heroTitle:"DeepL精度を備えたAI翻訳",heroText:"高速な全文翻訳と文ごとの別表現に対応。",engineLabel:"翻訳エンジン：",sentenceMode:"文単位モード",autoDetect:"自動検出",clear:"クリア",copy:"コピー",waiting:"待機中",placeholder:"翻訳結果がここに表示されます",translateFile:"ファイル翻訳",translateVoice:"音声翻訳",normalMode:"通常",newsTranslator:"ニュース翻訳",headlineRewriter:"見出しリライト",vocabHelper:"語彙ヘルパー",glossarySummary:"📚 用語集",addTerm:"用語を追加",privacyText:"プライバシー注記：入力テキストは翻訳結果の生成にのみ使用されます。パスワード、銀行情報、個人識別情報は入力しないでください。"},
+  Korean:{history:"기록",login:"로그인",signup:"가입",sync:"UI 동기화",heroTitle:"DeepL 정확도를 더한 AI 번역",heroText:"빠른 전체 번역과 문장별 대체 표현.",engineLabel:"번역 엔진:",sentenceMode:"문장 모드",autoDetect:"자동 감지",clear:"지우기",copy:"복사",waiting:"대기 중",placeholder:"번역 결과가 여기에 표시됩니다",translateFile:"파일 번역",translateVoice:"음성 번역",normalMode:"일반",newsTranslator:"뉴스 번역",headlineRewriter:"제목 최적화",vocabHelper:"어휘 설명",glossarySummary:"📚 용어집",addTerm:"용어 추가",privacyText:"개인정보 안내: 입력한 텍스트는 번역 결과 생성에만 사용됩니다."},
+  Spanish:{history:"Historial",login:"Iniciar sesión",signup:"Registrarse",sync:"Sincronizar UI",heroTitle:"Traducción IA con precisión DeepL",heroText:"Traducción rápida con alternativas por oración.",engineLabel:"Motor:",sentenceMode:"Modo oración",autoDetect:"Detectar auto",clear:"Borrar",copy:"Copiar",waiting:"Esperando",placeholder:"La traducción aparecerá aquí",translateFile:"Traducir archivos",translateVoice:"Traducir voz",normalMode:"Normal",newsTranslator:"Noticias",headlineRewriter:"Titulares",vocabHelper:"Vocabulario",glossarySummary:"📚 Glosario",addTerm:"Agregar término",privacyText:"Nota de privacidad: el texto solo se usa para generar traducciones."},
+  French:{history:"Historique",login:"Connexion",signup:"Inscription",sync:"Sync UI",heroTitle:"Traduction IA avec précision DeepL",heroText:"Traduction rapide avec alternatives par phrase.",engineLabel:"Moteur :",sentenceMode:"Mode phrase",autoDetect:"Détection auto",clear:"Effacer",copy:"Copier",waiting:"En attente",placeholder:"La traduction apparaîtra ici",translateFile:"Traduire fichiers",translateVoice:"Traduire voix",normalMode:"Normal",newsTranslator:"Traduction actualités",headlineRewriter:"Titres",vocabHelper:"Vocabulaire",glossarySummary:"📚 Glossaire",addTerm:"Ajouter",privacyText:"Note de confidentialité : votre texte sert uniquement à générer la traduction."},
+  German:{history:"Verlauf",login:"Anmelden",signup:"Registrieren",sync:"UI synchronisieren",heroTitle:"KI-Übersetzung mit DeepL-Präzision",heroText:"Schnelle Übersetzung mit Satzalternativen.",engineLabel:"Engine:",sentenceMode:"Satzmodus",autoDetect:"Auto erkennen",clear:"Löschen",copy:"Kopieren",waiting:"Warten",placeholder:"Übersetzung erscheint hier",translateFile:"Dateien übersetzen",translateVoice:"Sprache übersetzen",normalMode:"Normal",newsTranslator:"Nachrichten",headlineRewriter:"Überschriften",vocabHelper:"Vokabelhilfe",glossarySummary:"📚 Glossar",addTerm:"Begriff hinzufügen",privacyText:"Datenschutzhinweis: Ihr Text wird nur zur Übersetzung verwendet."},
+  Russian:{history:"История",login:"Вход",signup:"Регистрация",sync:"Синхр. UI",heroTitle:"AI-перевод с точностью DeepL",heroText:"Быстрый перевод с вариантами по предложениям.",engineLabel:"Движок:",sentenceMode:"Режим предложений",autoDetect:"Авто",clear:"Очистить",copy:"Копировать",waiting:"Ожидание",placeholder:"Перевод появится здесь",translateFile:"Файлы",translateVoice:"Голос",normalMode:"Обычный",newsTranslator:"Новости",headlineRewriter:"Заголовки",vocabHelper:"Слова",glossarySummary:"📚 Глоссарий",addTerm:"Добавить",privacyText:"Примечание: текст используется только для перевода."},
+  Arabic:{history:"السجل",login:"تسجيل الدخول",signup:"إنشاء حساب",sync:"مزامنة الواجهة",heroTitle:"ترجمة AI بدقة DeepL",heroText:"ترجمة سريعة مع بدائل لكل جملة.",engineLabel:"المحرك:",sentenceMode:"وضع الجمل",autoDetect:"اكتشاف تلقائي",clear:"مسح",copy:"نسخ",waiting:"انتظار",placeholder:"ستظهر الترجمة هنا",translateFile:"ترجمة الملفات",translateVoice:"ترجمة الصوت",normalMode:"عادي",newsTranslator:"ترجمة الأخبار",headlineRewriter:"العناوين",vocabHelper:"المفردات",glossarySummary:"📚 القاموس",addTerm:"إضافة",privacyText:"ملاحظة الخصوصية: يستخدم النص فقط لإنشاء الترجمة."},
+  Portuguese:{history:"Histórico",login:"Entrar",signup:"Cadastrar",sync:"Sincronizar UI",heroTitle:"Tradução IA com precisão DeepL",heroText:"Tradução rápida com alternativas por frase.",engineLabel:"Motor:",sentenceMode:"Modo frase",autoDetect:"Detectar auto",clear:"Limpar",copy:"Copiar",waiting:"Aguardando",placeholder:"A tradução aparecerá aqui",translateFile:"Traduzir arquivos",translateVoice:"Traduzir voz",normalMode:"Normal",newsTranslator:"Notícias",headlineRewriter:"Títulos",vocabHelper:"Vocabulário",glossarySummary:"📚 Glossário",addTerm:"Adicionar",privacyText:"Nota de privacidade: seu texto é usado apenas para gerar traduções."},
+  Italian:{history:"Cronologia",login:"Accedi",signup:"Registrati",sync:"Sincronizza UI",heroTitle:"Traduzione AI con precisione DeepL",heroText:"Traduzione rapida con alternative per frase.",engineLabel:"Motore:",sentenceMode:"Modalità frase",autoDetect:"Rileva auto",clear:"Cancella",copy:"Copia",waiting:"In attesa",placeholder:"La traduzione apparirà qui",translateFile:"Traduci file",translateVoice:"Traduci voce",normalMode:"Normale",newsTranslator:"Notizie",headlineRewriter:"Titoli",vocabHelper:"Vocabolario",glossarySummary:"📚 Glossario",addTerm:"Aggiungi",privacyText:"Nota privacy: il testo viene usato solo per generare traduzioni."}
 };
 
+function browserUILang(){
+  const lang=navigator.language.toLowerCase();
+  if(lang.startsWith("zh")) return "Simplified Chinese";
+  if(lang.startsWith("ja")) return "Japanese";
+  if(lang.startsWith("ko")) return "Korean";
+  if(lang.startsWith("es")) return "Spanish";
+  if(lang.startsWith("fr")) return "French";
+  if(lang.startsWith("de")) return "German";
+  if(lang.startsWith("ru")) return "Russian";
+  if(lang.startsWith("ar")) return "Arabic";
+  if(lang.startsWith("pt")) return "Portuguese";
+  if(lang.startsWith("it")) return "Italian";
+  return "English";
+}
+
 function getUILang(){
-  const selected = document.getElementById("uiLangSelect").value;
-  if(selected !== "auto") return selected;
-  const lang = navigator.language.toLowerCase();
-  if(lang.startsWith("zh")) return "zh";
-  if(lang.startsWith("ja")) return "ja";
+  const selected=document.getElementById("uiLangSelect").value;
+  return selected==="auto"?browserUILang():selected;
+}
+
+function backendUILang(){
+  const lang=getUILang();
+  if(lang==="Simplified Chinese") return "zh";
+  if(lang==="Japanese") return "ja";
   return "en";
 }
 
 function applyUILanguage(){
-  const lang = getUILang();
+  const pack=i18n[getUILang()]||i18n.English;
   document.querySelectorAll("[data-i18n]").forEach(el=>{
-    const key = el.getAttribute("data-i18n");
-    if(i18n[lang][key]) el.innerText = i18n[lang][key];
+    const key=el.getAttribute("data-i18n");
+    if(pack[key]) el.innerText=pack[key];
   });
   updateAuthUI();
 }
-function changeUILanguage(){applyUILanguage()}
+
+function changeUILanguage(){
+  localStorage.setItem("ui_language",document.getElementById("uiLangSelect").value);
+  applyUILanguage();
+  if(input.value.trim()) translate();
+}
+
+function syncUILanguageToTarget(){
+  const target=targetSelect.value;
+  if(i18n[target]){
+    document.getElementById("uiLangSelect").value=target;
+    localStorage.setItem("ui_language",target);
+    applyUILanguage();
+    if(input.value.trim()) translate();
+  }
+}
+
+function changeTheme(){
+  localStorage.setItem("theme_mode",document.getElementById("themeSelect").value);
+  applyTheme();
+}
+
+function applyTheme(){
+  const theme=localStorage.getItem("theme_mode")||"light";
+  document.getElementById("themeSelect").value=theme;
+  const autoDark=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;
+  document.body.classList.toggle("dark",theme==="dark"||(theme==="auto"&&autoDark));
+}
 
 input.addEventListener("input",()=>{
   clearTimeout(timer);
-  const text = input.value.trim();
-  count.innerText = text.length;
+  const text=input.value.trim();
+  count.innerText=text.length;
   if(!text){clearResultOnly();return}
-
-  const engineMode = document.getElementById("engineMode").value;
-  const delay = engineMode === "deepl" ? 300 : 700;
-  statusBox.innerText = getUILang()==="zh" ? "准备翻译..." : "Preparing...";
-  timer = setTimeout(translate, delay);
+  const engineMode=document.getElementById("engineMode").value;
+  const delay=engineMode==="deepl"?300:700;
+  statusBox.innerText=getUILang()==="Simplified Chinese"?"准备翻译...":"Preparing...";
+  timer=setTimeout(translate,delay);
 });
 
 async function initAuth(){
-  const {data} = await supabaseClient.auth.getUser();
+  const savedUI=localStorage.getItem("ui_language");
+  if(savedUI) document.getElementById("uiLangSelect").value=savedUI;
+
+  const {data}=await supabaseClient.auth.getUser();
   if(data?.user){
-    currentUser = data.user;
+    currentUser=data.user;
     await loadCloudGlossary();
   }
   updateAuthUI();
 
-  const reopen = localStorage.getItem("history_reopen_text");
+  const reopen=localStorage.getItem("history_reopen_text");
   if(reopen){
-    input.value = reopen;
-    sourceSelect.value = localStorage.getItem("history_reopen_from") || "auto";
-    targetSelect.value = localStorage.getItem("history_reopen_to") || "English";
-    count.innerText = input.value.length;
+    input.value=reopen;
+    sourceSelect.value=localStorage.getItem("history_reopen_from")||"auto";
+    targetSelect.value=localStorage.getItem("history_reopen_to")||"English";
+    count.innerText=input.value.length;
     localStorage.removeItem("history_reopen_text");
     localStorage.removeItem("history_reopen_from");
     localStorage.removeItem("history_reopen_to");
@@ -320,39 +374,40 @@ async function initAuth(){
 }
 
 function updateAuthUI(){
-  const loginBtn = document.querySelector(".auth-btn");
-  const signupBtn = document.querySelector(".auth-primary");
-  if(!loginBtn || !signupBtn) return;
+  const loginBtn=document.querySelector(".auth-btn");
+  const signupBtn=document.querySelector(".auth-primary");
+  const pack=i18n[getUILang()]||i18n.English;
+  if(!loginBtn||!signupBtn)return;
 
   if(currentUser){
-    loginBtn.innerText = currentUser.email;
-    loginBtn.onclick = ()=>alert(currentUser.email);
-    signupBtn.innerText = getUILang()==="zh" ? "退出" : "Logout";
-    signupBtn.onclick = logout;
+    loginBtn.innerText=currentUser.email;
+    loginBtn.onclick=()=>alert(currentUser.email);
+    signupBtn.innerText=getUILang()==="Simplified Chinese"?"退出":"Logout";
+    signupBtn.onclick=logout;
   }else{
-    loginBtn.innerText = i18n[getUILang()].login;
-    loginBtn.onclick = ()=>location.href="login.html";
-    signupBtn.innerText = i18n[getUILang()].signup;
-    signupBtn.onclick = ()=>location.href="signup.html";
+    loginBtn.innerText=pack.login;
+    loginBtn.onclick=()=>location.href="login.html";
+    signupBtn.innerText=pack.signup;
+    signupBtn.onclick=()=>location.href="signup.html";
   }
 }
 
 async function logout(){
   await supabaseClient.auth.signOut();
-  currentUser = null;
+  currentUser=null;
   updateAuthUI();
 }
 
 function goUpgrade(){
-  if(PAYMENT_LINK === "YOUR_PAYMENT_LINK_HERE"){
-    alert(getUILang()==="zh" ? "支付功能稍后上线。" : "Upgrade payment will be added later.");
+  if(PAYMENT_LINK==="YOUR_PAYMENT_LINK_HERE"){
+    alert(getUILang()==="Simplified Chinese"?"支付功能稍后上线。":"Upgrade payment will be added later.");
     return;
   }
-  location.href = PAYMENT_LINK;
+  location.href=PAYMENT_LINK;
 }
 
 function setTask(task){
-  currentTask = task;
+  currentTask=task;
   if(input.value.trim()) translate();
 }
 
@@ -360,40 +415,40 @@ function changeSourceLanguage(){if(input.value.trim()) translate()}
 function changeTargetLanguage(){if(input.value.trim()) translate()}
 
 function swapLanguages(){
-  const source = sourceSelect.value;
-  const target = targetSelect.value;
-  if(source !== "auto"){
-    sourceSelect.value = target || "auto";
-    targetSelect.value = source;
+  const source=sourceSelect.value;
+  const target=targetSelect.value;
+  if(source!=="auto"){
+    sourceSelect.value=target||"auto";
+    targetSelect.value=source;
   }else{
-    targetSelect.value = targetSelect.value === "English" ? "Simplified Chinese" : "English";
+    targetSelect.value=targetSelect.value==="English"?"Simplified Chinese":"English";
   }
   if(input.value.trim()) translate();
 }
 
 function getUsage(){return Number(localStorage.getItem("usage_count")||"0")}
-function increaseUsage(){localStorage.setItem("usage_count", String(getUsage()+1))}
+function increaseUsage(){localStorage.setItem("usage_count",String(getUsage()+1))}
 function isPro(){return localStorage.getItem("pro_user")==="true"}
 
 function getGlossary(){return JSON.parse(localStorage.getItem("custom_glossary")||"[]")}
-function saveGlossary(list){localStorage.setItem("custom_glossary", JSON.stringify(list))}
+function saveGlossary(list){localStorage.setItem("custom_glossary",JSON.stringify(list))}
 
 async function addGlossaryTerm(){
-  const source = document.getElementById("glossarySource").value.trim();
-  const target = document.getElementById("glossaryTarget").value.trim();
-  if(!source || !target) return;
+  const source=document.getElementById("glossarySource").value.trim();
+  const target=document.getElementById("glossaryTarget").value.trim();
+  if(!source||!target)return;
 
-  const glossary = getGlossary();
+  const glossary=getGlossary();
   glossary.unshift({source,target});
   saveGlossary(glossary.slice(0,100));
 
   if(currentUser){
-    const {data} = await supabaseClient.from("custom_glossary")
+    const {data}=await supabaseClient.from("custom_glossary")
       .insert({user_id:currentUser.id,source_term:source,target_term:target})
       .select("id").single();
     if(data?.id){
-      const updated = getGlossary();
-      updated[0].cloudId = data.id;
+      const updated=getGlossary();
+      updated[0].cloudId=data.id;
       saveGlossary(updated);
     }
   }
@@ -405,9 +460,9 @@ async function addGlossaryTerm(){
 }
 
 async function deleteGlossaryTerm(index){
-  const glossary = getGlossary();
+  const glossary=getGlossary();
   if(glossary[index]?.cloudId){
-    await supabaseClient.from("custom_glossary").delete().eq("id", glossary[index].cloudId);
+    await supabaseClient.from("custom_glossary").delete().eq("id",glossary[index].cloudId);
   }
   glossary.splice(index,1);
   saveGlossary(glossary);
@@ -416,164 +471,157 @@ async function deleteGlossaryTerm(index){
 }
 
 function renderGlossary(){
-  const glossary = getGlossary();
-  glossaryList.innerHTML = "";
+  const glossary=getGlossary();
+  glossaryList.innerHTML="";
   glossary.forEach((item,index)=>{
-    const div = document.createElement("div");
-    div.className = "glossary-item";
-    div.innerHTML = `<span><strong>${escapeHTML(item.source)}</strong> → ${escapeHTML(item.target)}</span><button onclick="deleteGlossaryTerm(${index})">Delete</button>`;
+    const div=document.createElement("div");
+    div.className="glossary-item";
+    div.innerHTML=`<span><strong>${escapeHTML(item.source)}</strong> → ${escapeHTML(item.target)}</span><button onclick="deleteGlossaryTerm(${index})">Delete</button>`;
     glossaryList.appendChild(div);
   });
 }
 
 async function loadCloudGlossary(){
-  if(!currentUser) return;
-  const {data,error} = await supabaseClient.from("custom_glossary").select("*").order("created_at",{ascending:false});
-  if(error) return;
-  localStorage.setItem("custom_glossary", JSON.stringify(data.map(item=>({
+  if(!currentUser)return;
+  const {data,error}=await supabaseClient.from("custom_glossary").select("*").order("created_at",{ascending:false});
+  if(error)return;
+  localStorage.setItem("custom_glossary",JSON.stringify(data.map(item=>({
     source:item.source_term,target:item.target_term,cloudId:item.id
   }))));
   renderGlossary();
 }
 
 async function translate(){
-  const text = input.value.trim();
-  if(!text) return;
+  const text=input.value.trim();
+  if(!text)return;
 
-  if(getUsage() >= FREE_LIMIT && !isPro()){
-    statusBox.innerText = getUILang()==="zh" ? "免费次数已用完" : "Free limit reached";
+  if(getUsage()>=FREE_LIMIT&&!isPro()){
+    statusBox.innerText=getUILang()==="Simplified Chinese"?"免费次数已用完":"Free limit reached";
     return;
   }
 
-  const sourceLanguage = sourceSelect.value;
-  const targetLanguage = targetSelect.value;
-  const glossary = getGlossary();
-  const engineMode = document.getElementById("engineMode").value;
-  const sentenceMode = document.getElementById("sentenceMode").checked;
-  const uiLanguage = getUILang();
+  const sourceLanguage=sourceSelect.value;
+  const targetLanguage=targetSelect.value;
+  const glossary=getGlossary();
+  const engineMode=document.getElementById("engineMode").value;
+  const sentenceMode=document.getElementById("sentenceMode").checked;
+  const uiLanguage=backendUILang();
 
-  const cacheKey = `cache_final_${currentTask}_${engineMode}_${sentenceMode}_${sourceLanguage}_${targetLanguage}_${uiLanguage}_${JSON.stringify(glossary)}_${text}`;
-  const cached = localStorage.getItem(cacheKey);
+  const cacheKey=`cache_final_optimized_${currentTask}_${engineMode}_${sentenceMode}_${sourceLanguage}_${targetLanguage}_${uiLanguage}_${JSON.stringify(glossary)}_${text}`;
+  const cached=localStorage.getItem(cacheKey);
   if(cached){
     renderData(JSON.parse(cached));
-    statusBox.innerText = getUILang()==="zh" ? "来自缓存" : "From cache";
+    statusBox.innerText=getUILang()==="Simplified Chinese"?"来自缓存":"From cache";
     return;
   }
 
-  statusBox.innerText = engineMode === "deepl"
-    ? (getUILang()==="zh" ? "DeepL 正在翻译..." : "DeepL translating...")
-    : (getUILang()==="zh" ? "AI 正在处理..." : "AI processing...");
+  statusBox.innerText=engineMode==="deepl"
+    ? (getUILang()==="Simplified Chinese"?"DeepL 正在翻译...":"DeepL translating...")
+    : (getUILang()==="Simplified Chinese"?"AI 正在处理...":"AI processing...");
 
   try{
-    const res = await fetch("/.netlify/functions/translate",{
+    const res=await fetch("/.netlify/functions/translate",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
-        text,
-        sourceLanguage,
-        targetLanguage,
-        task:currentTask,
-        glossary,
-        engineMode,
-        uiLanguage,
-        sentenceMode
+        text,sourceLanguage,targetLanguage,task:currentTask,glossary,engineMode,uiLanguage,sentenceMode
       })
     });
 
-    const data = await res.json();
+    const data=await res.json();
 
-    if(!res.ok || data.error){
-      result.innerHTML = `<span class="error">${escapeHTML(data.error || data.detail || "Failed")}</span><div id="dropdown" class="dropdown"></div>`;
-      statusBox.innerText = getUILang()==="zh" ? "处理失败" : "Failed";
+    if(!res.ok||data.error){
+      result.innerHTML=`<span class="error">${escapeHTML(data.error||data.detail||"Failed")}</span><div id="dropdown" class="dropdown"></div>`;
+      statusBox.innerText=getUILang()==="Simplified Chinese"?"处理失败":"Failed";
       return;
     }
 
     increaseUsage();
-    localStorage.setItem(cacheKey, JSON.stringify(data));
+    localStorage.setItem(cacheKey,JSON.stringify(data));
     renderData(data);
     saveHistory(text,data);
 
   }catch(e){
-    result.innerHTML = `<span class="error">Network error</span><div id="dropdown" class="dropdown"></div>`;
-    statusBox.innerText = "Network error";
+    result.innerHTML=`<span class="error">Network error</span><div id="dropdown" class="dropdown"></div>`;
+    statusBox.innerText="Network error";
   }
 }
 
 function renderData(data){
-  document.getElementById("engineStatus").innerText = data.engine_used || "";
+  document.getElementById("engineStatus").innerText=data.engine_used||"";
 
-  currentSegments = (data.segments || []).map((seg,index)=>({
-    id:seg.id || index+1,
-    source:seg.source || "",
-    selected:seg.best || "",
-    options:seg.options || []
+  currentSegments=(data.segments||[]).map((seg,index)=>({
+    id:seg.id||index+1,
+    source:seg.source||"",
+    selected:seg.best||"",
+    options:seg.options||[]
   }));
 
-  if(!currentSegments.length && data.full_translation){
-    currentSegments = [{id:1,source:input.value,selected:data.full_translation,options:[]}];
+  if(!currentSegments.length&&data.full_translation){
+    currentSegments=[{id:1,source:input.value,selected:data.full_translation,options:[]}];
   }
 
   rebuildFullText();
-  activeSegmentIndex = null;
+  activeSegmentIndex=null;
   renderSegments();
 
-  statusBox.innerText = getUILang()==="zh" ? "完成" : "Done";
-  bottomStatus.innerText = document.getElementById("sentenceMode").checked
-    ? (getUILang()==="zh" ? "分句模式已开启，可点击句子查看表达。" : "Sentence mode is on. Click a sentence to see alternatives.")
-    : (getUILang()==="zh" ? "当前为整段翻译。开启分句模式可查看每句表达。" : "Full-message translation. Turn on sentence mode to see sentence alternatives.");
+  statusBox.innerText=getUILang()==="Simplified Chinese"?"完成":"Done";
+  bottomStatus.innerText=getUILang()==="Simplified Chinese"
+    ?"点击右侧任意句子，可查看多种表达。"
+    :"Click any translated sentence to see alternatives.";
 }
 
 function rebuildFullText(){
-  currentText = currentSegments.map(seg=>seg.selected).join(" ");
+  currentText=currentSegments.map(seg=>seg.selected).join(" ");
 }
 
 function renderSegments(){
-  result.innerHTML = "";
+  result.innerHTML="";
   if(!currentSegments.length){
-    result.innerHTML = '<span class="placeholder" data-i18n="placeholder">Translation will appear here</span><div id="dropdown" class="dropdown"></div>';
+    result.innerHTML='<span class="placeholder" data-i18n="placeholder">Translation will appear here</span><div id="dropdown" class="dropdown"></div>';
     applyUILanguage();
     return;
   }
 
   currentSegments.forEach((seg,index)=>{
-    const span = document.createElement("span");
-    span.className = "segment" + (activeSegmentIndex===index ? " active" : "");
-    span.innerText = seg.selected + " ";
-    span.onclick = e=>{
+    const span=document.createElement("span");
+    span.className="segment"+(activeSegmentIndex===index?" active":"");
+    span.innerText=seg.selected+" ";
+    span.onclick=e=>{
       e.stopPropagation();
       showDropdownForSegment(index);
     };
     result.appendChild(span);
   });
 
-  const dd = document.createElement("div");
-  dd.id = "dropdown";
-  dd.className = "dropdown";
+  const dd=document.createElement("div");
+  dd.id="dropdown";
+  dd.className="dropdown";
   result.appendChild(dd);
 }
 
 function showDropdownForSegment(index){
-  activeSegmentIndex = index;
+  activeSegmentIndex=index;
   renderSegments();
 
-  const seg = currentSegments[index];
-  const dd = document.getElementById("dropdown");
-  dd.innerHTML = "";
+  const seg=currentSegments[index];
+  const dd=document.getElementById("dropdown");
+  dd.innerHTML="";
 
-  if(!seg.options || !seg.options.length){
-    dd.innerHTML = `<div class="dropdown-item">No alternatives</div>`;
+  if(!seg.options||!seg.options.length){
+    dd.innerHTML=`<div class="dropdown-item">No alternatives</div>`;
   }else{
     seg.options.forEach((opt,optIndex)=>{
-      const item = document.createElement("div");
-      item.className = "dropdown-item" + (opt.text===seg.selected || optIndex===0 ? " active" : "");
-      item.innerHTML = `
-        <div class="dropdown-label">${escapeHTML(opt.label || "Option")}</div>
-        <div class="dropdown-text">${escapeHTML(opt.text || "")}</div>
-        <div class="dropdown-meaning">${escapeHTML(opt.meaning || "")}</div>
+      const item=document.createElement("div");
+      item.className="dropdown-item"+(opt.text===seg.selected||optIndex===0?" active":"");
+      item.innerHTML=`
+        <div class="dropdown-label">${escapeHTML(opt.label||"Option")}</div>
+        <div class="dropdown-text">${escapeHTML(opt.text||"")}</div>
+        <div class="dropdown-meaning">${escapeHTML(opt.meaning||"")}</div>
       `;
-      item.onclick = e=>{
+      item.onclick=e=>{
         e.stopPropagation();
-        currentSegments[index].selected = opt.text || "";
+        currentSegments[index].selected=opt.text||"";
         rebuildFullText();
         renderSegments();
         hideDropdown();
@@ -582,76 +630,77 @@ function showDropdownForSegment(index){
     });
   }
 
-  dd.style.display = "block";
-  dropdownVisible = true;
+  dd.style.display="block";
+  dropdownVisible=true;
 }
 
 function toggleDropdown(event){
   event.stopPropagation();
-  const dd = document.getElementById("dropdown");
-  if(!dd || !dd.innerHTML.trim()) return;
-  dd.style.display = dropdownVisible ? "none" : "block";
-  dropdownVisible = !dropdownVisible;
+  const dd=document.getElementById("dropdown");
+  if(!dd||!dd.innerHTML.trim())return;
+  dd.style.display=dropdownVisible?"none":"block";
+  dropdownVisible=!dropdownVisible;
 }
 
 function hideDropdown(){
-  const dd = document.getElementById("dropdown");
-  if(dd) dd.style.display = "none";
-  dropdownVisible = false;
+  const dd=document.getElementById("dropdown");
+  if(dd)dd.style.display="none";
+  dropdownVisible=false;
 }
 
 function copyText(event){
-  if(event) event.stopPropagation();
-  if(!currentText) return;
+  if(event)event.stopPropagation();
+  if(!currentText)return;
   navigator.clipboard.writeText(currentText);
-  statusBox.innerText = getUILang()==="zh" ? "已复制" : "Copied";
+  statusBox.innerText=getUILang()==="Simplified Chinese"?"已复制":"Copied";
 }
 
 function feedback(isGood){
-  if(!currentText) return;
-  const feedback = JSON.parse(localStorage.getItem("feedback")||"[]");
+  if(!currentText)return;
+  const feedback=JSON.parse(localStorage.getItem("feedback")||"[]");
   feedback.push({input:input.value,output:currentText,good:isGood,time:new Date().toISOString()});
-  localStorage.setItem("feedback", JSON.stringify(feedback));
-  statusBox.innerText = isGood ? "👍" : "👎";
+  localStorage.setItem("feedback",JSON.stringify(feedback));
+  statusBox.innerText=isGood?"👍":"👎";
 }
 
-function speakInput(){speak(input.value.trim(), langCode(sourceSelect.value))}
+function speakInput(){speak(input.value.trim(),langCode(sourceSelect.value))}
 function speakOutput(event){
-  if(event) event.stopPropagation();
-  speak(currentText, langCode(targetSelect.value || "English"));
+  if(event)event.stopPropagation();
+  speak(currentText,langCode(targetSelect.value||"English"));
 }
 
 function speak(text,lang){
-  if(!text) return;
-  const utterance = new SpeechSynthesisUtterance(text);
-  if(lang) utterance.lang = lang;
+  if(!text)return;
+  const utterance=new SpeechSynthesisUtterance(text);
+  if(lang)utterance.lang=lang;
   speechSynthesis.cancel();
   speechSynthesis.speak(utterance);
 }
 
 function langCode(lang){
-  const map = {
+  const map={
     "Simplified Chinese":"zh-CN","English":"en-US","Japanese":"ja-JP","Korean":"ko-KR",
     "Spanish":"es-ES","French":"fr-FR","German":"de-DE","Russian":"ru-RU",
-    "Thai":"th-TH","Vietnamese":"vi-VN","Burmese":"my-MM","Arabic":"ar-SA"
+    "Arabic":"ar-SA","Portuguese":"pt-PT","Italian":"it-IT",
+    "Thai":"th-TH","Vietnamese":"vi-VN","Burmese":"my-MM"
   };
-  return map[lang] || "";
+  return map[lang]||"";
 }
 
 function clearAll(){
-  input.value = "";
-  count.innerText = "0";
+  input.value="";
+  count.innerText="0";
   clearResultOnly();
 }
 
 function clearResultOnly(){
-  currentText = "";
-  currentSegments = [];
-  activeSegmentIndex = null;
-  result.innerHTML = '<span class="placeholder" data-i18n="placeholder">Translation will appear here</span><div id="dropdown" class="dropdown"></div>';
+  currentText="";
+  currentSegments=[];
+  activeSegmentIndex=null;
+  result.innerHTML='<span class="placeholder" data-i18n="placeholder">Translation will appear here</span><div id="dropdown" class="dropdown"></div>';
   applyUILanguage();
-  statusBox.innerText = i18n[getUILang()].waiting;
-  bottomStatus.innerText = "";
+  statusBox.innerText=(i18n[getUILang()]||i18n.English).waiting;
+  bottomStatus.innerText="";
 }
 
 function triggerFileUpload(){
@@ -659,66 +708,66 @@ function triggerFileUpload(){
 }
 
 function handleFileUpload(event){
-  const file = event.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = e=>{
-    input.value = e.target.result.slice(0,8000);
-    count.innerText = input.value.length;
+  const file=event.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    input.value=e.target.result.slice(0,8000);
+    count.innerText=input.value.length;
     translate();
   };
   reader.readAsText(file);
 }
 
 function toggleVoiceInput(){
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SpeechRecognition){
-    alert(getUILang()==="zh" ? "当前浏览器不支持语音输入，请使用 Chrome。" : "Voice input is not supported. Please use Chrome.");
+    alert(getUILang()==="Simplified Chinese"?"当前浏览器不支持语音输入，请使用 Chrome。":"Voice input is not supported. Please use Chrome.");
     return;
   }
 
   if(!recognition){
-    recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.onresult = e=>{
-      const text = e.results[0][0].transcript;
-      input.value = input.value ? input.value + " " + text : text;
-      count.innerText = input.value.length;
+    recognition=new SpeechRecognition();
+    recognition.continuous=false;
+    recognition.interimResults=false;
+    recognition.onresult=e=>{
+      const text=e.results[0][0].transcript;
+      input.value=input.value?input.value+" "+text:text;
+      count.innerText=input.value.length;
       translate();
     };
-    recognition.onend = ()=>{
-      isListening = false;
-      statusBox.innerText = getUILang()==="zh" ? "语音输入结束" : "Voice input ended";
+    recognition.onend=()=>{
+      isListening=false;
+      statusBox.innerText=getUILang()==="Simplified Chinese"?"语音输入结束":"Voice input ended";
     };
   }
 
   if(!isListening){
-    recognition.lang = langCode(sourceSelect.value) || "en-US";
+    recognition.lang=langCode(sourceSelect.value)||"en-US";
     recognition.start();
-    isListening = true;
-    statusBox.innerText = getUILang()==="zh" ? "正在听..." : "Listening...";
+    isListening=true;
+    statusBox.innerText=getUILang()==="Simplified Chinese"?"正在听...":"Listening...";
   }
 }
 
 async function saveHistory(source,data){
-  const resultText = data.full_translation || currentText || "";
-  const item = {
+  const resultText=data.full_translation||currentText||"";
+  const item={
     source,
-    result: resultText,
-    from: sourceSelect.value,
-    to: targetSelect.value,
-    task: currentTask,
-    engine: data.engine_used || "",
-    time: new Date().toLocaleString()
+    result:resultText,
+    from:sourceSelect.value,
+    to:targetSelect.value,
+    task:currentTask,
+    engine:data.engine_used||"",
+    time:new Date().toLocaleString()
   };
 
-  const history = JSON.parse(localStorage.getItem("history_folded_tools") || "[]");
-  const key = item.source + item.result;
-  if(lastSavedKey !== key){
+  const history=JSON.parse(localStorage.getItem("history_folded_tools")||"[]");
+  const key=item.source+item.result;
+  if(lastSavedKey!==key){
     history.unshift(item);
-    localStorage.setItem("history_folded_tools", JSON.stringify(history.slice(0,50)));
-    lastSavedKey = key;
+    localStorage.setItem("history_folded_tools",JSON.stringify(history.slice(0,50)));
+    lastSavedKey=key;
   }
 
   if(currentUser){
@@ -733,12 +782,14 @@ async function saveHistory(source,data){
   }
 }
 
-document.addEventListener("click", hideDropdown);
+document.addEventListener("click",hideDropdown);
+window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",applyTheme);
 
 function escapeHTML(str){
-  return String(str).replace(/[&<>'"]/g, tag=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[tag] || tag));
+  return String(str).replace(/[&<>'"]/g,tag=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[tag]||tag));
 }
 
+applyTheme();
 applyUILanguage();
 renderGlossary();
 initAuth();
