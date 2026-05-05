@@ -1,23 +1,25 @@
-exports.handler = async (event) => {
+exports.handler = async function (event) {
   try {
-    const body = JSON.parse(event.body);
+    if (event.httpMethod !== "POST") {
+      return {
+        statusCode: 405,
+        body: "Method not allowed"
+      };
+    }
 
-    // 只处理已付款
-    if (body.payment_status === "finished") {
-      const email = body.order_description;
+    const body = JSON.parse(event.body || "{}");
 
-      // 调用 Supabase
-      await fetch(process.env.SUPABASE_URL + "/rest/v1/users", {
-        method: "PATCH",
-        headers: {
-          "apikey": process.env.SUPABASE_SERVICE_ROLE_KEY,
-          "Authorization": "Bearer " + process.env.SUPABASE_SERVICE_ROLE_KEY,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          is_pro: true
-        })
-      });
+    console.log("NOWPayments webhook received:", body);
+
+    if (body.payment_status === "finished" || body.payment_status === "confirmed") {
+      const email = body.order_description?.split("|")[1]?.trim() || "";
+
+      console.log("Payment success for:", email);
+
+      /*
+        下一步这里会接 Supabase：
+        付款成功后，把用户 is_pro 改成 true。
+      */
     }
 
     return {
@@ -25,10 +27,12 @@ exports.handler = async (event) => {
       body: "OK"
     };
 
-  } catch (err) {
+  } catch (error) {
+    console.error("Webhook error:", error);
+
     return {
       statusCode: 500,
-      body: err.message
+      body: "Webhook error"
     };
   }
 };
