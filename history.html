@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>History - FluentReply</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,"Segoe UI",sans-serif;background:#f5f7fb;color:#202124}
+.header{height:66px;background:white;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.logo{font-size:22px;font-weight:900;color:#1a73e8}
+.header button{border:none;background:#1a73e8;color:white;border-radius:999px;padding:9px 17px;font-weight:800;cursor:pointer}
+.app{max-width:980px;margin:30px auto;padding:0 18px}
+.card{background:white;border:1px solid #e5e7eb;border-radius:18px;padding:20px;box-shadow:0 8px 26px rgba(0,0,0,.04)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+h1{margin:0}
+input{width:100%;border:1px solid #dadce0;border-radius:12px;padding:12px;font-size:15px;margin-bottom:16px}
+.item{border:1px solid #e5e7eb;border-radius:14px;padding:14px;margin-bottom:10px;background:#fafafa;cursor:pointer}
+.item:hover{background:#eef4ff}
+.source{font-weight:800;margin-bottom:6px}
+.result{color:#334155;margin-bottom:8px;line-height:1.45}
+.meta{font-size:12px;color:#64748b}
+.actions{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.secondary{background:white!important;color:#1a73e8!important;border:1px solid #dadce0!important}
+.empty{color:#64748b;padding:20px;text-align:center}
+</style>
+</head>
+
+<body>
+<header class="header">
+  <div class="logo">FluentReply History</div>
+  <button onclick="location.href='index.html'">Back</button>
+</header>
+
+<main class="app">
+  <section class="card">
+    <div class="top">
+      <h1>History</h1>
+      <span id="loginStatus"></span>
+    </div>
+
+    <input id="search" placeholder="Search history..." oninput="renderHistory()" />
+
+    <div class="actions">
+      <button onclick="loadAllHistory()">Refresh</button>
+      <button class="secondary" onclick="clearLocalHistory()">Clear local history</button>
+    </div>
+
+    <div id="historyList"></div>
+  </section>
+</main>
+
+<script>
+const SUPABASE_URL = "https://smwclefrunxnzzjammnu.supabase.co";
+const SUPABASE_KEY = "sb_publishable_DWI3c__Tq7P9z7GSJqhT6g_dzKxwMrb";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+let historyData = [];
+
+async function init(){
+  const {data} = await supabaseClient.auth.getUser();
+  currentUser = data?.user || null;
+
+  document.getElementById("loginStatus").innerText = currentUser
+    ? `Logged in: ${currentUser.email}`
+    : "Guest history";
+
+  await loadAllHistory();
+}
+
+async function loadAllHistory(){
+  const local = JSON.parse(localStorage.getItem("history_folded_tools") || "[]");
+
+  if(currentUser){
+    const {data,error} = await supabaseClient
+      .from("translation_history")
+      .select("*")
+      .order("created_at",{ascending:false})
+      .limit(100);
+
+    if(!error && data){
+      const cloud = data.map(item=>({
+        source:item.source_text,
+        result:item.result_text,
+        from:item.from_lang,
+        to:item.to_lang,
+        task:item.task,
+        engine:"Cloud",
+        time:new Date(item.created_at).toLocaleString()
+      }));
+
+      historyData = mergeHistory(cloud, local);
+      localStorage.setItem("history_folded_tools", JSON.stringify(historyData.slice(0,100)));
+      renderHistory();
+      return;
+    }
+  }
+
+  historyData = local;
+  renderHistory();
+}
+
+function mergeHistory(a,b){
+  const map = new Map();
+  [...a,...b].forEach(item=>{
+    const key = (item.source || "") + "::" + (item.result || "");
+    if(!map.has(key)) map.set(key,item);
+  });
+  return Array.from(map.values());
+}
+
+function renderHistory(){
+  const q = document.getElementById("search").value.toLowerCase();
+  const box = document.getElementById("historyList");
+  box.innerHTML = "";
+
+  const filtered = historyData.filter(item =>
+    String(item.source || "").toLowerCase().includes(q) ||
+    String(item.result || "").toLowerCase().includes(q)
+  );
+
+  if(!filtered.length){
+    box.innerHTML = `<div class="empty">No history yet.</div>`;
+    return;
+  }
+
+  filtered.forEach(item=>{
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `
+      <div class="source">${escapeHTML(item.source || "")}</div>
+      <div class="result">${escapeHTML(item.result || "")}</div>
+      <div class="meta">${escapeHTML(item.engine || "")} · ${escapeHTML(item.from || "auto")} → ${escapeHTML(item.to || "")} · ${escapeHTML(item.time || "")}</div>
+    `;
+    div.onclick = ()=>{
+      localStorage.setItem("history_reopen_text", item.source || "");
+      localStorage.setItem("history_reopen_from", item.from || "auto");
+      localStorage.setItem("history_reopen_to", item.to || "English");
+      location.href = "index.html";
+    };
+    box.appendChild(div);
+  });
+}
+
+function clearLocalHistory(){
+  if(!confirm("Clear local history?")) return;
+  localStorage.removeItem("history_folded_tools");
+  historyData = [];
+  renderHistory();
+}
+
+function escapeHTML(str){
+  return String(str).replace(/[&<>'"]/g, tag=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[tag] || tag));
+}
+
+init();
+</script>
+</body>
+</html>
