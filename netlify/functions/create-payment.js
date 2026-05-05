@@ -49,7 +49,7 @@ exports.handler = async function (event) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        price_amount: 9.99,
+        price_amount: 12,
         price_currency: "usd",
         order_id: orderId,
         order_description: `FluentReply Pro | ${email}`,
