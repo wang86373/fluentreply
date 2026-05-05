@@ -33,6 +33,7 @@ body{margin:0;font-family:Arial,"Segoe UI",sans-serif;background:var(--bg);color
 .engine-left label{font-weight:800;color:var(--text)}
 select{border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);padding:10px 14px;font-size:14px}
 #engineStatus{font-size:13px;font-weight:900;color:var(--blue)}
+.pro-badge{font-size:13px;font-weight:900;color:var(--blue)}
 .sentence-toggle{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text);font-weight:800}
 .lang-row{display:grid;grid-template-columns:1fr 54px 1fr;gap:14px;align-items:center;margin-bottom:14px}
 .lang-row select{width:100%;border:none;border-bottom:2px solid var(--blue);border-radius:0;color:var(--blue);font-weight:900;background:transparent;font-size:16px}
@@ -128,6 +129,7 @@ summary{cursor:pointer;font-weight:900}
         <option value="ai">AI only · Best alternatives</option>
       </select>
       <span id="engineStatus"></span>
+      <span id="proBadge" class="pro-badge"></span>
     </div>
 
     <label class="sentence-toggle">
@@ -237,9 +239,10 @@ const SUPABASE_URL = "https://smwclefrunxnzzjammnu.supabase.co";
 const SUPABASE_KEY = "sb_publishable_DWI3c__Tq7P9z7GSJqhT6g_dzKxwMrb";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const FREE_LIMIT = 200;
+const LOCAL_FREE_LIMIT = 200;
 
 let currentUser = null;
+let currentProfile = null;
 let timer;
 let currentText = "";
 let currentSegments = [];
@@ -260,9 +263,39 @@ const targetSelect = document.getElementById("targetSelect");
 const glossaryList = document.getElementById("glossaryList");
 
 const i18n = {
-  English:{history:"History",login:"Login",signup:"Sign up",sync:"Sync UI",heroTitle:"AI Translation with DeepL Precision",heroText:"Fast full-message translation with sentence-level alternatives.",engineLabel:"Translation engine:",sentenceMode:"Sentence mode",autoDetect:"Auto detect",clear:"Clear",copy:"Copy",waiting:"Waiting",placeholder:"Translation will appear here",translateFile:"Translate Files",translateVoice:"Translate Voice",normalMode:"Normal",newsTranslator:"News Translator",headlineRewriter:"Headline Rewriter",vocabHelper:"Vocabulary Helper",glossarySummary:"📚 Glossary",addTerm:"Add term",privacyText:"Privacy note: Your text is sent only to generate translation results. Do not enter passwords, banking details, or private identification information."},
-  "Simplified Chinese":{history:"历史记录",login:"登录",signup:"注册",sync:"同步界面",heroTitle:"结合 DeepL 精准度的 AI 翻译",heroText:"快速整段翻译，并支持每句多种表达。",engineLabel:"翻译引擎：",sentenceMode:"分句模式",autoDetect:"自动检测",clear:"清空",copy:"复制",waiting:"等待输入",placeholder:"翻译结果会显示在这里",translateFile:"翻译文件",translateVoice:"语音翻译",normalMode:"普通翻译",newsTranslator:"新闻翻译",headlineRewriter:"标题优化",vocabHelper:"关键词解释",glossarySummary:"📚 自定义词库",addTerm:"添加词条",privacyText:"隐私提示：您的文本仅用于生成翻译结果。请不要输入密码、银行信息或私人身份信息。"},
-  Japanese:{history:"履歴",login:"ログイン",signup:"登録",sync:"UI同期",heroTitle:"DeepL精度を備えたAI翻訳",heroText:"高速な全文翻訳と文ごとの別表現に対応。",engineLabel:"翻訳エンジン：",sentenceMode:"文単位モード",autoDetect:"自動検出",clear:"クリア",copy:"コピー",waiting:"待機中",placeholder:"翻訳結果がここに表示されます",translateFile:"ファイル翻訳",translateVoice:"音声翻訳",normalMode:"通常",newsTranslator:"ニュース翻訳",headlineRewriter:"見出しリライト",vocabHelper:"語彙ヘルパー",glossarySummary:"📚 用語集",addTerm:"用語を追加",privacyText:"プライバシー注記：入力テキストは翻訳結果の生成にのみ使用されます。パスワード、銀行情報、個人識別情報は入力しないでください。"}
+  English:{
+    history:"History",login:"Login",signup:"Sign up",sync:"Sync UI",
+    heroTitle:"AI Translation with DeepL Precision",
+    heroText:"Fast full-message translation with sentence-level alternatives.",
+    engineLabel:"Translation engine:",sentenceMode:"Sentence mode",autoDetect:"Auto detect",
+    clear:"Clear",copy:"Copy",waiting:"Waiting",placeholder:"Translation will appear here",
+    translateFile:"Translate Files",translateVoice:"Translate Voice",normalMode:"Normal",
+    newsTranslator:"News Translator",headlineRewriter:"Headline Rewriter",vocabHelper:"Vocabulary Helper",
+    glossarySummary:"📚 Glossary",addTerm:"Add term",
+    privacyText:"Privacy note: Your text is sent only to generate translation results. Do not enter passwords, banking details, or private identification information."
+  },
+  "Simplified Chinese":{
+    history:"历史记录",login:"登录",signup:"注册",sync:"同步界面",
+    heroTitle:"结合 DeepL 精准度的 AI 翻译",
+    heroText:"快速整段翻译，并支持每句多种表达。",
+    engineLabel:"翻译引擎：",sentenceMode:"分句模式",autoDetect:"自动检测",
+    clear:"清空",copy:"复制",waiting:"等待输入",placeholder:"翻译结果会显示在这里",
+    translateFile:"翻译文件",translateVoice:"语音翻译",normalMode:"普通翻译",
+    newsTranslator:"新闻翻译",headlineRewriter:"标题优化",vocabHelper:"关键词解释",
+    glossarySummary:"📚 自定义词库",addTerm:"添加词条",
+    privacyText:"隐私提示：您的文本仅用于生成翻译结果。请不要输入密码、银行信息或私人身份信息。"
+  },
+  Japanese:{
+    history:"履歴",login:"ログイン",signup:"登録",sync:"UI同期",
+    heroTitle:"DeepL精度を備えたAI翻訳",
+    heroText:"高速な全文翻訳と文ごとの別表現に対応。",
+    engineLabel:"翻訳エンジン：",sentenceMode:"文単位モード",autoDetect:"自動検出",
+    clear:"クリア",copy:"コピー",waiting:"待機中",placeholder:"翻訳結果がここに表示されます",
+    translateFile:"ファイル翻訳",translateVoice:"音声翻訳",normalMode:"通常",
+    newsTranslator:"ニュース翻訳",headlineRewriter:"見出しリライト",vocabHelper:"語彙ヘルパー",
+    glossarySummary:"📚 用語集",addTerm:"用語を追加",
+    privacyText:"プライバシー注記：入力テキストは翻訳結果の生成にのみ使用されます。パスワード、銀行情報、個人識別情報は入力しないでください。"
+  }
 };
 
 function browserUILang(){
@@ -291,6 +324,7 @@ function applyUILanguage(){
     if(pack[key]) el.innerText=pack[key];
   });
   updateAuthUI();
+  updateProBadge();
 }
 
 function changeUILanguage(){
@@ -326,8 +360,7 @@ input.addEventListener("input",()=>{
   const text=input.value.trim();
   count.innerText=text.length;
   if(!text){clearResultOnly();return}
-  const engineMode=document.getElementById("engineMode").value;
-  const delay=engineMode==="deepl"?300:700;
+  const delay=document.getElementById("engineMode").value==="deepl"?300:700;
   statusBox.innerText=getUILang()==="Simplified Chinese"?"准备翻译...":"Preparing...";
   timer=setTimeout(translate,delay);
 });
@@ -337,11 +370,42 @@ async function initAuth(){
   if(savedUI) document.getElementById("uiLangSelect").value=savedUI;
 
   const {data}=await supabaseClient.auth.getUser();
-  if(data?.user){
-    currentUser=data.user;
+  currentUser=data?.user||null;
+
+  if(currentUser){
+    await loadProfile();
     await loadCloudGlossary();
   }
+
   updateAuthUI();
+  updateProBadge();
+}
+
+async function loadProfile(){
+  if(!currentUser?.email)return;
+  const {data,error}=await supabaseClient
+    .from("profiles")
+    .select("*")
+    .eq("email",currentUser.email.toLowerCase())
+    .maybeSingle();
+
+  if(!error && data) currentProfile=data;
+}
+
+function userIsPro(){
+  if(!currentProfile?.is_pro)return false;
+  if(!currentProfile.pro_until)return true;
+  return new Date(currentProfile.pro_until).getTime() > Date.now();
+}
+
+function updateProBadge(){
+  const badge=document.getElementById("proBadge");
+  if(userIsPro()){
+    badge.innerText="PRO";
+  }else{
+    const used=getUsage();
+    badge.innerText=`Free ${used}/${LOCAL_FREE_LIMIT}`;
+  }
 }
 
 function updateAuthUI(){
@@ -366,21 +430,16 @@ function updateAuthUI(){
 async function logout(){
   await supabaseClient.auth.signOut();
   currentUser=null;
+  currentProfile=null;
   updateAuthUI();
+  updateProBadge();
 }
 
 async function buyPro(){
-  let email="";
-
-  try{
-    const {data}=await supabaseClient.auth.getUser();
-    email=data?.user?.email||"";
-  }catch(e){}
-
+  let email=currentUser?.email||"";
   if(!email){
     email=prompt("请输入邮箱，用于付款后开通 Pro 会员：");
   }
-
   if(!email)return;
 
   try{
@@ -389,17 +448,38 @@ async function buyPro(){
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({email})
     });
-
     const data=await res.json();
-
     if(data.invoice_url){
       window.location.href=data.invoice_url;
     }else{
       alert(data.error||"支付创建失败，请稍后再试。");
+      console.log(data);
     }
   }catch(err){
     alert("支付接口连接失败，请检查 Netlify Function 是否已部署。");
   }
+}
+
+function getUsage(){
+  if(currentUser?.email){
+    return Number(localStorage.getItem("usage_"+currentUser.email)||"0");
+  }
+  return Number(localStorage.getItem("guest_usage")||"0");
+}
+
+function increaseUsage(){
+  if(userIsPro())return;
+  if(currentUser?.email){
+    localStorage.setItem("usage_"+currentUser.email,String(getUsage()+1));
+  }else{
+    localStorage.setItem("guest_usage",String(getUsage()+1));
+  }
+  updateProBadge();
+}
+
+function canUseTranslate(){
+  if(userIsPro())return true;
+  return getUsage() < LOCAL_FREE_LIMIT;
 }
 
 function setTask(task){
@@ -422,10 +502,6 @@ function swapLanguages(){
   if(input.value.trim()) translate();
 }
 
-function getUsage(){return Number(localStorage.getItem("usage_count")||"0")}
-function increaseUsage(){localStorage.setItem("usage_count",String(getUsage()+1))}
-function isPro(){return localStorage.getItem("pro_user")==="true"}
-
 function getGlossary(){return JSON.parse(localStorage.getItem("custom_glossary")||"[]")}
 function saveGlossary(list){localStorage.setItem("custom_glossary",JSON.stringify(list))}
 
@@ -441,10 +517,11 @@ async function addGlossaryTerm(){
   document.getElementById("glossarySource").value="";
   document.getElementById("glossaryTarget").value="";
   renderGlossary();
+
   if(input.value.trim()) translate();
 }
 
-async function deleteGlossaryTerm(index){
+function deleteGlossaryTerm(index){
   const glossary=getGlossary();
   glossary.splice(index,1);
   saveGlossary(glossary);
@@ -464,12 +541,6 @@ function renderGlossary(){
 }
 
 async function loadCloudGlossary(){
-  if(!currentUser)return;
-  const {data,error}=await supabaseClient.from("custom_glossary").select("*").order("created_at",{ascending:false});
-  if(error)return;
-  localStorage.setItem("custom_glossary",JSON.stringify(data.map(item=>({
-    source:item.source_term,target:item.target_term,cloudId:item.id
-  }))));
   renderGlossary();
 }
 
@@ -477,8 +548,9 @@ async function translate(){
   const text=input.value.trim();
   if(!text)return;
 
-  if(getUsage()>=FREE_LIMIT&&!isPro()){
-    statusBox.innerText=getUILang()==="Simplified Chinese"?"免费次数已用完":"Free limit reached";
+  if(!canUseTranslate()){
+    result.innerHTML=`<span class="error">${getUILang()==="Simplified Chinese"?"免费次数已用完，请升级 Pro。":"Free limit reached. Please upgrade to Pro."}</span><div id="dropdown" class="dropdown"></div>`;
+    statusBox.innerText=getUILang()==="Simplified Chinese"?"已达到免费限制":"Free limit reached";
     return;
   }
 
@@ -489,7 +561,7 @@ async function translate(){
   const sentenceMode=document.getElementById("sentenceMode").checked;
   const uiLanguage=backendUILang();
 
-  const cacheKey=`cache_paid_${currentTask}_${engineMode}_${sentenceMode}_${sourceLanguage}_${targetLanguage}_${uiLanguage}_${JSON.stringify(glossary)}_${text}`;
+  const cacheKey=`cache_${currentTask}_${engineMode}_${sentenceMode}_${sourceLanguage}_${targetLanguage}_${uiLanguage}_${JSON.stringify(glossary)}_${text}`;
   const cached=localStorage.getItem(cacheKey);
   if(cached){
     renderData(JSON.parse(cached));
@@ -506,14 +578,21 @@ async function translate(){
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
-        text,sourceLanguage,targetLanguage,task:currentTask,glossary,engineMode,uiLanguage,sentenceMode
+        text,
+        sourceLanguage,
+        targetLanguage,
+        task:currentTask,
+        glossary,
+        engineMode,
+        uiLanguage,
+        sentenceMode
       })
     });
 
     const data=await res.json();
 
     if(!res.ok||data.error){
-      result.innerHTML=`<span class="error">${escapeHTML(data.error||data.detail||"Failed")}</span><div id="dropdown" class="dropdown"></div>`;
+      result.innerHTML=`<span class="error">${escapeHTML(data.error||data.detail||"Server error")}</span><div id="dropdown" class="dropdown"></div>`;
       statusBox.innerText=getUILang()==="Simplified Chinese"?"处理失败":"Failed";
       return;
     }
@@ -750,17 +829,6 @@ async function saveHistory(source,data){
     history.unshift(item);
     localStorage.setItem("history_folded_tools",JSON.stringify(history.slice(0,50)));
     lastSavedKey=key;
-  }
-
-  if(currentUser){
-    await supabaseClient.from("translation_history").insert({
-      user_id:currentUser.id,
-      source_text:item.source,
-      result_text:item.result,
-      from_lang:item.from,
-      to_lang:item.to,
-      task:item.task
-    });
   }
 }
 
