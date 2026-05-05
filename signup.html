@@ -5,134 +5,140 @@
 <title>Sign up - FluentReply</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#eef4ff,#fff);min-height:100vh;display:flex;align-items:center;justify-content:center}
-.card{width:min(440px,92vw);background:white;border:1px solid #e5e7eb;border-radius:24px;padding:32px;box-shadow:0 20px 60px rgba(15,23,42,.12)}
-.logo{font-size:26px;font-weight:900;color:#1a73e8;margin-bottom:8px}
-h1{margin:0 0 8px}
-p{color:#64748b;line-height:1.5}
-label{font-weight:700;font-size:14px;margin:14px 0 8px;display:block}
-input{width:100%;border:1px solid #dadce0;border-radius:12px;padding:13px;font-size:15px}
-button{width:100%;border:none;background:#0f2b46;color:white;font-weight:800;border-radius:999px;padding:13px;margin-top:18px;cursor:pointer}
-.secondary{background:white;color:#1a73e8;border:1px solid #dadce0}
-.status{margin-top:14px;color:#64748b;font-size:14px;min-height:20px}
-.links{margin-top:20px;display:flex;justify-content:space-between}
-a{color:#1a73e8;text-decoration:none;font-weight:700}
+:root{
+  --bg:#f5f7fb;--card:#fff;--text:#111827;--muted:#64748b;--border:#d1d5db;
+  --soft:#f1f5ff;--blue:#1a73e8;--dark:#0f2b46;
+}
+body.dark{
+  --bg:#0f172a;--card:#111827;--text:#e5e7eb;--muted:#94a3b8;--border:#334155;
+  --soft:#1e293b;--blue:#60a5fa;--dark:#2563eb;
+}
+body{margin:0;font-family:Arial;background:var(--bg);color:var(--text)}
+.app{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.card{
+  width:100%;max-width:420px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:28px;
+}
+h1{margin:0 0 10px}
+.sub{color:var(--muted);margin-bottom:20px}
+input{
+  width:100%;margin-top:10px;
+  padding:12px;border-radius:12px;
+  border:1px solid var(--border);
+  background:var(--card);color:var(--text)
+}
+button{
+  width:100%;margin-top:14px;
+  padding:12px;border:none;border-radius:999px;
+  font-weight:bold;cursor:pointer
+}
+.primary{background:var(--blue);color:white}
+.secondary{background:transparent;border:1px solid var(--border)}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tab{flex:1;padding:10px;border-radius:999px;border:none;cursor:pointer}
+.tab.active{background:var(--blue);color:white}
+.status{margin-top:12px;font-size:14px}
+.error{color:red}
+.success{color:green}
 </style>
 </head>
+
 <body>
-<div class="card">
-  <div class="logo">FluentReply</div>
-  <h1>Create account</h1>
-  <p>Set your password, then enter the verification code from your email.</p>
+<div class="app">
+  <div class="card">
+    <h1>Create account</h1>
+    <p class="sub">Sign up with password or email code</p>
 
-  <label>Email</label>
-  <input id="email" type="email" placeholder="you@example.com">
+    <div class="tabs">
+      <button id="tabPwd" class="tab active" onclick="setMode('pwd')">Password</button>
+      <button id="tabCode" class="tab" onclick="setMode('code')">Code</button>
+    </div>
 
-  <label>Password</label>
-  <input id="password" type="password" placeholder="At least 6 characters">
+    <input id="email" placeholder="Email" />
 
-  <label>Confirm password</label>
-  <input id="confirmPassword" type="password" placeholder="Enter password again">
+    <div id="pwdBox">
+      <input id="password" type="password" placeholder="Password" />
+      <button class="primary" onclick="signupPwd()">Sign up</button>
+    </div>
 
-  <button onclick="sendSignupCode()">Send verification code</button>
+    <div id="codeBox" style="display:none">
+      <button class="primary" onclick="sendCode()">Send code</button>
+      <input id="code" placeholder="Enter code" />
+      <button class="primary" onclick="verifyCode()">Verify & Sign up</button>
+    </div>
 
-  <label>Verification code</label>
-  <input id="code" placeholder="Enter 6-digit code">
+    <button class="secondary" onclick="location.href='index.html'">
+      Continue as guest
+    </button>
 
-  <button onclick="verifySignupCode()">Verify and sign in</button>
-  <button class="secondary" onclick="location.href='index.html'">Continue as guest</button>
+    <div id="status" class="status"></div>
 
-  <div id="status" class="status"></div>
-
-  <div class="links">
-    <a href="login.html">Login</a>
-    <a href="index.html">Back home</a>
+    <div style="margin-top:14px">
+      <a href="login.html">Already have account?</a>
+    </div>
   </div>
 </div>
 
 <script>
-const SUPABASE_URL = "https://smwclefrunxnzzjammnu.supabase.co";
-const SUPABASE_KEY = "sb_publishable_DWI3c__Tq7P9z7GSJqhT6g_dzKxwMrb";
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = window.supabase.createClient(
+  "https://smwclefrunxnzzjammnu.supabase.co",
+  "sb_publishable_DWI3c__Tq7P9z7GSJqhT6g_dzKxwMrb"
+);
 
-function getValues() {
-  return {
-    email: document.getElementById("email").value.trim(),
-    password: document.getElementById("password").value,
-    confirmPassword: document.getElementById("confirmPassword").value,
-    code: document.getElementById("code").value.trim(),
-    status: document.getElementById("status")
-  };
+function setMode(m){
+  document.getElementById("tabPwd").classList.toggle("active",m==="pwd");
+  document.getElementById("tabCode").classList.toggle("active",m==="code");
+  document.getElementById("pwdBox").style.display=m==="pwd"?"block":"none";
+  document.getElementById("codeBox").style.display=m==="code"?"block":"none";
 }
 
-async function sendSignupCode() {
-  const { email, password, confirmPassword, status } = getValues();
-
-  if (!email || !password || !confirmPassword) {
-    status.innerText = "Please enter email and password.";
-    return;
-  }
-
-  if (password.length < 6) {
-    status.innerText = "Password must be at least 6 characters.";
-    return;
-  }
-
-  if (password !== confirmPassword) {
-    status.innerText = "Passwords do not match.";
-    return;
-  }
-
-  status.innerText = "Sending verification code...";
-
-  const { error } = await supabaseClient.auth.signUp({
-    email,
-    password
-  });
-
-  if (error) {
-    status.innerText = error.message;
-    return;
-  }
-
-  status.innerText = "Verification code sent. Please check your email.";
+function msg(t,c=""){ 
+  const el=document.getElementById("status");
+  el.className="status "+c;
+  el.innerText=t;
 }
 
-async function verifySignupCode() {
-  const { email, password, code, status } = getValues();
+async function signupPwd(){
+  const email=document.getElementById("email").value;
+  const password=document.getElementById("password").value;
+  if(!email||!password){msg("Missing info","error");return;}
 
-  if (!email || !password || !code) {
-    status.innerText = "Please enter email, password, and verification code.";
-    return;
-  }
+  msg("Signing up...");
+  const {error}=await supabase.auth.signUp({email,password});
+  if(error){msg(error.message,"error");return;}
+  msg("Success! Check your email.","success");
+}
 
-  status.innerText = "Verifying...";
+async function sendCode(){
+  const email=document.getElementById("email").value;
+  if(!email){msg("Enter email","error");return;}
+  msg("Sending...");
+  const {error}=await supabase.auth.signInWithOtp({email});
+  if(error){msg(error.message,"error");return;}
+  msg("Code sent","success");
+}
 
-  const { error: verifyError } = await supabaseClient.auth.verifyOtp({
+async function verifyCode(){
+  const email=document.getElementById("email").value;
+  const code=document.getElementById("code").value;
+  if(!email||!code){msg("Missing","error");return;}
+
+  msg("Verifying...");
+  const {error}=await supabase.auth.verifyOtp({
     email,
-    token: code,
-    type: "signup"
+    token:code,
+    type:"email"
   });
 
-  if (verifyError) {
-    status.innerText = verifyError.message;
-    return;
-  }
-
-  const { error: loginError } = await supabaseClient.auth.signInWithPassword({
-    email,
-    password
-  });
-
-  if (loginError) {
-    status.innerText = "Verified. Please go to login page.";
-    return;
-  }
-
-  status.innerText = "Success. Redirecting...";
-  setTimeout(() => location.href = "index.html", 700);
+  if(error){msg(error.message,"error");return;}
+  msg("Success! Redirecting...","success");
+  setTimeout(()=>location.href="index.html",800);
 }
 </script>
 </body>
