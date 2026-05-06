@@ -547,7 +547,13 @@ if(savedTone){
   updateAuthUI();
   updateProBadge();
 }
-
+document.getElementById("rewriteTone").addEventListener("change",()=>{
+  localStorage.setItem(
+    "rewriteTone",
+    document.getElementById("rewriteTone").value
+  );
+});
+  
 async function loadProfile(){
   if(!currentUser?.email) return;
 
