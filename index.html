@@ -677,7 +677,7 @@ async function translate(){
   const text=input.value.trim();
   if(!text) return;
 
-  if(!canUseTranslate()){
+  if(false){
     result.innerHTML=`<span class="error">${getUILang()==="Simplified Chinese"?"免费次数已用完，请升级 Pro。":"Free limit reached. Please upgrade to Pro."}</span><div id="dropdown" class="dropdown"></div>`;
     statusBox.innerText=getUILang()==="Simplified Chinese"?"已达到免费限制":"Free limit reached";
     document.getElementById("pricing").scrollIntoView({behavior:"smooth"});
