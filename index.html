@@ -1441,8 +1441,10 @@ rawOptions.map((opt,optIndex)=>({
 
     renderSegments();
 
+loadingSegmentIndex = null;
+renderSegments();
     showDropdownForSegment(index);
-
+    
     statusBox.innerText =
       getUILang()==="Simplified Chinese"
         ? "已更新"
@@ -1453,7 +1455,8 @@ rawOptions.map((opt,optIndex)=>({
     currentSegments[index].selected = originalText;
 
     renderSegments();
-
+loadingSegmentIndex = null;
+renderSegments();
     statusBox.innerText =
       getUILang()==="Simplified Chinese"
         ? "网络错误"
