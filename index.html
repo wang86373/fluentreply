@@ -1259,17 +1259,48 @@ async function rewriteSentence(index){
   "Fluent"
 ];
 
-// DeepL-style ranking
+// DeepL-style ranking + dedupe
 rawOptions = rawOptions
   .map(text => ({
-    text: String(text || "").trim()
+    text: String(
+      typeof text === "string"
+        ? text
+        : text?.text ||
+          text?.translation ||
+          text?.output ||
+          ""
+    ).trim()
   }))
+
+  // remove empty
   .filter(x => x.text)
-  .filter((x, i, arr) =>
-    arr.findIndex(v =>
-      v.text.toLowerCase() === x.text.toLowerCase()
-    ) === i
-  )
+
+  // dedupe
+  .filter((x, i, arr) => {
+
+    const normalized = x.text
+      .toLowerCase()
+      .replace(/[.!?]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    return (
+      arr.findIndex(v => {
+
+        const compare = v.text
+          .toLowerCase()
+          .replace(/[.!?]/g, "")
+          .replace(/\s+/g, " ")
+          .trim();
+
+        return compare === normalized;
+
+      }) === i
+    );
+
+  })
+
+  // ranking
   .sort((a, b) => {
 
     const score = (t) => {
@@ -1280,34 +1311,41 @@ rawOptions = rawOptions
       s -= t.length * 0.15;
 
       // contractions
-      if(/\b(I'm|don't|can't|it's|you're|we're)\b/i.test(t)){
-        s += 8;
+      if(/\b(i'm|don't|can't|it's|you're|we're)\b/i.test(t)){
+        s += 10;
       }
 
       // conversational
-      if(/\bjust|really|actually|pretty|maybe\b/i.test(t)){
+      if(/\b(just|really|actually|pretty|maybe)\b/i.test(t)){
         s += 4;
       }
 
-      // avoid AI wording
-      if(/\bmoreover|furthermore|therefore|thus\b/i.test(t)){
-        s -= 10;
+      // human punctuation
+      if(/[!?]/.test(t)){
+        s += 3;
       }
 
-      // human-like punctuation
-      if(/[!?]/.test(t)){
-        s += 2;
+      // avoid AI wording
+      if(/\b(moreover|furthermore|therefore|thus)\b/i.test(t)){
+        s -= 12;
+      }
+
+      // avoid robotic wording
+      if(/\b(utilize|facilitate|commence)\b/i.test(t)){
+        s -= 10;
       }
 
       // fluency
       if(t.split(" ").length <= 12){
-        s += 5;
+        s += 6;
       }
 
       return s;
+
     };
 
     return score(b.text) - score(a.text);
+
   });
 
     currentSegments[index].selected = originalText;
