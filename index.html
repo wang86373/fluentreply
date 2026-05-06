@@ -1201,6 +1201,16 @@ loadingSegmentIndex = index;
       : "✨ AI rewriting...";
 
   renderSegments();
+  const loadingDropdown = document.getElementById("dropdown");
+if(loadingDropdown){
+  loadingDropdown.innerHTML = `
+    <div class="dropdown-item">
+      ${getUILang()==="Simplified Chinese" ? "正在生成多种表达..." : "Generating rewrites..."}
+    </div>
+  `;
+  loadingDropdown.style.display = "block";
+  dropdownVisible = true;
+}
 
   // ✅ rewrite cache
   const rewriteTone =
