@@ -814,8 +814,13 @@ const translatedParts = splitTextSmart(data.full_translation);
 }
 
   rebuildFullText();
-  activeSegmentIndex=null;
+activeSegmentIndex=null;
+
+if(stream){
+  await streamSegments();
+}else{
   renderSegments();
+}
 
   statusBox.innerText=getUILang()==="Simplified Chinese"?"完成":"Done";
   bottomStatus.innerText=getUILang()==="Simplified Chinese"
