@@ -1350,7 +1350,50 @@ rawOptions = rawOptions
 
     currentSegments[index].selected = originalText;
 
-currentSegments[index].options =
+  // quality filtering
+rawOptions = rawOptions.filter(opt => {
+
+  const t = String(opt.text || "").trim();
+
+  // empty
+  if(!t){
+    return false;
+  }
+
+  // too short
+  if(t.length < 4){
+    return false;
+  }
+
+  // too long
+  if(t.length > 180){
+    return false;
+  }
+
+  // too similar to original
+  const normalize = s =>
+    String(s || "")
+      .toLowerCase()
+      .replace(/[^\w\s]/g,"")
+      .replace(/\s+/g," ")
+      .trim();
+
+  const a = normalize(originalText);
+  const b = normalize(t);
+
+  if(a === b){
+    return false;
+  }
+
+  // AI wording
+  if(/\b(moreover|furthermore|therefore|thus)\b/i.test(t)){
+    return false;
+  }
+
+  return true;
+
+});
+   currentSegments[index].options =
 rawOptions.map((opt,optIndex)=>({
 
   text: opt.text,
