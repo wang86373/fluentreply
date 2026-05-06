@@ -1061,6 +1061,7 @@ async function rewriteSentence(index){
       ? "已更新"
       : "Updated";
 
+    showDropdownForSegment(index);
   }catch(e){
     statusBox.innerText = "Network error";
   }
