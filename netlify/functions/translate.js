@@ -689,6 +689,49 @@ Avoid robotic AI phrasing.
 `;
   }
 
+  if(tone === "warm"){
+  return `
+Use warm, emotionally gentle wording.
+Sound caring and human.
+Preserve emotional softness naturally.
+`;
+}
+
+if(tone === "confident"){
+  return `
+Use confident, clear, assertive wording.
+Sound natural, not aggressive.
+`;
+}
+
+if(tone === "short"){
+  return `
+Keep the translation concise and efficient.
+Use short native phrasing.
+`;
+}
+
+if(tone === "flirty"){
+  return `
+Use playful, subtly flirtatious wording when appropriate.
+Keep the tone natural and attractive.
+`;
+}
+
+if(tone === "luxury"){
+  return `
+Use elegant, polished, premium-sounding language.
+Maintain natural sophistication.
+`;
+}
+
+if(tone === "genz"){
+  return `
+Use modern Gen Z conversational style naturally.
+Avoid sounding forced or cringe.
+`;
+}
+  
   return `
 Use natural, fluent, human-sounding language.
 Avoid robotic translation wording.
