@@ -215,6 +215,7 @@ async function enhanceWithAI({
   targetLanguage,
   task,
   glossary,
+  rewriteTone,
   uiLanguage,
   sentenceMode
 }) {
