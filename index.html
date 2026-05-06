@@ -1290,48 +1290,25 @@ rawOptions = rawOptions
     return score(b.text) - score(a.text);
   });
 
-    const normalized = rawOptions
-      .map((item,i)=>{
-
-        if(typeof item === "string"){
-          return {
-            text:item,
-            label:labels[i] || `Option ${i+1}`,
-            meaning:""
-          };
-        }
-
-        return {
-          text:
-            item.text ||
-            item.translation ||
-            item.output ||
-            "",
-
-          label:
-            item.label ||
-            labels[i] ||
-            `Option ${i+1}`,
-
-          meaning:
-            item.meaning ||
-            item.note ||
-            ""
-        };
-
-      })
-      .filter(opt=>opt.text);
-
-    // ✅ 恢复主句
     currentSegments[index].selected = originalText;
 
-    // ✅ 保存 alternatives
-    currentSegments[index].options = normalized;
+currentSegments[index].options =
+rawOptions.map((opt,optIndex)=>({
+
+  text: opt.text,
+
+  label:
+    labels[optIndex] ||
+    `Option ${optIndex+1}`,
+
+  meaning: ""
+
+}));
 
     // ✅ 缓存
     localStorage.setItem(
       cacheKey,
-      JSON.stringify(normalized)
+      JSON.stringify(currentSegments[index].options)
     );
 
     renderSegments();
