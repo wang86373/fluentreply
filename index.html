@@ -1229,12 +1229,66 @@ async function rewriteSentence(index){
 
     // ✅ alternatives 排序标准化
     const labels = [
-      "Closest",
-      "Natural",
-      "Casual",
-      "Polite",
-      "Short"
-    ];
+  "Closest",
+  "Natural",
+  "Casual",
+  "Polite",
+  "Professional",
+  "Friendly",
+  "Concise",
+  "Fluent"
+];
+
+// DeepL-style ranking
+rawOptions = rawOptions
+  .map(text => ({
+    text: String(text || "").trim()
+  }))
+  .filter(x => x.text)
+  .filter((x, i, arr) =>
+    arr.findIndex(v =>
+      v.text.toLowerCase() === x.text.toLowerCase()
+    ) === i
+  )
+  .sort((a, b) => {
+
+    const score = (t) => {
+
+      let s = 0;
+
+      // shorter = more natural
+      s -= t.length * 0.15;
+
+      // contractions
+      if(/\b(I'm|don't|can't|it's|you're|we're)\b/i.test(t)){
+        s += 8;
+      }
+
+      // conversational
+      if(/\bjust|really|actually|pretty|maybe\b/i.test(t)){
+        s += 4;
+      }
+
+      // avoid AI wording
+      if(/\bmoreover|furthermore|therefore|thus\b/i.test(t)){
+        s -= 10;
+      }
+
+      // human-like punctuation
+      if(/[!?]/.test(t)){
+        s += 2;
+      }
+
+      // fluency
+      if(t.split(" ").length <= 12){
+        s += 5;
+      }
+
+      return s;
+    };
+
+    return score(b.text) - score(a.text);
+  });
 
     const normalized = rawOptions
       .map((item,i)=>{
