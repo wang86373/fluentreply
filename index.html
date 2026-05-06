@@ -1479,7 +1479,25 @@ rawOptions = rawOptions
 
     };
 
-    return score(b.text) - score(a.text);
+    const aLabel =
+  (a.label || "").toLowerCase();
+
+const bLabel =
+  (b.label || "").toLowerCase();
+
+const aLearn =
+  learning[aLabel] || 0;
+
+const bLearn =
+  learning[bLabel] || 0;
+
+return (
+  score(b.text) +
+  bLearn * 12
+) - (
+  score(a.text) +
+  aLearn * 12
+);
 
   });
 
