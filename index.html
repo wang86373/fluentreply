@@ -1202,11 +1202,16 @@ async function rewriteSentence(index){
   renderSegments();
 
   // ✅ rewrite cache
-  const cacheKey =
-    "rewrite_" +
-    targetSelect.value +
-    "_" +
-    (seg.source || seg.selected);
+  const rewriteTone =
+  document.getElementById("rewriteTone").value;
+
+const cacheKey =
+  "rewrite_" +
+  targetSelect.value +
+  "_" +
+  rewriteTone +
+  "_" +
+  (seg.source || seg.selected);
 
   const cached = localStorage.getItem(cacheKey);
 
