@@ -1394,7 +1394,7 @@ const cacheKey =
     console.log("rewrite response:", data);
 
     // ✅ 多种后端兼容
-    const rawOptions =
+    let rawOptions =
       data.alternatives ||
       data.options ||
       data.rewrites ||
