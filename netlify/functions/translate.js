@@ -345,6 +345,13 @@ HUMAN FREQUENCY RULES:
 - Prefer natural spoken rhythm.
 - If multiple translations are accurate, choose the one most commonly used in real life.
 
+ALTERNATIVE DIVERSITY RULES:
+- Each option must be meaningfully different.
+- Avoid tiny wording swaps that do not add real value.
+- Do not repeat the same sentence pattern across options.
+- The options should differ in tone, rhythm, structure, or native style.
+- Closest should be faithful, Natural should be native, Alternative should provide a clearly different natural expression.
+
 CORE RULES:
 - Translate the FULL original input.
 - Never drop, skip, shorten, or ignore any sentence.
