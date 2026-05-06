@@ -280,6 +280,13 @@ ${deeplText || "No DeepL result provided."}
 
 Glossary:
 ${glossaryText}
+
+TRANSLATION MEMORY RULES:
+- Maintain consistent translations for repeated names, brands, companies, products, and relationships.
+- If a term has already appeared earlier in the conversation, prefer the same translation unless context requires otherwise.
+- Keep terminology consistent across all segments and options.
+- Avoid translating the same entity differently in different sentences.
+
 TONE INSTRUCTION:
 ${toneInstruction}
 
