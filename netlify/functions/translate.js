@@ -368,6 +368,17 @@ SEMANTIC CONSISTENCY RULES:
 - Do not remove important nuance or implications.
 - Avoid adding meanings that are not supported by the original text.
 
+QUALITY SCORING RULES:
+- Prefer translations with the best balance of:
+  - accuracy
+  - naturalness
+  - emotional fidelity
+  - localization quality
+- Penalize robotic wording.
+- Penalize repetitive alternatives.
+- Penalize awkward literal phrasing.
+- Prefer fluent native readability.
+
 CORE RULES:
 - Translate the FULL original input.
 - Never drop, skip, shorten, or ignore any sentence.
