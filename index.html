@@ -908,11 +908,36 @@ if(event){
   const rect = event.target.getBoundingClientRect();
   const parentRect = result.getBoundingClientRect();
 
-  dd.style.left =
-    (rect.left - parentRect.left) + "px";
+  const dropdownWidth = 420;
+const padding = 16;
 
-  dd.style.top =
-    (rect.bottom - parentRect.top + 10) + "px";
+let left =
+  rect.left - parentRect.left;
+
+let top =
+  rect.bottom - parentRect.top + 10;
+
+// 右边溢出
+if(left + dropdownWidth > parentRect.width - padding){
+  left =
+    parentRect.width - dropdownWidth - padding;
+}
+
+// 左边保护
+if(left < padding){
+  left = padding;
+}
+
+// 下方溢出 → 翻转到上方
+const estimatedHeight = 220;
+
+if(top + estimatedHeight > parentRect.height){
+  top =
+    rect.top - parentRect.top - estimatedHeight - 10;
+}
+
+dd.style.left = left + "px";
+dd.style.top = top + "px";
 }
   dd.style.display="block";
   dropdownVisible=true;
