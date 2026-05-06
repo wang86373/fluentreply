@@ -1208,6 +1208,16 @@ if(loadingDropdown){
       ${getUILang()==="Simplified Chinese" ? "正在生成多种表达..." : "Generating rewrites..."}
     </div>
   `;
+  if(event){
+  const rect = event.target.getBoundingClientRect();
+  const parentRect = result.getBoundingClientRect();
+
+  loadingDropdown.style.left =
+    (rect.left - parentRect.left) + "px";
+
+  loadingDropdown.style.top =
+    (rect.bottom - parentRect.top + 10) + "px";
+}
   loadingDropdown.style.display = "block";
   dropdownVisible = true;
 }
