@@ -1092,46 +1092,163 @@ function escapeHTML(str){
 async function rewriteSentence(index){
 
   const seg = currentSegments[index];
+  if(!seg) return;
 
-  statusBox.innerText = getUILang()==="Simplified Chinese"
-    ? "AI 正在重写..."
-    : "AI rewriting...";
+  // ✅ sentence-level loading
+  const originalText = seg.selected;
+
+  currentSegments[index].selected =
+    getUILang()==="Simplified Chinese"
+      ? "✨ AI 正在重写..."
+      : "✨ AI rewriting...";
+
+  renderSegments();
+
+  // ✅ rewrite cache
+  const cacheKey =
+    "rewrite_" +
+    targetSelect.value +
+    "_" +
+    (seg.source || seg.selected);
+
+  const cached = localStorage.getItem(cacheKey);
+
+  if(cached){
+    try{
+      const parsed = JSON.parse(cached);
+
+      if(Array.isArray(parsed) && parsed.length){
+
+        currentSegments[index].selected = originalText;
+
+        currentSegments[index].options = parsed;
+
+        renderSegments();
+
+        showDropdownForSegment(index);
+
+        return;
+      }
+    }catch(e){}
+  }
 
   try{
+
     const res = await fetch("/.netlify/functions/rewrite",{
       method:"POST",
-      headers:{ "Content-Type":"application/json" },
+      headers:{
+        "Content-Type":"application/json"
+      },
       body:JSON.stringify({
-        text: seg.source || seg.selected, // 🔥 关键修复
+        text: seg.source || originalText,
         target: targetSelect.value,
         isPro: userIsPro()
       })
     });
 
     const data = await res.json();
-    console.log("translate response:", data);
 
-    if(!data.alternatives){
-      statusBox.innerText = "Rewrite failed";
+    console.log("rewrite response:", data);
+
+    // ✅ 多种后端兼容
+    const rawOptions =
+      data.alternatives ||
+      data.options ||
+      data.rewrites ||
+      [];
+
+    if(!Array.isArray(rawOptions) || !rawOptions.length){
+
+      currentSegments[index].selected = originalText;
+
+      renderSegments();
+
+      statusBox.innerText =
+        getUILang()==="Simplified Chinese"
+          ? "Rewrite 失败"
+          : "Rewrite failed";
+
       return;
     }
 
-    // 🔥 覆盖 alternatives
-    currentSegments[index].options = data.alternatives.map(text => ({
-  text: text,
-  label: "AI",
-  meaning: ""
-}));
+    // ✅ alternatives 排序标准化
+    const labels = [
+      "Closest",
+      "Natural",
+      "Casual",
+      "Polite",
+      "Short"
+    ];
 
-    statusBox.innerText = getUILang()==="Simplified Chinese"
-      ? "已更新"
-      : "Updated";
+    const normalized = rawOptions
+      .map((item,i)=>{
+
+        if(typeof item === "string"){
+          return {
+            text:item,
+            label:labels[i] || `Option ${i+1}`,
+            meaning:""
+          };
+        }
+
+        return {
+          text:
+            item.text ||
+            item.translation ||
+            item.output ||
+            "",
+
+          label:
+            item.label ||
+            labels[i] ||
+            `Option ${i+1}`,
+
+          meaning:
+            item.meaning ||
+            item.note ||
+            ""
+        };
+
+      })
+      .filter(opt=>opt.text);
+
+    // ✅ 恢复主句
+    currentSegments[index].selected = originalText;
+
+    // ✅ 保存 alternatives
+    currentSegments[index].options = normalized;
+
+    // ✅ 缓存
+    localStorage.setItem(
+      cacheKey,
+      JSON.stringify(normalized)
+    );
+
+    renderSegments();
 
     showDropdownForSegment(index);
+
+    statusBox.innerText =
+      getUILang()==="Simplified Chinese"
+        ? "已更新"
+        : "Updated";
+
   }catch(e){
-    statusBox.innerText = "Network error";
+
+    currentSegments[index].selected = originalText;
+
+    renderSegments();
+
+    statusBox.innerText =
+      getUILang()==="Simplified Chinese"
+        ? "网络错误"
+        : "Network error";
+
+    console.error(e);
   }
 }
+
+
 document.addEventListener("click",hideDropdown);
 
 window.matchMedia &&
