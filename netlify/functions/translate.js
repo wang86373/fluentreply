@@ -243,6 +243,10 @@ async function enhanceWithAI({
 Sentence mode is ON:
 - Split the ORIGINAL input into natural sentence-level segments.
 - Each segment must preserve the full-message context.
+- Interpret each sentence using surrounding context, not in isolation.
+- Maintain consistent emotional tone, relationship context, and conversational intent across all segments.
+- Prefer contextually natural translations over literal sentence-by-sentence translation.
+- If a short sentence has multiple meanings, infer the most natural meaning from the overall conversation.
 - Each segment must have its own best translation and 3 options.
 - Do not translate segments as isolated sentences.
 `
