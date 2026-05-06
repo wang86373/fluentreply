@@ -360,6 +360,14 @@ REAL NATIVE SPEECH RULES:
 - Use contractions naturally.
 - Prefer authentic native cadence over textbook phrasing.
 
+SEMANTIC CONSISTENCY RULES:
+- Preserve the original meaning precisely.
+- Natural wording must not distort meaning.
+- Do not exaggerate emotional intensity.
+- Do not soften strong statements unless context requires it.
+- Do not remove important nuance or implications.
+- Avoid adding meanings that are not supported by the original text.
+
 CORE RULES:
 - Translate the FULL original input.
 - Never drop, skip, shorten, or ignore any sentence.
