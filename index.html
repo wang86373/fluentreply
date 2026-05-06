@@ -781,15 +781,8 @@ function renderData(data){
 
 
 if (!currentSegments.length && data.full_translation) {
-  const sourceParts = input.value
-    .split(/\n+/)
-    .map(s => s.trim())
-    .filter(Boolean);
-
-  const translatedParts = data.full_translation
-    .split(/\n+/)
-    .map(s => s.trim())
-    .filter(Boolean);
+  const sourceParts = splitTextSmart(input.value);
+const translatedParts = splitTextSmart(data.full_translation);
 
   currentSegments = sourceParts.map((source, index) => ({
     id: index + 1,
