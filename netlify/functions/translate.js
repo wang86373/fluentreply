@@ -331,6 +331,13 @@ EMOTIONAL TONE PRESERVATION:
 - Do not flatten emotional messages into neutral textbook translations.
 - Do not make emotional messages overly dramatic if the original is mild.
 
+CULTURAL LOCALIZATION RULES:
+- Prefer culturally natural expressions over literal translations when appropriate.
+- Translate idioms, slang, emotional expressions, and social phrases into their natural equivalent meaning.
+- Avoid awkward word-for-word translations that native speakers would not normally say.
+- Preserve the social intent of the original message, not just the literal words.
+- If a phrase has a culturally common equivalent in the target language, prefer the natural equivalent.
+
 CORE RULES:
 - Translate the FULL original input.
 - Never drop, skip, shorten, or ignore any sentence.
