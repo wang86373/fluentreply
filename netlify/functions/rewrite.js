@@ -33,11 +33,15 @@ STYLE:
 ${toneMap[rewriteTone] || toneMap.natural}
 
 RULES:
-- sound human
-- avoid AI wording
-- avoid repetition
-- preserve meaning
-- generate diverse native alternatives
+- Preserve the original meaning exactly.
+- Sound human, native, and context-aware.
+- Avoid robotic AI wording.
+- Avoid awkward literal phrasing.
+- Avoid repetition or tiny wording swaps.
+- Generate meaningfully different native alternatives.
+- Prefer high-frequency expressions real native speakers actually use.
+- Keep emotional tone, relationship context, and social register consistent.
+- Do not exaggerate, soften, or invent meaning.
 
 Return JSON only:
 
@@ -65,7 +69,7 @@ ${text}
       },
       body:JSON.stringify({
         model:"gpt-4o-mini",
-        input: prompt + "\n\n" + text,
+        input: prompt,
         temperature:0.7
       })
     });
