@@ -1024,6 +1024,43 @@ function escapeHTML(str){
   }[tag]||tag));
 }
 
+async function rewriteSentence(index){
+
+  const seg = currentSegments[index];
+
+  statusBox.innerText = getUILang()==="Simplified Chinese"
+    ? "AI 正在重写..."
+    : "AI rewriting...";
+
+  try{
+    const res = await fetch("/.netlify/functions/rewrite",{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({
+        text: seg.source || seg.selected, // 🔥 关键修复
+        target: targetSelect.value,
+        isPro: userIsPro()
+      })
+    });
+
+    const data = await res.json();
+
+    if(!data.alternatives){
+      statusBox.innerText = "Rewrite failed";
+      return;
+    }
+
+    // 🔥 覆盖 alternatives
+    currentSegments[index].options = data.alternatives;
+
+    statusBox.innerText = getUILang()==="Simplified Chinese"
+      ? "已更新"
+      : "Updated";
+
+  }catch(e){
+    statusBox.innerText = "Network error";
+  }
+}
 document.addEventListener("click",hideDropdown);
 
 window.matchMedia &&
