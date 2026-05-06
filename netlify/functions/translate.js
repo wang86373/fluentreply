@@ -408,6 +408,27 @@ RELATIONSHIP CONTEXT RULES:
 
 ${segmentationRule}
 
+CONVERSATIONAL FLOW RULES:
+- Ensure all segments sound natural when read together.
+- Preserve realistic conversational rhythm.
+- Maintain emotional continuity across sentences.
+- Avoid making adjacent sentences sound stylistically disconnected.
+- Preserve natural dialogue pacing.
+
+INTENT PRESERVATION RULES:
+- Preserve the speaker's real communicative intent.
+- Translate implied meaning naturally when context makes the intent clear.
+- Preserve sarcasm, hesitation, affection, frustration, politeness, or indirect meaning when present.
+- Do not translate only the literal surface wording.
+- Prioritize communicative meaning over rigid word-for-word structure.
+
+REGISTER AWARENESS RULES:
+- Match the social register of the original message.
+- Preserve whether the tone is formal, casual, intimate, professional, playful, or respectful.
+- Do not make casual speech sound corporate.
+- Do not make professional communication sound overly casual.
+- Preserve realistic social tone for the target audience.
+
 OPTION RULES:
 - Every segment must have exactly 3 options:
   1. Closest
