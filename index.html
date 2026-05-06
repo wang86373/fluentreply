@@ -742,21 +742,43 @@ async function translate(){
 function renderData(data){
   document.getElementById("engineStatus").innerText=data.engine_used||"";
 
-  currentSegments=(data.segments||[]).map((seg,index)=>({
-    id:seg.id||index+1,
-    source:seg.source||"",
-    selected:seg.best||"",
-    options:seg.options||[]
-  }));
+  currentSegments = (data.segments || []).map((seg, index) => {
+  const source = seg.source || seg.original || seg.input || "";
+  const selected = seg.best || seg.translation || seg.output || seg.text || "";
 
-  if(!currentSegments.length && data.full_translation){
-    currentSegments=[{
-      id:1,
-      source:input.value,
-      selected:data.full_translation,
-      options:[]
-    }];
-  }
+  const options = Array.isArray(seg.options)
+    ? seg.options
+    : Array.isArray(seg.alternatives)
+      ? seg.alternatives
+      : [];
+
+  return {
+    id: seg.id || index + 1,
+    source,
+    selected,
+    options
+  };
+});
+
+
+if (!currentSegments.length && data.full_translation) {
+  const sourceParts = input.value
+    .split(/\n+/)
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  const translatedParts = data.full_translation
+    .split(/\n+/)
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  currentSegments = sourceParts.map((source, index) => ({
+    id: index + 1,
+    source,
+    selected: translatedParts[index] || translatedParts.join(" ") || data.full_translation,
+    options: []
+  }));
+}
 
   rebuildFullText();
   activeSegmentIndex=null;
