@@ -338,6 +338,13 @@ CULTURAL LOCALIZATION RULES:
 - Preserve the social intent of the original message, not just the literal words.
 - If a phrase has a culturally common equivalent in the target language, prefer the natural equivalent.
 
+HUMAN FREQUENCY RULES:
+- Prefer expressions commonly used by real native speakers.
+- Avoid textbook or corporate AI phrasing unless required.
+- Prefer conversational high-frequency wording.
+- Prefer natural spoken rhythm.
+- If multiple translations are accurate, choose the one most commonly used in real life.
+
 CORE RULES:
 - Translate the FULL original input.
 - Never drop, skip, shorten, or ignore any sentence.
