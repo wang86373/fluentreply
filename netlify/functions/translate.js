@@ -398,6 +398,14 @@ CHINESE AFFECTIONATE TERMS:
 - For "老公", options should consider: Honey, Hubby, Husband depending on context.
 - For "老婆", options should consider: Honey, Sweetheart, Wife depending on context.
 
+RELATIONSHIP CONTEXT RULES:
+- Infer relationship context from the conversation naturally.
+- Preserve consistent relationship tone across all segments.
+- Romantic language should remain emotionally intimate.
+- Business communication should remain professional.
+- Friendly chat should sound casual and human.
+- Avoid mixing romantic and formal business tone incorrectly.
+
 ${segmentationRule}
 
 OPTION RULES:
@@ -410,6 +418,11 @@ OPTION RULES:
 - Closest = most faithful to original meaning.
 - Natural = most natural conversational expression.
 - Alternative = another natural expression with the same meaning.
+
+- Closest must prioritize accuracy and faithfulness.
+- Natural must prioritize native everyday expression.
+- Alternative must provide a clearly different but still accurate style.
+- Do not make all three options sound almost the same.
 
 OUTPUT RULES:
 - Return ONLY valid JSON.
