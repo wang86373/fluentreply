@@ -1627,7 +1627,110 @@ renderSegments();
   }
 }
 
+function detectToneAI(text){
 
+  const formalWords = [
+    "please",
+    "kindly",
+    "regarding",
+    "sincerely",
+    "would you",
+    "could you",
+    "appreciate",
+    "thank you",
+    "request",
+    "assist"
+  ];
+
+  const casualWords = [
+    "hey",
+    "hi",
+    "yeah",
+    "ok",
+    "okay",
+    "cool",
+    "thanks",
+    "lol",
+    "btw",
+    "gonna",
+    "wanna",
+    "dear"
+  ];
+
+  const lower = text.toLowerCase();
+
+  let formalScore = 0;
+  let casualScore = 0;
+
+  formalWords.forEach(word=>{
+    if(lower.includes(word)){
+      formalScore++;
+    }
+  });
+
+  casualWords.forEach(word=>{
+    if(lower.includes(word)){
+      casualScore++;
+    }
+  });
+
+  if(text.length > 120){
+    formalScore++;
+  }
+
+  if(/[.!?]$/.test(text.trim())){
+    formalScore++;
+  }
+
+  if(text.includes("!") || text.includes("😊")){
+    casualScore++;
+  }
+
+  if(formalScore > casualScore){
+    return "formal";
+  }
+
+  if(casualScore > formalScore){
+    return "casual";
+  }
+
+  return "neutral";
+}
+
+const autoToneBtn = document.getElementById("autoToneBtn");
+const toneResult = document.getElementById("toneResult");
+
+if(autoToneBtn){
+
+  autoToneBtn.addEventListener("click", ()=>{
+
+    const text = document.getElementById("input").value.trim();
+
+    if(!text){
+      toneResult.textContent = "Please enter text first.";
+      return;
+    }
+
+    const tone = detectToneAI(text);
+
+    if(tone === "formal"){
+      toneResult.textContent =
+      "Detected tone: Formal / Professional";
+    }
+
+    else if(tone === "casual"){
+      toneResult.textContent =
+      "Detected tone: Casual / Friendly";
+    }
+
+    else{
+      toneResult.textContent =
+      "Detected tone: Neutral";
+    }
+
+  });
+
+}
 document.addEventListener("click",hideDropdown);
 
 window.matchMedia &&
