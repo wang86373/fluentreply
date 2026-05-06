@@ -760,7 +760,7 @@ function renderData(data){
 
   rebuildFullText();
   activeSegmentIndex=null;
-  renderSegments();
+  activeSegmentIndex = index;
 
   statusBox.innerText=getUILang()==="Simplified Chinese"?"完成":"Done";
   bottomStatus.innerText=getUILang()==="Simplified Chinese"
