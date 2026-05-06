@@ -1713,7 +1713,32 @@ if(autoToneBtn && toneResult){
     }
 
     const tone = detectToneAI(text);
+const rewriteToneSelect =
+document.getElementById("rewriteTone");
 
+if(rewriteToneSelect){
+
+  if(tone === "formal"){
+    rewriteToneSelect.value =
+    "professional";
+  }
+
+  else if(tone === "casual"){
+    rewriteToneSelect.value =
+    "casual";
+  }
+
+  else{
+    rewriteToneSelect.value =
+    "natural";
+  }
+
+  localStorage.setItem(
+    "rewriteTone",
+    rewriteToneSelect.value
+  );
+
+}
     if(tone === "formal"){
       toneResult.textContent =
       "Detected tone: Formal / Professional";
