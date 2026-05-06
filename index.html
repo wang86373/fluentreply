@@ -1390,7 +1390,10 @@ const cacheKey =
   "Concise",
   "Fluent"
 ];
-
+const learning =
+  JSON.parse(
+    localStorage.getItem("rewrite_learning") || "{}"
+  );
 // DeepL-style ranking + dedupe
 rawOptions = rawOptions
   .map(text => ({
