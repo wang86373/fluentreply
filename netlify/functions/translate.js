@@ -514,7 +514,50 @@ function getTaskPrompt(task) {
 
   return "Translate accurately and naturally.";
 }
+function getToneInstruction(tone){
 
+  if(tone === "professional"){
+    return `
+Use polished, professional, business-level language.
+Avoid slang or overly casual wording.
+Keep the translation natural and fluent.
+`;
+  }
+
+  if(tone === "casual"){
+    return `
+Use casual, conversational wording.
+Sound like a native speaker texting naturally.
+Use contractions when appropriate.
+`;
+  }
+
+  if(tone === "friendly"){
+    return `
+Use warm, friendly, approachable wording.
+Keep the tone human and natural.
+`;
+  }
+
+  if(tone === "concise"){
+    return `
+Keep the translation concise and clean.
+Avoid unnecessary words.
+`;
+  }
+
+  if(tone === "native"){
+    return `
+Rewrite like a native speaker would naturally say it.
+Avoid robotic AI phrasing.
+`;
+  }
+
+  return `
+Use natural, fluent, human-sounding language.
+Avoid robotic translation wording.
+`;
+}
 function meaning(lang, type) {
   const zh = {
     closest: "最贴近原文意思的翻译。",
