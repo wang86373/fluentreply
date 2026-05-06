@@ -785,10 +785,19 @@ function renderSegments(){
     const span=document.createElement("span");
     span.className="segment"+(activeSegmentIndex===index?" active":"");
     span.innerText=seg.selected+" ";
-    span.onclick=e=>{
-      e.stopPropagation();
-      showDropdownForSegment(index);
-    };
+span.onmouseenter = ()=>{
+  // 🔥 hover显示（不卡）
+  showDropdownForSegment(index);
+};
+
+span.onclick = async (e)=>{
+  e.stopPropagation();
+
+  // 🔥 点击触发 AI 重写
+  await rewriteSentence(index);
+
+  showDropdownForSegment(index);
+};
     result.appendChild(span);
   });
 
