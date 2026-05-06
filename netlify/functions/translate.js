@@ -236,6 +236,7 @@ async function enhanceWithAI({
   const explanationLanguage = getExplanationLanguage(uiLanguage);
   const glossaryText = buildGlossaryText(glossary);
   const taskPrompt = getTaskPrompt(task);
+  const toneInstruction = getToneInstruction(rewriteTone);
 
   const segmentationRule = sentenceMode
     ? `
