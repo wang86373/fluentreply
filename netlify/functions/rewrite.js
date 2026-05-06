@@ -69,9 +69,26 @@ ${text}
       data.output_text ||
       data.output?.[0]?.content?.[0]?.text;
 
-    output = output.replace(/```json|```/g,"").trim();
+    output = output
+  .replace(/```json/gi,"")
+  .replace(/```/g,"")
+  .trim();
 
-    let parsed = JSON.parse(output);
+let parsed;
+
+try{
+  parsed = JSON.parse(output);
+}catch(e){
+  parsed = {
+    alternatives:[
+      {
+        label:"Natural",
+        text:output,
+        meaning:"AI rewrite"
+      }
+    ]
+  };
+}
 
     let alternatives = parsed.alternatives || [];
 
