@@ -750,7 +750,14 @@ async function translate(){
     statusBox.innerText="Network error";
   }
 }
-
+function splitTextSmart(text){
+  return String(text || "")
+    .replace(/([。！？!?])\s*/g, "$1\n")
+    .replace(/([.])\s+/g, "$1\n")
+    .split(/\n+/)
+    .map(s => s.trim())
+    .filter(Boolean);
+}
 function renderData(data){
   document.getElementById("engineStatus").innerText=data.engine_used||"";
 
