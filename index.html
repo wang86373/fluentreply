@@ -1043,6 +1043,7 @@ async function rewriteSentence(index){
     });
 
     const data = await res.json();
+    console.log("translate response:", data);
 
     if(!data.alternatives){
       statusBox.innerText = "Rewrite failed";
