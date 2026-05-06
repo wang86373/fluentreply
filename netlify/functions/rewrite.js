@@ -1,5 +1,27 @@
+const corsHeaders = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS"
+};
 exports.handler = async function(event){
 
+  if(event.httpMethod === "OPTIONS"){
+  return {
+    statusCode: 200,
+    headers: corsHeaders,
+    body: ""
+  };
+}
+
+if(event.httpMethod !== "POST"){
+  return {
+    statusCode: 405,
+    headers: corsHeaders,
+    body: JSON.stringify({ error: "Method not allowed" })
+  };
+}
+  
   try{
     const body = JSON.parse(event.body || "{}");
 
@@ -148,14 +170,16 @@ alternatives = alternatives.filter(item => {
     }
 
     return {
-      statusCode:200,
-      body:JSON.stringify({ alternatives })
+  statusCode: 200,
+  headers: corsHeaders,
+  body: JSON.stringify({ alternatives })
+};
+}    
+catch(err){
+  return {
+  statusCode: 500,
+  headers: corsHeaders,
+  body: JSON.stringify({ error: err.message })
+};
     };
-
-  }catch(err){
-    return {
-      statusCode:500,
-      body:JSON.stringify({ error: err.message })
-    };
-  }
 };
