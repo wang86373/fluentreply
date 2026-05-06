@@ -276,7 +276,8 @@ ${deeplText || "No DeepL result provided."}
 
 Glossary:
 ${glossaryText}
-
+TONE INSTRUCTION:
+${toneInstruction}
 CORE RULES:
 - Translate the FULL original input.
 - Never drop, skip, shorten, or ignore any sentence.
