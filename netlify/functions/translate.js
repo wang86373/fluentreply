@@ -81,15 +81,16 @@ exports.handler = async function (event) {
     }
 
     const aiResult = await enhanceWithAI({
-      originalText: text,
-      deeplText,
-      sourceLanguage,
-      targetLanguage,
-      task,
-      glossary,
-      uiLanguage,
-      sentenceMode
-    });
+  originalText: text,
+  deeplText,
+  sourceLanguage,
+  targetLanguage,
+  task,
+  glossary,
+  rewriteTone,
+  uiLanguage,
+  sentenceMode
+});
 
     aiResult.engine_used = deeplUsed ? "DeepL + AI" : "AI only";
     aiResult.deepl_used = deeplUsed;
