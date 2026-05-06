@@ -22,15 +22,16 @@ exports.handler = async function (event) {
     const body = JSON.parse(event.body || "{}");
 
     const {
-      text = "",
-      sourceLanguage = "auto",
-      targetLanguage = "English",
-      task = "translate",
-      glossary = [],
-      engineMode = "auto",
-      uiLanguage = "zh",
-      sentenceMode = true
-    } = body;
+  text = "",
+  sourceLanguage = "auto",
+  targetLanguage = "English",
+  task = "translate",
+  glossary = [],
+  engineMode = "auto",
+  rewriteTone = "auto",
+  uiLanguage = "zh",
+  sentenceMode = true
+} = body;
 
     if (!text.trim()) {
       return jsonError(400, "Missing text");
