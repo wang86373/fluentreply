@@ -903,7 +903,17 @@ function showDropdownForSegment(index, event){
       dd.appendChild(item);
     });
   }
+if(event){
 
+  const rect = event.target.getBoundingClientRect();
+  const parentRect = result.getBoundingClientRect();
+
+  dd.style.left =
+    (rect.left - parentRect.left) + "px";
+
+  dd.style.top =
+    (rect.bottom - parentRect.top + 10) + "px";
+}
   dd.style.display="block";
   dropdownVisible=true;
 }
