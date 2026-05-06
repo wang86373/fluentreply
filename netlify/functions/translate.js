@@ -352,6 +352,14 @@ ALTERNATIVE DIVERSITY RULES:
 - The options should differ in tone, rhythm, structure, or native style.
 - Closest should be faithful, Natural should be native, Alternative should provide a clearly different natural expression.
 
+REAL NATIVE SPEECH RULES:
+- Sound like real people in real conversations.
+- Prefer modern spoken phrasing.
+- Preserve natural texting rhythm.
+- Avoid overly polished AI sentence construction.
+- Use contractions naturally.
+- Prefer authentic native cadence over textbook phrasing.
+
 CORE RULES:
 - Translate the FULL original input.
 - Never drop, skip, shorten, or ignore any sentence.
