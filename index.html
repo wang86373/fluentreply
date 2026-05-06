@@ -885,7 +885,9 @@ function renderSegments(){
     const span = document.createElement("span");
 
     span.className =
-      "segment" + (activeSegmentIndex === index ? " active" : "");
+  "segment" +
+  (activeSegmentIndex === index ? " active" : "") +
+  (loadingSegmentIndex === index ? " loading" : "");
 
     span.textContent = (seg.selected || "") + " ";
 
