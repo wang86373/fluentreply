@@ -650,7 +650,15 @@ function getTaskPrompt(task) {
 
   return "Translate accurately and naturally.";
 }
+
 function getToneInstruction(tone){
+
+  if(tone === "auto"){
+    return `
+Automatically choose the most appropriate tone based on the input context.
+Keep the translation accurate, natural, and socially appropriate.
+`;
+  }
 
   if(tone === "professional"){
     return `
@@ -670,14 +678,15 @@ Use contractions when appropriate.
 
   if(tone === "friendly"){
     return `
-Use warm, friendly, approachable wording.
-Keep the tone human and natural.
+Use friendly, approachable conversational language.
+Sound warm, positive, and natural.
 `;
   }
 
-  if(tone === "concise"){
+  if(tone === "concise" || tone === "short"){
     return `
-Keep the translation concise and clean.
+Keep the translation concise, clean, and efficient.
+Use short native phrasing.
 Avoid unnecessary words.
 `;
   }
@@ -686,57 +695,55 @@ Avoid unnecessary words.
     return `
 Rewrite like a native speaker would naturally say it.
 Avoid robotic AI phrasing.
+Use authentic everyday wording.
 `;
   }
 
   if(tone === "warm"){
-  return `
+    return `
 Use warm, emotionally gentle wording.
 Sound caring and human.
 Preserve emotional softness naturally.
 `;
-}
+  }
 
-if(tone === "confident"){
-  return `
+  if(tone === "confident"){
+    return `
 Use confident, clear, assertive wording.
 Sound natural, not aggressive.
 `;
-}
+  }
 
-if(tone === "short"){
-  return `
-Keep the translation concise and efficient.
-Use short native phrasing.
-`;
-}
-
-if(tone === "flirty"){
-  return `
+  if(tone === "flirty"){
+    return `
 Use playful, subtly flirtatious wording when appropriate.
 Keep the tone natural and attractive.
+Do not make it inappropriate or excessive.
 `;
-}
+  }
 
-if(tone === "luxury"){
-  return `
+  if(tone === "luxury"){
+    return `
 Use elegant, polished, premium-sounding language.
 Maintain natural sophistication.
+Avoid sounding stiff or artificial.
 `;
-}
+  }
 
-if(tone === "genz"){
-  return `
+  if(tone === "genz"){
+    return `
 Use modern Gen Z conversational style naturally.
+Keep it casual, current, and human.
 Avoid sounding forced or cringe.
 `;
-}
-  
+  }
+
   return `
 Use natural, fluent, human-sounding language.
 Avoid robotic translation wording.
 `;
 }
+
 function meaning(lang, type) {
   const zh = {
     closest: "最贴近原文意思的翻译。",
