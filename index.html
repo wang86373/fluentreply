@@ -1212,11 +1212,38 @@ if(loadingDropdown){
   const rect = event.target.getBoundingClientRect();
   const parentRect = result.getBoundingClientRect();
 
-  loadingDropdown.style.left =
-    (rect.left - parentRect.left) + "px";
+  const dropdownWidth = 420;
+const estimatedHeight = 120;
+const padding = 16;
 
-  loadingDropdown.style.top =
-    (rect.bottom - parentRect.top + 10) + "px";
+let left =
+  rect.left - parentRect.left;
+
+let top =
+  rect.bottom - parentRect.top + 10;
+
+// 右侧保护
+if(left + dropdownWidth > parentRect.width - padding){
+  left =
+    parentRect.width - dropdownWidth - padding;
+}
+
+// 左侧保护
+if(left < padding){
+  left = padding;
+}
+
+// 下方溢出 → 翻转
+if(top + estimatedHeight > parentRect.height){
+  top =
+    rect.top -
+    parentRect.top -
+    estimatedHeight -
+    10;
+}
+
+loadingDropdown.style.left = left + "px";
+loadingDropdown.style.top = top + "px";
 }
   loadingDropdown.style.display = "block";
   dropdownVisible = true;
