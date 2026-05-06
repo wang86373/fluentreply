@@ -530,6 +530,11 @@ input.addEventListener("input",()=>{
 async function initAuth(){
   const savedUI=localStorage.getItem("ui_language");
   if(savedUI) document.getElementById("uiLangSelect").value=savedUI;
+  const savedTone = localStorage.getItem("rewriteTone");
+
+if(savedTone){
+  document.getElementById("rewriteTone").value = savedTone;
+}
 
   const {data}=await supabaseClient.auth.getUser();
   currentUser=data?.user||null;
