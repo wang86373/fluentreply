@@ -174,12 +174,11 @@ alternatives = alternatives.filter(item => {
   headers: corsHeaders,
   body: JSON.stringify({ alternatives })
 };
-}    
-catch(err){
+}catch(err){
   return {
-  statusCode: 500,
-  headers: corsHeaders,
-  body: JSON.stringify({ error: err.message })
-};
-    };
+    statusCode: 500,
+    headers: corsHeaders,
+    body: JSON.stringify({ error: err.message })
+  };
+}
 };
