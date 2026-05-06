@@ -763,7 +763,7 @@ async function translate(){
 
     increaseUsage();
     localStorage.setItem(cacheKey,JSON.stringify(data));
-    renderData(data);
+    await renderData(data, true);
     saveHistory(text,data);
 
   }catch(e){
@@ -779,7 +779,7 @@ function splitTextSmart(text){
     .map(s => s.trim())
     .filter(Boolean);
 }
-function renderData(data){
+async function renderData(data, stream=false){
   document.getElementById("engineStatus").innerText=data.engine_used||"";
 
   currentSegments = (data.segments || []).map((seg, index) => {
