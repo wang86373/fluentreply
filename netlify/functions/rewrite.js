@@ -102,7 +102,46 @@ try{
 }
 
     let alternatives = parsed.alternatives || [];
+    
+alternatives = alternatives
+  .filter(item => item && item.text)
+  .map((item, index) => ({
+    label:
+      item.label ||
+      ["Closest", "Natural", "Casual", "Professional", "Friendly", "Concise", "Fluent"][index] ||
+      `Option ${index + 1}`,
+    text: String(item.text || "").trim(),
+    meaning: item.meaning || "Alternative rewrite"
+  }))
+  .filter(item => item.text);
 
+    const seen = new Set();
+
+alternatives = alternatives.filter(item => {
+  const key = item.text
+    .toLowerCase()
+    .replace(/[.!?]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if(seen.has(key)){
+    return false;
+  }
+
+  seen.add(key);
+  return true;
+});
+
+    if(!alternatives.length){
+  alternatives = [
+    {
+      label: "Natural",
+      text: text,
+      meaning: "Original sentence preserved because no valid rewrite was returned."
+    }
+  ];
+}
+    
     // 🔥 Pro无限
     if(!isPro){
       alternatives = alternatives.slice(0,3);
