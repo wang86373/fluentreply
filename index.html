@@ -827,7 +827,23 @@ if(stream){
     ?"点击右侧任意句子，可查看多种表达。"
     :"Click any translated sentence to see alternatives.";
 }
+async function streamSegments(){
+  const fullSegments = [...currentSegments];
 
+  currentSegments = [];
+  renderSegments();
+
+  for(const seg of fullSegments){
+    currentSegments.push(seg);
+
+    rebuildFullText();
+    renderSegments();
+
+    await new Promise(resolve =>
+      setTimeout(resolve, 180)
+    );
+  }
+}
 function rebuildFullText(){
   currentText=currentSegments.map(seg=>seg.selected).join(" ");
 }
