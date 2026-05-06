@@ -957,6 +957,26 @@ function showDropdownForSegment(index, event){
       item.onclick=e=>{
         e.stopPropagation();
         currentSegments[index].selected=opt.text||"";
+        // learning ranking
+const learningKey =
+  "rewrite_learning";
+
+let learning =
+  JSON.parse(
+    localStorage.getItem(learningKey) || "{}"
+  );
+
+const key =
+  (opt.label || "unknown")
+  .toLowerCase();
+
+learning[key] =
+  (learning[key] || 0) + 1;
+
+localStorage.setItem(
+  learningKey,
+  JSON.stringify(learning)
+);
         rebuildFullText();
         renderSegments();
         hideDropdown();
