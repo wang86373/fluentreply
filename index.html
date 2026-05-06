@@ -1194,6 +1194,7 @@ async function rewriteSentence(index){
   // ✅ sentence-level loading
   const originalText = seg.selected;
 
+loadingSegmentIndex = index;
   currentSegments[index].selected =
     getUILang()==="Simplified Chinese"
       ? "✨ AI 正在重写..."
