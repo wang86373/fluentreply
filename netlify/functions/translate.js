@@ -322,6 +322,15 @@ CONFIDENCE & AMBIGUITY RULES:
 - Preserve uncertainty when the original text itself is unclear.
 - Do not overconfidently force one interpretation if context is insufficient.
 
+EMOTIONAL TONE PRESERVATION:
+- Preserve the emotional intensity of the original message.
+- If the source is affectionate, keep it warm and intimate.
+- If the source is frustrated, preserve the frustration without making it rude unless the original is rude.
+- If the source is apologetic, keep the apology natural and sincere.
+- If the source is playful, keep it playful and natural.
+- Do not flatten emotional messages into neutral textbook translations.
+- Do not make emotional messages overly dramatic if the original is mild.
+
 CORE RULES:
 - Translate the FULL original input.
 - Never drop, skip, shorten, or ignore any sentence.
