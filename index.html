@@ -920,7 +920,7 @@ function renderSegments(){
     // click → AI rewrite
     span.onclick = async (e)=>{
       e.stopPropagation();
-      await rewriteSentence(index);
+      await rewriteSentence(index,e);
       showDropdownForSegment(index,e);
     };
 
