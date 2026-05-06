@@ -728,7 +728,7 @@ async function translate(){
   const cached=localStorage.getItem(cacheKey);
 
   if(cached){
-    renderData(JSON.parse(cached));
+    await renderData(JSON.parse(cached), false);
     statusBox.innerText=getUILang()==="Simplified Chinese"?"来自缓存":"From cache";
     return;
   }
