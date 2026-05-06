@@ -1051,7 +1051,11 @@ async function rewriteSentence(index){
     }
 
     // 🔥 覆盖 alternatives
-    currentSegments[index].options = data.alternatives;
+    currentSegments[index].options = data.alternatives.map(text => ({
+  text: text,
+  label: "AI",
+  meaning: ""
+}));
 
     statusBox.innerText = getUILang()==="Simplified Chinese"
       ? "已更新"
