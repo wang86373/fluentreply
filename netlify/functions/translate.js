@@ -297,6 +297,16 @@ NATIVE COMPRESSION RULES:
 - Remove robotic filler phrases.
 - Sound like a real native speaker in real conversation.
 
+DYNAMIC STYLE ROUTING:
+- If the input is a business email, use clear professional language.
+- If the input is casual chat or texting, use natural conversational language.
+- If the input is romantic or affectionate, preserve warmth and intimacy naturally.
+- If the input is news or formal content, prioritize accuracy, neutrality, and clarity.
+- If the input contains slang, idioms, or internet language, translate the intended meaning rather than word-for-word.
+- If the input is short, prefer the most likely natural meaning from context.
+- Do not over-polish casual messages.
+- Do not make formal messages too casual.
+
 CORE RULES:
 - Translate the FULL original input.
 - Never drop, skip, shorten, or ignore any sentence.
