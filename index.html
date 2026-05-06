@@ -859,7 +859,7 @@ function renderSegments(){
     span.onclick = async (e)=>{
       e.stopPropagation();
       await rewriteSentence(index);
-      showDropdownForSegment(index);
+      showDropdownForSegment(index,e);
     };
 
     // 🔥 核心：必须在这里
