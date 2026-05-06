@@ -1004,7 +1004,45 @@ dd.style.top = top + "px";
   dd.style.display="block";
   dropdownVisible=true;
 }
+function addDropdownOption(option,index){
 
+  const dd = document.getElementById("dropdown");
+
+  if(!dd) return;
+
+  const item = document.createElement("div");
+
+  item.className = "dropdown-item";
+
+  item.innerHTML = `
+    <div class="dropdown-label">
+      ${escapeHTML(option.label || "Option")}
+    </div>
+
+    <div class="dropdown-text">
+      ${escapeHTML(option.text || "")}
+    </div>
+
+    <div class="dropdown-meaning">
+      ${escapeHTML(option.meaning || "")}
+    </div>
+  `;
+
+  item.onclick = (e)=>{
+    e.stopPropagation();
+
+    currentSegments[index].selected =
+      option.text || "";
+
+    rebuildFullText();
+
+    renderSegments();
+
+    hideDropdown();
+  };
+
+  dd.appendChild(item);
+}
 function toggleDropdown(event){
   event.stopPropagation();
   const dd=document.getElementById("dropdown");
