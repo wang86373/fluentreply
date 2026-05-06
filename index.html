@@ -1186,7 +1186,7 @@ function escapeHTML(str){
   }[tag]||tag));
 }
 
-async function rewriteSentence(index){
+async function rewriteSentence(index,event){
 
   const seg = currentSegments[index];
   if(!seg) return;
