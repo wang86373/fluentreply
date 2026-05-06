@@ -851,9 +851,9 @@ function renderSegments(){
     span.textContent = (seg.selected || "") + " ";
 
     // hover
-    span.onmouseenter = ()=>{
-      showDropdownForSegment(index);
-    };
+    span.onmouseenter = (e)=>{
+  showDropdownForSegment(index,e);
+};
 
     // click → AI rewrite
     span.onclick = async (e)=>{
