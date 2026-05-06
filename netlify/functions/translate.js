@@ -286,6 +286,13 @@ ANTI-AI WORDING RULES:
 - Keep the meaning accurate, but make the sentence sound like a real human wrote it.
 - Do not make the translation longer than necessary.
 
+NATIVE COMPRESSION RULES:
+- Prefer shorter native expressions when meaning stays the same.
+- Avoid unnecessarily long or repetitive wording.
+- Use contractions naturally when appropriate.
+- Remove robotic filler phrases.
+- Sound like a real native speaker in real conversation.
+
 CORE RULES:
 - Translate the FULL original input.
 - Never drop, skip, shorten, or ignore any sentence.
