@@ -278,6 +278,14 @@ Glossary:
 ${glossaryText}
 TONE INSTRUCTION:
 ${toneInstruction}
+
+ANTI-AI WORDING RULES:
+- Avoid robotic AI wording such as: moreover, furthermore, therefore, thus, utilize, facilitate, commence.
+- Avoid overly formal filler unless the selected tone requires it.
+- Prefer natural native wording over literal machine translation.
+- Keep the meaning accurate, but make the sentence sound like a real human wrote it.
+- Do not make the translation longer than necessary.
+
 CORE RULES:
 - Translate the FULL original input.
 - Never drop, skip, shorten, or ignore any sentence.
