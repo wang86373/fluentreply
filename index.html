@@ -773,38 +773,46 @@ function rebuildFullText(){
 }
 
 function renderSegments(){
-  result.innerHTML="";
 
+  result.innerHTML = "";
+
+  // ✅ 空状态（保留）
   if(!currentSegments.length){
-    result.innerHTML='<span class="placeholder" data-i18n="placeholder">Translation will appear here</span><div id="dropdown" class="dropdown"></div>';
+    result.innerHTML = `<span class="placeholder" data-i18n="placeholder">
+      Translation will appear here
+    </span><div id="dropdown" class="dropdown"></div>`;
     applyUILanguage();
     return;
   }
 
+  // ✅ 正确唯一渲染逻辑
   currentSegments.forEach((seg,index)=>{
-    const span=document.createElement("span");
-    span.className="segment"+(activeSegmentIndex===index?" active":"");
-    span.innerText=seg.selected+" ";
-span.onmouseenter = ()=>{
-  // 🔥 hover显示（不卡）
-  showDropdownForSegment(index);
-};
 
-span.onclick = async (e)=>{
-  e.stopPropagation();
+    const span = document.createElement("span");
 
-  // 🔥 点击触发 AI 重写
-  await rewriteSentence(index);
+    span.className =
+      "segment" + (activeSegmentIndex === index ? " active" : "");
 
-  showDropdownForSegment(index);
-};
+    span.textContent = (seg.selected || "") + " ";
+
+    // hover
+    span.onmouseenter = ()=>{
+      showDropdownForSegment(index);
+    };
+
+    // click → AI rewrite
+    span.onclick = async (e)=>{
+      e.stopPropagation();
+      await rewriteSentence(index);
+      showDropdownForSegment(index);
+    };
+
+    // 🔥 核心：必须在这里
     result.appendChild(span);
+
   });
 
-  const dd=document.createElement("div");
-  dd.id="dropdown";
-  dd.className="dropdown";
-  result.appendChild(dd);
+
 }
 
 function showDropdownForSegment(index){
