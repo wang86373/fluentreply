@@ -1390,10 +1390,11 @@ const cacheKey =
         "Content-Type":"application/json"
       },
       body:JSON.stringify({
-        text: seg.source || originalText,
-        target: targetSelect.value,
-        isPro: userIsPro()
-      })
+  text: seg.source || originalText,
+  target: targetSelect.value,
+  isPro: userIsPro(),
+  rewriteTone: document.getElementById("rewriteTone").value
+})
     });
 
     const data = await res.json();
