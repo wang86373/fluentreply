@@ -97,7 +97,32 @@ exports.handler = async function (event) {
       })
     });
 
-    const data = await paymentRes.json();
+    let rawText = "";
+let data = {};
+
+try{
+  rawText = await paymentRes.text();
+  data = JSON.parse(rawText);
+}catch(parseError){
+
+  console.error(
+    "NOWPayments response parse failed:",
+    parseError
+  );
+
+  console.log(
+    "NOWPayments raw response:",
+    rawText
+  );
+
+  return {
+    statusCode: 500,
+    headers: corsHeaders,
+    body: JSON.stringify({
+      error: "Invalid payment server response"
+    })
+  };
+}
 
     if (!paymentRes.ok) {
       return {
