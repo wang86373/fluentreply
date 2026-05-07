@@ -100,11 +100,7 @@ if(existingPayments?.length){
 
     const proUntil = new Date();
 
-    if (plan === "pro_plus") {
-      proUntil.setMonth(proUntil.getMonth() + months);
-    } else {
-      proUntil.setMonth(proUntil.getMonth() + months);
-    }
+    proUntil.setMonth(proUntil.getMonth() + months);
 
     const profileRes = await fetch(
       `${SUPABASE_URL}/rest/v1/profiles?on_conflict=email`,
