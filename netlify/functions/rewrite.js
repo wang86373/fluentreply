@@ -82,9 +82,14 @@ Return JSON only:
 Sentence:
 ${text}
 `;
+    
+const controller = new AbortController();
 
+const timeout = setTimeout(() => controller.abort(), 45000);
+    
     const response = await fetch("https://api.openai.com/v1/responses",{
       method:"POST",
+      signal: controller.signal,
       headers:{
         "Content-Type":"application/json",
         "Authorization":`Bearer ${process.env.OPENAI_API_KEY}`
@@ -101,6 +106,8 @@ ${text}
 })
     });
 
+clearTimeout(timeout);
+    
     const data = await response.json();
 
     let output =
