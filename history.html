@@ -358,12 +358,35 @@ async function deleteItem(id){
   alert("Deleted");
 }
 
-function clearHistory(){
-  if(!confirm("Clear all translation history?"))return;
-  localStorage.removeItem("history_folded_tools");
-  renderHistory();
-}
+async function clearHistory(){
 
+  if(!confirm("Clear all translation history?")){
+    return;
+  }
+
+  if(currentUser?.email){
+
+    const { error } = await supabaseClient
+      .from("translation_history")
+      .delete()
+      .eq("email", currentUser.email.toLowerCase());
+
+    if(error){
+      alert("Clear failed");
+      return;
+    }
+
+  }else{
+
+    localStorage.removeItem("history_folded_tools");
+
+  }
+
+  await renderHistory();
+
+  alert("History cleared");
+}
+  
 function escapeHTML(str){
   return String(str).replace(/[&<>'"]/g,tag=>({
     "&":"&amp;",
