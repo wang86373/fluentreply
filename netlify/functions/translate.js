@@ -199,7 +199,26 @@ async function translateWithDeepL(text, sourceLanguage, targetLanguage) {
     body: params
   });
 
-  const data = await response.json();
+  let rawText = "";
+let data = {};
+
+try{
+  rawText = await response.text();
+  data = JSON.parse(rawText);
+}catch(parseError){
+
+  console.error(
+    "DeepL response parse failed:",
+    parseError
+  );
+
+  console.log(
+    "DeepL raw response:",
+    rawText
+  );
+
+  throw new Error("Invalid DeepL response");
+}
 
   if (!response.ok) {
     throw new Error(data.message || "DeepL failed");
