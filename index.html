@@ -615,16 +615,48 @@ async function loadProfile(){
 }
 
 function userIsPro(){
-  // 如果没有 profile 或不是 Pro
-  if(!currentProfile?.is_pro) return false;
+  try{
 
-  // 如果有 pro_until，检查是否有效
-  if(currentProfile.pro_until){
-    return new Date(currentProfile.pro_until).getTime() > Date.now();
+    if(!currentProfile || !currentProfile.is_pro){
+      return false;
+    }
+
+    const plan = String(
+      currentProfile.plan || ""
+    ).toLowerCase();
+
+    const validPlans = [
+      "pro",
+      "pro_plus"
+    ];
+
+    if(plan && !validPlans.includes(plan)){
+      return false;
+    }
+
+    if(currentProfile.pro_until){
+
+      const proTime =
+        new Date(currentProfile.pro_until).getTime();
+
+      if(!Number.isFinite(proTime)){
+        return false;
+      }
+
+      return proTime > Date.now();
+    }
+
+    return true;
+
+  }catch(e){
+
+    console.error(
+      "userIsPro check failed:",
+      e
+    );
+
+    return false;
   }
-
-  // 没有 pro_until 的情况下，也可以视为有效 Pro
-  return true;
 }
 
 function updateProBadge(){
