@@ -138,33 +138,52 @@ function goHome(){
 async function checkAgain(){
   setStatus("Checking your account status...");
 
-  const { data } = await supabaseClient.auth.getUser();
-  const user = data?.user;
+  try{
+    if(!supabaseClient){
+      setStatus("Login system is not ready. Please refresh the page.");
+      return;
+    }
 
-  if(!user){
-    setStatus("Payment is complete. Please log in with the same email you used for payment.");
-    return;
-  }
+    const { data, error: userError } = await supabaseClient.auth.getUser();
 
-  const { data: profile, error } = await supabaseClient
-    .from("profiles")
-    .select("*")
-    .eq("email", user.email.toLowerCase())
-    .maybeSingle();
+    if(userError){
+      console.error("Get user failed:", userError);
+      setStatus("Could not check login status. Please refresh.");
+      return;
+    }
 
-  if(error){
-    setStatus("Could not check profile yet. Please wait and refresh.");
-    return;
-  }
+    const user = data?.user;
 
-  if(
-  profile?.is_pro &&
-  (!profile.pro_until || new Date(profile.pro_until).getTime() > Date.now())
-){
-    setStatus("Your Pro plan is active. Redirecting...");
-    setTimeout(()=>location.href="index.html",1000);
-  }else{
-    setStatus("Payment is complete, but Pro activation may still be processing. Please wait 10–60 seconds.");
+    if(!user){
+      setStatus("Payment is complete. Please log in with the same email you used for payment.");
+      return;
+    }
+
+    const { data: profile, error } = await supabaseClient
+      .from("profiles")
+      .select("*")
+      .eq("email", user.email.toLowerCase())
+      .maybeSingle();
+
+    if(error){
+      console.error("Profile check failed:", error);
+      setStatus("Could not check profile yet. Please wait and refresh.");
+      return;
+    }
+
+    if(
+      profile?.is_pro &&
+      (!profile.pro_until || new Date(profile.pro_until).getTime() > Date.now())
+    ){
+      setStatus("Your Pro plan is active. Redirecting...");
+      setTimeout(()=>location.href="index.html",1000);
+    }else{
+      setStatus("Payment is complete, but Pro activation may still be processing. Please wait 10–60 seconds.");
+    }
+
+  }catch(e){
+    console.error("Check status failed:", e);
+    setStatus("Status check failed. Please refresh and try again.");
   }
 }
 
