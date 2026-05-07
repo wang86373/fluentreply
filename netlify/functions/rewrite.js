@@ -35,6 +35,16 @@ const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
   rewriteTone = "natural"
 } = body;
 
+    if(!text || String(text).length > 3000){
+  return {
+    statusCode: 400,
+    headers: corsHeaders,
+    body: JSON.stringify({
+      error: "Text too long"
+    })
+  };
+}
+
     const toneMap = {
   auto: "Automatically choose the most natural style based on context.",
   natural: "Sound natural, fluent, and human.",
