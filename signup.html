@@ -283,30 +283,87 @@ async function sendSignupCode(){
 }
 
 async function verifySignupCode(){
-  const email=document.getElementById("email").value.trim().toLowerCase();
-  const code=document.getElementById("code").value.trim();
+
+  const email=document.getElementById("email")
+    .value.trim().toLowerCase();
+
+  const code=document.getElementById("code")
+    .value.trim();
 
   if(!code){
-    setStatus("Enter code","error");return;
+    setStatus("Enter code","error");
+    return;
+  }
+
+  if(!supabaseClient){
+    setStatus(
+      "Signup system failed to load. Please refresh.",
+      "error"
+    );
+    return;
   }
 
   setStatus("Verifying...");
+  setLoading("codeSignupBtn",true);
 
-  const {error}=await supabaseClient.auth.verifyOtp({
-    email,
-    token:code,
-    type:"email"
-  });
+  try{
 
-  if(error){
-    setStatus(error.message,"error");return;
+    const {error} =
+      await supabaseClient.auth.verifyOtp({
+        email,
+        token:code,
+        type:"email"
+      });
+
+    if(error){
+
+      const fallback =
+        await supabaseClient.auth.verifyOtp({
+          email,
+          token:code,
+          type:"magiclink"
+        });
+
+      if(fallback.error){
+        setStatus(
+          error.message || fallback.error.message,
+          "error"
+        );
+        return;
+      }
+    }
+
+    localStorage.setItem("user_email",email);
+
+    setStatus(
+      "Signup success",
+      "success"
+    );
+
+    setTimeout(()=>{
+      location.href="index.html";
+    },700);
+
+  }catch(e){
+
+    console.error(
+      "Verify signup code error:",
+      e
+    );
+
+    setStatus(
+      "Verification failed. Please try again.",
+      "error"
+    );
+
+  }finally{
+
+    setLoading(
+      "codeSignupBtn",
+      false
+    );
+
   }
-
-  setStatus("Success! Redirecting...","success");
-
-  setTimeout(()=>{
-    location.href="index.html";
-  },800);
 }
 
 function init(){
