@@ -63,6 +63,22 @@ if(email){
   profile = profiles?.[0] || null;
 }
 
+    const FREE_LIMIT = 300;
+
+if(
+  !isPro &&
+  profile &&
+  Number(profile.usage_count || 0) >= FREE_LIMIT
+){
+  return {
+    statusCode: 403,
+    headers: corsHeaders,
+    body: JSON.stringify({
+      error: "Free limit reached"
+    })
+  };
+}
+    
     const toneMap = {
   auto: "Automatically choose the most natural style based on context.",
   natural: "Sound natural, fluent, and human.",
