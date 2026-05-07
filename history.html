@@ -363,38 +363,47 @@ async function deleteItem(id){
     return;
   }
 
-  if(currentUser?.email){
+  try{
 
-    const { error } = await supabaseClient
-      .from("translation_history")
-      .delete()
-      .eq("id", id);
+    if(currentUser?.email){
 
-    if(error){
-      alert("Delete failed");
-      return;
+      const { error } = await supabaseClient
+        .from("translation_history")
+        .delete()
+        .eq("id", id);
+
+      if(error){
+        console.error("Delete history failed:", error);
+        alert("Delete failed");
+        return;
+      }
+
+    }else{
+
+      let history = JSON.parse(
+        localStorage.getItem("history_folded_tools") || "[]"
+      );
+
+      history = history.filter((item,index) => {
+        const itemId = item.id || index;
+        return String(itemId) !== String(id);
+      });
+
+      localStorage.setItem(
+        "history_folded_tools",
+        JSON.stringify(history)
+      );
     }
 
-  }else{
+    await renderHistory();
 
-    let history = JSON.parse(
-      localStorage.getItem("history_folded_tools") || "[]"
-    );
+    alert("Deleted");
 
-    history = history.filter((item,index) => {
-  const itemId = item.id || index;
-  return String(itemId) !== String(id);
-});
+  }catch(e){
 
-    localStorage.setItem(
-      "history_folded_tools",
-      JSON.stringify(history)
-    );
+    console.error("Delete history error:", e);
+    alert("Delete failed. Please try again.");
   }
-
-  await renderHistory();
-
-  alert("Deleted");
 }
 
 async function clearHistory(){
