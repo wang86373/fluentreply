@@ -72,6 +72,29 @@ exports.handler = async function (event) {
     const orderId = String(body.order_id || "");
     const plan = orderId.includes("pro_plus") ? "pro_plus" : "pro";
 
+    const paymentId = String(
+  body.payment_id || body.invoice_id || body.order_id
+);
+
+const existingPaymentRes = await fetch(
+  `${SUPABASE_URL}/rest/v1/payments?payment_id=eq.${encodeURIComponent(paymentId)}`,
+  {
+    headers: {
+      apikey: SERVICE_KEY,
+      Authorization: `Bearer ${SERVICE_KEY}`
+    }
+  }
+);
+
+const existingPayments = await existingPaymentRes.json();
+
+if(existingPayments?.length){
+  return {
+    statusCode: 200,
+    body: "Already processed"
+  };
+}
+
     const proUntil = new Date();
 
     if (plan === "pro_plus") {
@@ -107,28 +130,7 @@ exports.handler = async function (event) {
         body: "Profile update failed: " + detail
       };
     }
-const paymentId = String(
-  body.payment_id || body.invoice_id || body.order_id
-);
 
-const existingPaymentRes = await fetch(
-  `${SUPABASE_URL}/rest/v1/payments?payment_id=eq.${encodeURIComponent(paymentId)}`,
-  {
-    headers: {
-      apikey: SERVICE_KEY,
-      Authorization: `Bearer ${SERVICE_KEY}`
-    }
-  }
-);
-
-const existingPayments = await existingPaymentRes.json();
-
-if(existingPayments?.length){
-  return {
-    statusCode: 200,
-    body: "Already processed"
-  };
-}
     const paymentPayload = {
       email,
       order_id: body.order_id,
