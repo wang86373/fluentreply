@@ -156,36 +156,70 @@ function setLoading(id,loading){
 
 /* 🔥 已修复核心逻辑 */
 async function signupWithPassword(){
+
   const email=document.getElementById("email").value.trim().toLowerCase();
   const password=document.getElementById("password").value;
 
   if(!email){
-    setStatus("Enter email","error");return;
+    setStatus("Enter email","error");
+    return;
   }
+
   if(!password || password.length<6){
-    setStatus("Password too short","error");return;
+    setStatus("Password too short","error");
+    return;
+  }
+
+  if(!supabaseClient){
+    setStatus("Signup system failed to load. Please refresh.","error");
+    return;
   }
 
   setLoading("passwordSignupBtn",true);
   setStatus("Creating account...");
 
-  const {error}=await supabaseClient.auth.signUp({
-  email,
-  password,
-  options:{
-    emailRedirectTo:
-      location.origin + "/index.html"
+  try{
+
+    const {error}=await supabaseClient.auth.signUp({
+      email,
+      password,
+      options:{
+        emailRedirectTo:
+          location.origin + "/index.html"
+      }
+    });
+
+    if(error){
+      setStatus(error.message,"error");
+      return;
+    }
+
+    setMode("code");
+    setStatus(
+      "Code sent. Check email.",
+      "success"
+    );
+
+  }catch(e){
+
+    console.error(
+      "Signup password error:",
+      e
+    );
+
+    setStatus(
+      "Signup failed. Please try again.",
+      "error"
+    );
+
+  }finally{
+
+    setLoading(
+      "passwordSignupBtn",
+      false
+    );
+
   }
-});
-
-  setLoading("passwordSignupBtn",false);
-
-  if(error){
-    setStatus(error.message,"error");return;
-  }
-
-  setMode("code"); // ⭐ 自动切换
-  setStatus("Code sent. Check email.","success");
 }
 
 async function sendSignupCode(){
