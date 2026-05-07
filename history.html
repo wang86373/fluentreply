@@ -210,12 +210,13 @@ async function getHistory(){
     if(!error && data){
 
       return data.map(item => ({
-        sourceText: item.source_text,
-        translatedText: item.translated_text,
-        targetLang: item.target_lang,
-        rewriteTone: item.rewrite_tone,
-        createdAt: item.created_at
-      }));
+  id: item.id,
+  sourceText: item.source_text,
+  translatedText: item.translated_text,
+  targetLang: item.target_lang,
+  rewriteTone: item.rewrite_tone,
+  createdAt: item.created_at
+}));
 
     }
 
