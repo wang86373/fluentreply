@@ -271,6 +271,30 @@ alternatives = alternatives.filter(item => {
 
 }
 
+    if(email){
+
+  await fetch(
+    `${SUPABASE_URL}/rest/v1/translation_history`,
+    {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        apikey:SERVICE_KEY,
+        Authorization:`Bearer ${SERVICE_KEY}`,
+        Prefer:"return=minimal"
+      },
+      body:JSON.stringify({
+        email: email.toLowerCase(),
+        source_text: text,
+        translated_text: alternatives?.[0]?.text || "",
+        target_lang: target,
+        rewrite_tone: rewriteTone
+      })
+    }
+  );
+
+}
+
     return {
   statusCode: 200,
   headers: corsHeaders,
