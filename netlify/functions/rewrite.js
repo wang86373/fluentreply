@@ -44,6 +44,24 @@ const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
     })
   };
 }
+    let profile = null;
+
+if(email){
+
+  const profileRes = await fetch(
+    `${SUPABASE_URL}/rest/v1/profiles?email=eq.${encodeURIComponent(email.toLowerCase())}&select=*`,
+    {
+      headers:{
+        apikey:SERVICE_KEY,
+        Authorization:`Bearer ${SERVICE_KEY}`
+      }
+    }
+  );
+
+  const profiles = await profileRes.json();
+
+  profile = profiles?.[0] || null;
+}
 
     const toneMap = {
   auto: "Automatically choose the most natural style based on context.",
