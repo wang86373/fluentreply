@@ -421,11 +421,20 @@ RELATIONSHIP CONTEXT RULES:
 ${segmentationRule}
 
 CONVERSATIONAL FLOW RULES:
+
 - Ensure all segments sound natural when read together.
 - Preserve realistic conversational rhythm.
 - Maintain emotional continuity across sentences.
 - Avoid making adjacent sentences sound stylistically disconnected.
 - Preserve natural dialogue pacing.
+
+PREVIOUS SEGMENT CONTEXT RULES:
+- Maintain consistent tone across adjacent segments.
+- Preserve pronouns, emotional state, and relationship context between sentences.
+- Avoid abrupt style shifts between neighboring segments.
+- If previous segments imply intimacy, professionalism, tension, or humor, preserve it naturally.
+- Keep conversational pacing coherent across the full message.
+- Maintain realistic dialogue continuity like a real native conversation.
 
 INTENT PRESERVATION RULES:
 - Preserve the speaker's real communicative intent.
