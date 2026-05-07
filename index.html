@@ -1426,6 +1426,7 @@ const cacheKey =
   text: seg.source || originalText,
   target: targetSelect.value,
   isPro: userIsPro(),
+  email: currentUser?.email || "",
   rewriteTone: document.getElementById("rewriteTone").value
 })
     });
