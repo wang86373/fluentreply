@@ -304,7 +304,6 @@ alternatives = alternatives.filter(item => {
   });
 }
 
-}
 
     return {
   statusCode: 200,
