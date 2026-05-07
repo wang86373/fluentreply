@@ -17,6 +17,7 @@ exports.handler = async function (event) {
     if (event.httpMethod !== "POST") {
       return {
         statusCode: 405,
+        headers: corsHeaders,
         body: "Method Not Allowed"
       };
     }
@@ -27,6 +28,7 @@ exports.handler = async function (event) {
     if (!NOWPAYMENTS_API_KEY || !SITE_URL) {
       return {
         statusCode: 500,
+        headers: corsHeaders,
         body: JSON.stringify({
           error: "Missing server configuration"
         })
@@ -41,6 +43,7 @@ exports.handler = async function (event) {
     if (!email || !email.includes("@")) {
       return {
         statusCode: 400,
+        headers: corsHeaders,
         body: JSON.stringify({
           error: "Invalid email"
         })
