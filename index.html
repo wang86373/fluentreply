@@ -1515,6 +1515,7 @@ const cacheKey =
     if(!Array.isArray(rawOptions) || !rawOptions.length){
 
       currentSegments[index].selected = originalText;
+      loadingSegmentIndex = null;
 
       renderSegments();
 
