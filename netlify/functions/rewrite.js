@@ -21,6 +21,8 @@ if(event.httpMethod !== "POST"){
     body: JSON.stringify({ error: "Method not allowed" })
   };
 }
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
   
   try{
     const body = JSON.parse(event.body || "{}");
@@ -29,6 +31,7 @@ if(event.httpMethod !== "POST"){
   text,
   target,
   isPro,
+  email,
   rewriteTone = "natural"
 } = body;
 
@@ -87,7 +90,11 @@ const controller = new AbortController();
 
 const timeout = setTimeout(() => controller.abort(), 45000);
     
-    const response = await fetch("https://api.openai.com/v1/responses",{
+    let response;
+
+try{
+
+response = await fetch("https://api.openai.com/v1/responses",{
       method:"POST",
       signal: controller.signal,
       headers:{
@@ -106,7 +113,21 @@ const timeout = setTimeout(() => controller.abort(), 45000);
 })
     });
 
+} finally {
+
 clearTimeout(timeout);
+
+}
+
+if(!response.ok){
+
+  const errText = await response.text();
+
+  throw new Error(
+    `OpenAI API Error: ${response.status} ${errText}`
+  );
+
+}
     
     const data = await response.json();
 
