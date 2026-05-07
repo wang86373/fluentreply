@@ -91,6 +91,7 @@ exports.handler = async function (event) {
     if (!paymentRes.ok) {
       return {
         statusCode: 500,
+        headers: corsHeaders,
         body: JSON.stringify({
           error: "Payment creation failed",
           detail: data
@@ -101,6 +102,7 @@ exports.handler = async function (event) {
     // ✅ 返回支付页面
     return {
       statusCode: 200,
+      headers: corsHeaders,
       body: JSON.stringify({
         invoice_url: data.invoice_url,
         id: data.id
@@ -110,6 +112,7 @@ exports.handler = async function (event) {
   } catch (err) {
     return {
       statusCode: 500,
+      headers: corsHeaders,
       body: JSON.stringify({
         error: "Server error",
         message: err.message
