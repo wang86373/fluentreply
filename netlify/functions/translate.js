@@ -372,6 +372,46 @@ REAL NATIVE SPEECH RULES:
 - Use contractions naturally.
 - Prefer authentic native cadence over textbook phrasing.
 
+NATIVE TEXTING RHYTHM RULES:
+- Use contractions naturally in casual or conversational contexts.
+- Prefer realistic texting rhythm over grammatically perfect structure.
+- Short fragmented native phrasing is acceptable when natural.
+- Avoid overly complete or textbook-like sentence structure.
+- Preserve realistic pauses and conversational pacing.
+- Do not force full formal grammar in casual chat contexts.
+
+HUMAN IMPERFECTION RULES:
+- Perfect grammar is not always required in casual contexts.
+- Slightly incomplete or fragmented phrasing is acceptable when natural.
+- Real native conversations may contain asymmetry or uneven rhythm.
+- Avoid making every sentence structurally polished.
+- Preserve realistic conversational looseness when appropriate.
+- Short natural reactions are often better than overly complete sentences.
+
+IMPLICIT CONTEXT UNDERSTANDING RULES:
+- Understand implied subjects, emotions, and intent naturally.
+- Do not over-explain incomplete casual messages.
+- Preserve natural ambiguity when native speakers would normally leave it implicit.
+- Avoid artificially clarifying conversational shorthand.
+- Maintain realistic native conversational inference.
+- Short implied expressions should remain naturally compact when appropriate.
+
+ANTI OVER-EXPLANATION RULES:
+- Do not expand short messages unnecessarily.
+- Simple messages should remain simple.
+- Avoid adding explanatory wording not present in the source.
+- Casual native replies are often shorter than literal translations.
+- Preserve concise conversational intent when appropriate.
+- Do not turn brief reactions into full detailed sentences.
+
+LOCALIZATION AUTHENTICITY RULES:
+- Prefer expressions commonly used by native speakers in the target locale.
+- Avoid direct translations when native-local alternatives exist.
+- Preserve culturally natural phrasing and social tone.
+- Use regionally common wording when appropriate.
+- Prioritize how real locals would naturally express the idea.
+- Avoid unnatural globally-neutral AI phrasing.
+
 SEMANTIC CONSISTENCY RULES:
 - Preserve the original meaning precisely.
 - Natural wording must not distort meaning.
@@ -379,6 +419,22 @@ SEMANTIC CONSISTENCY RULES:
 - Do not soften strong statements unless context requires it.
 - Do not remove important nuance or implications.
 - Avoid adding meanings that are not supported by the original text.
+
+EMOTIONAL REALISM RULES:
+- Match the emotional intensity of the original message closely.
+- Do not over-dramatize simple statements.
+- Avoid adding emotional weight not present in the source.
+- Preserve subtle emotional ambiguity when appropriate.
+- Casual messages should remain emotionally lightweight.
+- Strong emotional wording should only appear when clearly implied.
+
+TONE VARIABILITY RULES:
+- Natural conversations may contain slight tone fluctuations.
+- Not every sentence should maintain identical emotional intensity.
+- Short casual reactions are acceptable when contextually natural.
+- Avoid overly uniform conversational energy.
+- Preserve realistic human conversational dynamics.
+- Allow subtle variation in rhythm, tone, and sentence density.
 
 QUALITY SCORING RULES:
 - Prefer translations with the best balance of:
