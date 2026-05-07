@@ -790,10 +790,10 @@ try{
       throw new Error(data.error || "Payment server error.");
     }
 
-    if(data.invoice_url){
-      window.location.href = data.invoice_url;
-      return;
-    }
+    if(data.url){
+  window.location.href = data.url;
+  return;
+}
 
     throw new Error(data.error || "Payment creation failed.");
 
