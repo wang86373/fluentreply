@@ -36,7 +36,12 @@ exports.handler = async function (event) {
       .update(event.body || "")
       .digest("hex");
 
-    if (signature !== expectedSignature) {
+    if (
+  !crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(expectedSignature)
+  )
+) {
       return {
         statusCode: 401,
         body: "Invalid signature"
