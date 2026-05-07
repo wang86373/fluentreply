@@ -1,19 +1,23 @@
-// netlify/functions/create-payment.js
+const Stripe = require("stripe");
+
 const corsHeaders = {
   "Content-Type": "application/json",
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "Content-Type",
   "Access-Control-Allow-Methods": "POST, OPTIONS"
 };
+
 exports.handler = async function (event) {
   try {
+
     if (event.httpMethod === "OPTIONS") {
-  return {
-    statusCode: 200,
-    headers: corsHeaders,
-    body: ""
-  };
-}
+      return {
+        statusCode: 200,
+        headers: corsHeaders,
+        body: ""
+      };
+    }
+
     if (event.httpMethod !== "POST") {
       return {
         statusCode: 405,
@@ -22,10 +26,20 @@ exports.handler = async function (event) {
       };
     }
 
-    const NOWPAYMENTS_API_KEY = process.env.NOWPAYMENTS_API_KEY;
-    const SITE_URL = process.env.SITE_URL;
+    const STRIPE_SECRET_KEY =
+      process.env.STRIPE_SECRET_KEY;
 
-    if (!NOWPAYMENTS_API_KEY || !SITE_URL) {
+    const STRIPE_PRICE_ID =
+      process.env.STRIPE_PRICE_ID;
+
+    const SITE_URL =
+      process.env.SITE_URL;
+
+    if (
+      !STRIPE_SECRET_KEY ||
+      !STRIPE_PRICE_ID ||
+      !SITE_URL
+    ) {
       return {
         statusCode: 500,
         headers: corsHeaders,
@@ -35,23 +49,21 @@ exports.handler = async function (event) {
       };
     }
 
-    const body = JSON.parse(event.body || "{}");
+    const stripe =
+      new Stripe(STRIPE_SECRET_KEY);
 
-    const email = (body.email || "").trim().toLowerCase();
-    const plan = body.plan || "pro";
-    const months = Math.max(1, Math.min(12, Number(body.months || 1)));
+    const body =
+      JSON.parse(event.body || "{}");
 
-    if (!["pro", "pro_plus"].includes(plan)) {
-  return {
-    statusCode: 400,
-    headers: corsHeaders,
-    body: JSON.stringify({
-      error: "Invalid plan"
-    })
-  };
-}
+    const email =
+      (body.email || "")
+      .trim()
+      .toLowerCase();
 
-    if (!email || !email.includes("@")) {
+    if (
+      !email ||
+      !email.includes("@")
+    ) {
       return {
         statusCode: 400,
         headers: corsHeaders,
@@ -61,96 +73,46 @@ exports.handler = async function (event) {
       };
     }
 
-    // ✅ 价格设置
-    let priceAmount = 12 * months;
-    let planName = "Pro Plan";
+    const session =
+      await stripe.checkout.sessions.create({
+        mode: "subscription",
 
-    if (plan === "pro_plus") {
-      priceAmount = 29 * months;
-      planName = "Pro Plus Plan";
-    }
+        customer_email: email,
 
-    // ✅ 订单ID（必须唯一）
-    const orderId = `fluentreply_${Date.now()}_${plan}_${months}m`;
+        line_items: [
+          {
+            price: STRIPE_PRICE_ID,
+            quantity: 1
+          }
+        ],
 
-    // ✅ 创建支付（核心）
-    const paymentRes = await fetch("https://api.nowpayments.io/v1/invoice", {
-      method: "POST",
-      headers: {
-        "x-api-key": NOWPAYMENTS_API_KEY,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        price_amount: priceAmount,
-        price_currency: "usd",
+        success_url:
+          `${SITE_URL}/success.html?session_id={CHECKOUT_SESSION_ID}`,
 
-        order_id: orderId,
-        order_description: `${planName} | ${email}`,
+        cancel_url:
+          `${SITE_URL}/`
+      });
 
-        success_url: `${SITE_URL}/success.html?order_id=${orderId}&plan=${plan}`,
-        cancel_url: SITE_URL,
-
-        ipn_callback_url: `${SITE_URL}/.netlify/functions/payment-webhook`,
-
-        // 🔥 关键修复：手续费由用户承担
-        is_fee_paid_by_user: true
-      })
-    });
-
-    let rawText = "";
-let data = {};
-
-try{
-  rawText = await paymentRes.text();
-  data = JSON.parse(rawText);
-}catch(parseError){
-
-  console.error(
-    "NOWPayments response parse failed:",
-    parseError
-  );
-
-  console.log(
-    "NOWPayments raw response:",
-    rawText
-  );
-
-  return {
-    statusCode: 500,
-    headers: corsHeaders,
-    body: JSON.stringify({
-      error: "Invalid payment server response"
-    })
-  };
-}
-
-    if (!paymentRes.ok) {
-      return {
-        statusCode: 500,
-        headers: corsHeaders,
-        body: JSON.stringify({
-          error: "Payment creation failed",
-          detail: data
-        })
-      };
-    }
-
-    // ✅ 返回支付页面
     return {
       statusCode: 200,
       headers: corsHeaders,
       body: JSON.stringify({
-        invoice_url: data.invoice_url,
-        id: data.id
+        url: session.url
       })
     };
 
   } catch (err) {
+
+    console.error(
+      "Stripe checkout error:",
+      err
+    );
+
     return {
       statusCode: 500,
       headers: corsHeaders,
       body: JSON.stringify({
-        error: "Server error",
+        error: "Payment creation failed",
         message: err.message
       })
     };
