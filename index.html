@@ -1405,7 +1405,10 @@ async function saveHistory(source,data){
     time:new Date().toLocaleString()
   };
 
-  const history=JSON.parse(localStorage.getItem("history_folded_tools")||"[]");
+  const history=safeJSONParse(
+  localStorage.getItem("history_folded_tools") || "[]",
+  []
+);
   const key=item.source+item.result;
 
   if(lastSavedKey!==key){
@@ -1414,7 +1417,16 @@ async function saveHistory(source,data){
     lastSavedKey=key;
   }
 }
-
+  
+function safeJSONParse(value,fallback){
+  try{
+    return JSON.parse(value);
+  }catch(e){
+    console.error("JSON parse failed:", e);
+    return fallback;
+  }
+}
+  
 function escapeHTML(str){
   return String(str).replace(/[&<>'"]/g,tag=>({
     "&":"&amp;",
