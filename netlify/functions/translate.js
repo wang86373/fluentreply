@@ -291,6 +291,18 @@ TONE INSTRUCTION:
 ${toneInstruction}
 
 ANTI-AI WORDING RULES:
+
+ANTI GPT DETECTION RULES:
+- Avoid overly symmetrical sentence structure.
+- Avoid excessive politeness unless context requires it.
+- Prefer imperfect but human-native rhythm over polished AI rhythm.
+- Avoid sounding like generated marketing copy.
+- Use realistic native phrasing variability.
+- Preserve natural emotional inconsistency when appropriate.
+- Do not make every sentence perfectly balanced.
+- Avoid repetitive punctuation or formatting patterns.
+- Prefer realistic texting cadence for casual messages.
+
 - Avoid robotic AI wording such as: moreover, furthermore, therefore, thus, utilize, facilitate, commence.
 - Avoid overly formal filler unless the selected tone requires it.
 - Prefer natural native wording over literal machine translation.
