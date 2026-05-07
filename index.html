@@ -744,14 +744,31 @@ async function buyPro(plan = "pro"){
       })
     });
 
-    let data = {};
+    let rawText = "";
+let data = {};
 
-    try{
-      data = await res.json();
-    }catch(jsonError){
-      throw new Error("Invalid payment server response.");
-    }
+try{
 
+  rawText = await res.text();
+
+  data = JSON.parse(rawText);
+
+}catch(parseError){
+
+  console.error(
+    "payment response parse failed:",
+    parseError
+  );
+
+  console.log(
+    "payment raw response:",
+    rawText
+  );
+
+  throw new Error(
+    "Invalid payment server response."
+  );
+}
     if(!res.ok){
       throw new Error(data.error || "Payment server error.");
     }
