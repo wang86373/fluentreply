@@ -111,10 +111,21 @@ button{
 const SUPABASE_URL = "https://smwclefrunxnzzjammnu.supabase.co";
 const SUPABASE_KEY = "sb_publishable_DWI3c__Tq7P9z7GSJqhT6g_dzKxwMrb";
 
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+let supabaseClient = null;
+
+try{
+  if(window.supabase){
+    supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+  }else{
+    setStatus("Supabase failed to load. Please refresh the page.");
+  }
+}catch(e){
+  console.error("Supabase init failed:", e);
+  setStatus("Supabase failed to load. Please refresh the page.");
+}
 
 function setStatus(text){
   document.getElementById("status").innerText = text;
