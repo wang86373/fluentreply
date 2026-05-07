@@ -920,7 +920,26 @@ async function translate(){
       })
     });
 
-    const data=await res.json();
+   let rawText = "";
+let data = {};
+
+try{
+  rawText = await res.text();
+  data = JSON.parse(rawText);
+}catch(parseError){
+
+  console.error(
+    "translate response parse failed:",
+    parseError
+  );
+
+  console.log(
+    "translate raw response:",
+    rawText
+  );
+
+  throw new Error("Invalid server response");
+}
 
     if(!res.ok||data.error){
       result.innerHTML=`<span class="error">${escapeHTML(data.error||data.detail||"Server error")}</span><div id="dropdown" class="dropdown"></div>`;
