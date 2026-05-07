@@ -167,7 +167,7 @@ async function signupWithPassword(){
   }
 
   setLoading("passwordSignupBtn",true);
-  setStatus("Sending verification code...");
+  setStatus("Creating account...");
 
   const {error}=await supabaseClient.auth.signUp({
   email,
