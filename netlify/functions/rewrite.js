@@ -90,10 +90,15 @@ ${text}
         "Authorization":`Bearer ${process.env.OPENAI_API_KEY}`
       },
       body:JSON.stringify({
-        model:"gpt-4o-mini",
-        input: prompt,
-        temperature:0.7
-      })
+  model:"gpt-4o-mini",
+  input: prompt,
+  temperature:0.7,
+  text:{
+    format:{
+      type:"json_object"
+    }
+  }
+})
     });
 
     const data = await response.json();
