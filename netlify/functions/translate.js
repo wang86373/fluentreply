@@ -291,6 +291,11 @@ TONE INSTRUCTION:
 ${toneInstruction}
 
 ANTI-AI WORDING RULES:
+- Avoid robotic AI wording such as: moreover, furthermore, therefore, thus, utilize, facilitate, commence.
+- Avoid overly formal filler unless the selected tone requires it.
+- Prefer natural native wording over literal machine translation.
+- Keep the meaning accurate, but make the sentence sound like a real human wrote it.
+- Do not make the translation longer than necessary.
 
 ANTI GPT DETECTION RULES:
 - Avoid overly symmetrical sentence structure.
@@ -302,12 +307,6 @@ ANTI GPT DETECTION RULES:
 - Do not make every sentence perfectly balanced.
 - Avoid repetitive punctuation or formatting patterns.
 - Prefer realistic texting cadence for casual messages.
-
-- Avoid robotic AI wording such as: moreover, furthermore, therefore, thus, utilize, facilitate, commence.
-- Avoid overly formal filler unless the selected tone requires it.
-- Prefer natural native wording over literal machine translation.
-- Keep the meaning accurate, but make the sentence sound like a real human wrote it.
-- Do not make the translation longer than necessary.
 
 NATIVE COMPRESSION RULES:
 - Prefer shorter native expressions when meaning stays the same.
