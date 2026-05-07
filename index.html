@@ -1317,11 +1317,11 @@ function escapeHTML(str){
 }
 
 async function rewriteSentence(index,event){
-  if(currentSegments[index]?.rewriting) return;
-currentSegments[index].rewriting = true;
+ const seg = currentSegments[index];
+if(!seg) return;
 
-  const seg = currentSegments[index];
-  if(!seg) return;
+if(seg.rewriting) return;
+seg.rewriting = true;
 
   // ✅ sentence-level loading
   const originalText = seg.selected;
