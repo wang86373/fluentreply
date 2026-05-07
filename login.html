@@ -506,22 +506,32 @@ async function sendLoginCode(){
   setStatus(p.sending);
   setLoading("sendCodeBtn",true,p.sending,p.sendCode);
 
-  const {error}=await supabaseClient.auth.signInWithOtp({
-    email,
-    options:{
-      shouldCreateUser:false,
-      emailRedirectTo:location.origin + "/index.html"
+  try{
+    const {error}=await supabaseClient.auth.signInWithOtp({
+      email,
+      options:{
+        shouldCreateUser:false,
+        emailRedirectTo:location.origin + "/index.html"
+      }
+    });
+
+    if(error){
+      setStatus(error.message,"error");
+      return;
     }
-  });
 
-  setLoading("sendCodeBtn",false,"",p.sendCode);
+    setStatus(p.sent,"success");
 
-  if(error){
-    setStatus(error.message,"error");
-    return;
+  }catch(e){
+
+    console.error("Send login code error:", e);
+    setStatus("Send code failed. Please try again.","error");
+
+  }finally{
+
+    setLoading("sendCodeBtn",false,"",p.sendCode);
+
   }
-
-  setStatus(p.sent,"success");
 }
 
 async function verifyLoginCode(){
