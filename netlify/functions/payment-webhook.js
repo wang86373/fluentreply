@@ -71,6 +71,9 @@ exports.handler = async function (event) {
 
     const orderId = String(body.order_id || "");
     const plan = orderId.includes("pro_plus") ? "pro_plus" : "pro";
+    
+    const monthMatch = orderId.match(/_(\d+)m$/);
+const months = monthMatch ? Number(monthMatch[1]) : 1;
 
     const paymentId = String(
   body.payment_id || body.invoice_id || body.order_id
@@ -98,9 +101,9 @@ if(existingPayments?.length){
     const proUntil = new Date();
 
     if (plan === "pro_plus") {
-      proUntil.setMonth(proUntil.getMonth() + 1);
+      proUntil.setMonth(proUntil.getMonth() + months);
     } else {
-      proUntil.setMonth(proUntil.getMonth() + 1);
+      proUntil.setMonth(proUntil.getMonth() + months);
     }
 
     const profileRes = await fetch(
