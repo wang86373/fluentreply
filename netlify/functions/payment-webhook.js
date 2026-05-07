@@ -113,12 +113,13 @@ if(existingPayments?.length){
           Prefer: "resolution=merge-duplicates"
         },
         body: JSON.stringify({
-          email,
-          is_pro: true,
-          plan,
-          pro_until: proUntil.toISOString(),
-          updated_at: new Date().toISOString()
-        })
+  email,
+  is_pro: true,
+  plan,
+  pro_until: proUntil.toISOString(),
+  usage_count: 0,
+  updated_at: new Date().toISOString()
+})
       }
     );
 
