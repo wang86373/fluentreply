@@ -552,42 +552,75 @@ async function verifyLoginCode(){
   setStatus(p.verifying);
   setLoading("codeLoginBtn",true,p.verifying,p.loginCode);
 
-  const {error}=await supabaseClient.auth.verifyOtp({
-    email,
-    token:code,
-    type:"email"
-  });
-
-  setLoading("codeLoginBtn",false,"",p.loginCode);
-
-  if(error){
-    const fallback=await supabaseClient.auth.verifyOtp({
+  try{
+    const {error}=await supabaseClient.auth.verifyOtp({
       email,
       token:code,
-      type:"magiclink"
+      type:"email"
     });
 
-    if(fallback.error){
-      setStatus(error.message || fallback.error.message,"error");
-      return;
+    if(error){
+      const fallback=await supabaseClient.auth.verifyOtp({
+        email,
+        token:code,
+        type:"magiclink"
+      });
+
+      if(fallback.error){
+        setStatus(error.message || fallback.error.message,"error");
+        return;
+      }
     }
+
+    localStorage.setItem("user_email",email);
+    setStatus(p.success,"success");
+
+    setTimeout(()=>location.href="index.html",700);
+
+  }catch(e){
+
+    console.error("Verify login code error:", e);
+    setStatus("Verify code failed. Please try again.","error");
+
+  }finally{
+
+    setLoading("codeLoginBtn",false,"",p.loginCode);
+
   }
-
-  localStorage.setItem("user_email",email);
-  setStatus(p.success,"success");
-
-  setTimeout(()=>location.href="index.html",700);
 }
 
 async function checkUser(){
+
   if(!supabaseClient)return;
 
   const p=pack();
-  const {data}=await supabaseClient.auth.getUser();
 
-  if(data?.user){
-    setStatus(p.alreadyLogged,"success");
-    setTimeout(()=>location.href="index.html",500);
+  try{
+
+    const {data,error}=await supabaseClient.auth.getUser();
+
+    if(error){
+
+      console.error("Check user error:", error);
+      return;
+
+    }
+
+    if(data?.user){
+
+      setStatus(p.alreadyLogged,"success");
+
+      setTimeout(
+        ()=>location.href="index.html",
+        500
+      );
+
+    }
+
+  }catch(e){
+
+    console.error("Check user exception:", e);
+
   }
 }
 
