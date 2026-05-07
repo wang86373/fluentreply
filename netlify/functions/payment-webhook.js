@@ -107,11 +107,32 @@ exports.handler = async function (event) {
         body: "Profile update failed: " + detail
       };
     }
+const paymentId = String(
+  body.payment_id || body.invoice_id || body.order_id
+);
 
+const existingPaymentRes = await fetch(
+  `${SUPABASE_URL}/rest/v1/payments?payment_id=eq.${encodeURIComponent(paymentId)}`,
+  {
+    headers: {
+      apikey: SERVICE_KEY,
+      Authorization: `Bearer ${SERVICE_KEY}`
+    }
+  }
+);
+
+const existingPayments = await existingPaymentRes.json();
+
+if(existingPayments?.length){
+  return {
+    statusCode: 200,
+    body: "Already processed"
+  };
+}
     const paymentPayload = {
       email,
       order_id: body.order_id,
-      payment_id: String(body.payment_id || body.invoice_id || body.order_id),
+      payment_id: paymentId,
       amount: body.price_amount,
       currency: body.price_currency,
       status: body.payment_status,
