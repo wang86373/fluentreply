@@ -660,9 +660,26 @@ function userIsPro(){
 }
 
 function updateProBadge(){
-  const badge=document.getElementById("proBadge");
+
+  const badge =
+    document.getElementById("proBadge");
+
   if(!badge) return;
-  badge.innerText=userIsPro() ? "PRO" : "";
+
+  if(!userIsPro()){
+
+    badge.innerText = "";
+    return;
+  }
+
+  const plan = String(
+    currentProfile?.plan || "pro"
+  ).toLowerCase();
+
+  badge.innerText =
+    plan === "pro_plus"
+      ? "PRO+"
+      : "PRO";
 }
 
 function updateAuthUI(){
