@@ -243,13 +243,16 @@ let history = rawHistory.map((item,index)=>({
 }));
 
   if(query){
-    history=history.filter(item=>{
-      return String(item.source||"").toLowerCase().includes(query) ||
-             String(item.result||"").toLowerCase().includes(query) ||
-             String(item.from||"").toLowerCase().includes(query) ||
-             String(item.to||"").toLowerCase().includes(query) ||
-             String(item.engine||"").toLowerCase().includes(query);
-    });
+    history = history.filter(item => {
+
+  return (
+    String(item.sourceText || "").toLowerCase().includes(query) ||
+    String(item.translatedText || "").toLowerCase().includes(query) ||
+    String(item.targetLang || "").toLowerCase().includes(query) ||
+    String(item.rewriteTone || "").toLowerCase().includes(query)
+  );
+
+});
   }
 
   if(!history.length){
