@@ -270,10 +270,6 @@ return localHistory.map((item,index)=>({
 
 }
 
-function saveHistory(list){
-  localStorage.setItem("history_folded_tools",JSON.stringify(list));
-}
-
 async function renderHistory(){
   const list=document.getElementById("historyList");
   const query=document.getElementById("searchInput").value.trim().toLowerCase();
