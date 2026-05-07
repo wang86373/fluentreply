@@ -1612,8 +1612,6 @@ rawOptions.map((opt,optIndex)=>({
       JSON.stringify(currentSegments[index].options)
     );
 
-    renderSegments();
-
 loadingSegmentIndex = null;
 renderSegments();
     showDropdownForSegment(index);
@@ -1627,7 +1625,6 @@ renderSegments();
 
     currentSegments[index].selected = originalText;
 
-    renderSegments();
 loadingSegmentIndex = null;
 renderSegments();
     statusBox.innerText =
