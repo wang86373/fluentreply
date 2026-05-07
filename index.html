@@ -1435,6 +1435,20 @@ const cacheKey =
 
     console.log("rewrite response:", data);
 
+    if(!res.ok || data.error){
+  currentSegments[index].selected = originalText;
+  currentSegments[index].rewriting = false;
+  loadingSegmentIndex = null;
+  renderSegments();
+
+  statusBox.innerText =
+    data.error === "Free limit reached"
+      ? "Free limit reached. Please upgrade to Pro."
+      : (data.error || "Rewrite failed");
+
+  return;
+}
+
     // ✅ 多种后端兼容
     let rawOptions =
       data.alternatives ||
