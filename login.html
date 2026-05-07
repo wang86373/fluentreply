@@ -461,22 +461,32 @@ async function loginWithPassword(){
   setStatus(p.logging);
   setLoading("passwordLoginBtn",true,p.logging,p.loginPassword);
 
-  const {error}=await supabaseClient.auth.signInWithPassword({
-    email,
-    password
-  });
+  try{
+    const {error}=await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
 
-  setLoading("passwordLoginBtn",false,"",p.loginPassword);
+    if(error){
+      setStatus(error.message,"error");
+      return;
+    }
 
-  if(error){
-    setStatus(error.message,"error");
-    return;
+    localStorage.setItem("user_email",email);
+    setStatus(p.success,"success");
+
+    setTimeout(()=>location.href="index.html",700);
+
+  }catch(e){
+
+    console.error("Password login error:", e);
+    setStatus("Login failed. Please try again.","error");
+
+  }finally{
+
+    setLoading("passwordLoginBtn",false,"",p.loginPassword);
+
   }
-
-  localStorage.setItem("user_email",email);
-  setStatus(p.success,"success");
-
-  setTimeout(()=>location.href="index.html",700);
 }
 
 async function sendLoginCode(){
