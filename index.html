@@ -615,9 +615,16 @@ async function loadProfile(){
 }
 
 function userIsPro(){
+  // 如果没有 profile 或不是 Pro
   if(!currentProfile?.is_pro) return false;
-  if(!currentProfile.pro_until) return true;
-  return new Date(currentProfile.pro_until).getTime()>Date.now();
+
+  // 如果有 pro_until，检查是否有效
+  if(currentProfile.pro_until){
+    return new Date(currentProfile.pro_until).getTime() > Date.now();
+  }
+
+  // 没有 pro_until 的情况下，也可以视为有效 Pro
+  return true;
 }
 
 function updateProBadge(){
