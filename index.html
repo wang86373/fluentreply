@@ -594,6 +594,10 @@ document.getElementById("rewriteTone").addEventListener("change",()=>{
     "rewriteTone",
     document.getElementById("rewriteTone").value
   );
+
+  if(input.value.trim()){
+    translate();
+  }
 });
   
 async function loadProfile(){
