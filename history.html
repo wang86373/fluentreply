@@ -268,34 +268,53 @@ let history = rawHistory.map((item,index)=>({
 
     card.innerHTML=`
       <div class="meta">
-        ${escapeHTML(item.time||"")} ·
-        ${escapeHTML(item.from||"")} → ${escapeHTML(item.to||"")} ·
-        ${escapeHTML(item.engine||"")}
+        ${escapeHTML(item.createdAt || "")} ·
+        ${escapeHTML(item.targetLang || "")} ·
+        ${escapeHTML(item.rewriteTone || "")}
       </div>
 
       <div class="label">Source</div>
-      <div class="text">${escapeHTML(item.source||"")}</div>
+     <div class="text">
+  ${escapeHTML(item.sourceText || "")}
+</div>
 
       <div class="label">Result</div>
-      <div class="text">${escapeHTML(item.result||"")}</div>
+      <div class="text">
+  ${escapeHTML(item.translatedText || "")}
+</div>
 
       <div class="item-actions">
-        <button class="small" onclick="copyItem(${item.originalIndex},'result')">Copy Result</button>
-        <button class="small" onclick="copyItem(${item.originalIndex},'source')">Copy Source</button>
-        <button class="small danger" onclick="deleteItem(${item.originalIndex})">Delete</button>
-      </div>
+
+  <button
+    class="small"
+    onclick='copyText(${JSON.stringify(item.translatedText || "")})'
+  >
+    Copy Result
+  </button>
+
+  <button
+    class="small"
+    onclick='copyText(${JSON.stringify(item.sourceText || "")})'
+  >
+    Copy Source
+  </button>
+
+  <button
+    class="small danger"
+    onclick="alert('Coming soon')"
+  >
+    Delete
+  </button>
+
+</div>
     `;
 
     list.appendChild(card);
   });
 }
 
-function copyItem(index,type){
-  const history=getHistory();
-  const item=history[index];
-  if(!item)return;
-
-  navigator.clipboard.writeText(type==="source" ? item.source || "" : item.result || "");
+function copyText(text){
+  navigator.clipboard.writeText(text || "");
   alert("Copied");
 }
 
