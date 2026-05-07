@@ -583,6 +583,10 @@ input.addEventListener("input",()=>{
 });
 
 async function initAuth(){
+    if(!supabaseClient){
+    statusBox.innerText = "Login system failed to load. Please refresh.";
+    return;
+  }
   const savedUI=localStorage.getItem("ui_language");
   if(savedUI) document.getElementById("uiLangSelect").value=savedUI;
   const savedTone = localStorage.getItem("rewriteTone");
