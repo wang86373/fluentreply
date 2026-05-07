@@ -39,6 +39,7 @@ exports.handler = async function (event) {
 
     const email = (body.email || "").trim().toLowerCase();
     const plan = body.plan || "pro";
+    const months = Math.max(1, Math.min(12, Number(body.months || 1)));
 
     if (!["pro", "pro_plus"].includes(plan)) {
   return {
@@ -61,16 +62,16 @@ exports.handler = async function (event) {
     }
 
     // ✅ 价格设置
-    let priceAmount = 12;
+    let priceAmount = 12 * months;
     let planName = "Pro Plan";
 
     if (plan === "pro_plus") {
-      priceAmount = 29;
+      priceAmount = 29 * months;
       planName = "Pro Plus Plan";
     }
 
     // ✅ 订单ID（必须唯一）
-    const orderId = `fluentreply_${Date.now()}_${plan}`;
+    const orderId = `fluentreply_${Date.now()}_${plan}_${months}m`;
 
     // ✅ 创建支付（核心）
     const paymentRes = await fetch("https://api.nowpayments.io/v1/invoice", {
