@@ -185,19 +185,19 @@ if(!response.ok){
   .trim();
 
 let parsed;
-
-try{
-  parsed = JSON.parse(output);
-}catch(e){
-  parsed = {
-    alternatives:[
-      {
-        label:"Natural",
-        text:output,
-        meaning:"AI rewrite"
-      }
-    ]
-  };
+try {
+    parsed = JSON.parse(output);
+} catch(e) {
+    console.error("JSON parse failed for AI output:", output, e);
+    parsed = {
+        alternatives: [
+            {
+                label: "Natural",
+                text: output || text, // fallback 保证即使 output 为空也有原文
+                meaning: "AI rewrite (parse failed)"
+            }
+        ]
+    };
 }
     
 // ✅ fallback：当 AI 返回 alternatives 为空时，使用原文本
