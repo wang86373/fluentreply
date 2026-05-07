@@ -636,7 +636,22 @@ JSON format:
     .replace(/```/g, "")
     .trim();
 
+  try{
   return JSON.parse(cleaned);
+}catch(parseError){
+
+  console.error(
+    "AI JSON parse failed:",
+    parseError
+  );
+
+  console.log(
+    "AI cleaned output:",
+    cleaned
+  );
+
+  throw new Error("Invalid AI JSON output");
+}
 }
 
 function normalizeResult(parsed, { originalText, fallbackText, uiLanguage }) {
