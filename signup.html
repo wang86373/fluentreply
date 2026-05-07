@@ -223,23 +223,63 @@ async function signupWithPassword(){
 }
 
 async function sendSignupCode(){
-  const email=document.getElementById("email").value.trim().toLowerCase();
+
+  const email=document.getElementById("email")
+    .value.trim().toLowerCase();
 
   if(!email){
-    setStatus("Enter email","error");return;
+    setStatus("Enter email","error");
+    return;
+  }
+
+  if(!supabaseClient){
+    setStatus(
+      "Signup system failed to load. Please refresh.",
+      "error"
+    );
+    return;
   }
 
   setStatus("Sending code...");
-  const {error}=await supabaseClient.auth.signInWithOtp({
-    email,
-    options:{shouldCreateUser:true}
-  });
+  setLoading("sendCodeBtn",true);
 
-  if(error){
-    setStatus(error.message,"error");return;
+  try{
+
+    const {error} =
+      await supabaseClient.auth.signInWithOtp({
+        email,
+        options:{
+          shouldCreateUser:true
+        }
+      });
+
+    if(error){
+      setStatus(error.message,"error");
+      return;
+    }
+
+    setStatus("Code sent","success");
+
+  }catch(e){
+
+    console.error(
+      "Send signup code error:",
+      e
+    );
+
+    setStatus(
+      "Send code failed. Please try again.",
+      "error"
+    );
+
+  }finally{
+
+    setLoading(
+      "sendCodeBtn",
+      false
+    );
+
   }
-
-  setStatus("Code sent","success");
 }
 
 async function verifySignupCode(){
