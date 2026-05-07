@@ -804,7 +804,7 @@ async function translate(){
   const sentenceMode=document.getElementById("sentenceMode").checked;
   const uiLanguage=backendUILang();
 
-  const cacheKey=`cache_${currentTask}_${engineMode}_${sentenceMode}_${sourceLanguage}_${targetLanguage}_${uiLanguage}_${JSON.stringify(glossary)}_${text}`;
+  const cacheKey=`cache_${currentTask}_${engineMode}_${rewriteTone}_${sentenceMode}_${sourceLanguage}_${targetLanguage}_${uiLanguage}_${JSON.stringify(glossary)}_${text}`;
   const cached=localStorage.getItem(cacheKey);
 
   if(cached){
