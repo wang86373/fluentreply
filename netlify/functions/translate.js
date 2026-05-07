@@ -617,7 +617,26 @@ JSON format:
     })
   });
 
-  const data = await response.json();
+  let openAIRawText = "";
+let data = {};
+
+try{
+  openAIRawText = await response.text();
+  data = JSON.parse(openAIRawText);
+}catch(parseError){
+
+  console.error(
+    "OpenAI response parse failed:",
+    parseError
+  );
+
+  console.log(
+    "OpenAI raw response:",
+    openAIRawText
+  );
+
+  throw new Error("Invalid OpenAI response");
+}
 
   if (!response.ok) {
     throw new Error(data.error?.message || "OpenAI API error");
