@@ -1,186 +1,101 @@
-const crypto = require("crypto");
+const Stripe = require("stripe");
+const { createClient } = require("@supabase/supabase-js");
 
 exports.handler = async function (event) {
-  try {
-    if (event.httpMethod !== "POST") {
-      return {
-        statusCode: 405,
-        body: "Method Not Allowed"
-      };
-    }
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-    const secret = process.env.NOWPAYMENTS_IPN_SECRET;
-    const SUPABASE_URL = process.env.SUPABASE_URL;
-    const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-    if (!secret || !SUPABASE_URL || !SERVICE_KEY) {
-      return {
-        statusCode: 500,
-        body: "Missing server configuration"
-      };
-    }
-
-    const signature =
-      event.headers["x-nowpayments-sig"] ||
-      event.headers["X-Nowpayments-Sig"];
-
-    if (!signature) {
-      return {
-        statusCode: 401,
-        body: "Missing signature"
-      };
-    }
-
-    const expectedSignature = crypto
-      .createHmac("sha512", secret)
-      .update(event.body || "")
-      .digest("hex");
-
-  const sigBuffer = Buffer.from(signature, "hex");
-const expectedBuffer = Buffer.from(expectedSignature, "hex");
-
-if(
-  sigBuffer.length !== expectedBuffer.length ||
-  !crypto.timingSafeEqual(sigBuffer, expectedBuffer)
-){
-  return {
-    statusCode: 401,
-    body: "Invalid signature"
-  };
-}
-    
-  
-    const body = JSON.parse(event.body || "{}");
-
-    const validPaidStatuses = ["finished", "confirmed"];
-
-    if (!validPaidStatuses.includes(body.payment_status)) {
-      return {
-        statusCode: 200,
-        body: "Ignored"
-      };
-    }
-
-    const rawDescription = body.order_description || "";
-    const email = rawDescription.split("|")[1]?.trim()?.toLowerCase();
-
-    if (!email || !email.includes("@")) {
-      return {
-        statusCode: 400,
-        body: "Missing email"
-      };
-    }
-
-    const orderId = String(body.order_id || "");
-    const plan = orderId.includes("pro_plus") ? "pro_plus" : "pro";
-    
-    const monthMatch = orderId.match(/_(\d+)m$/);
-const months = monthMatch ? Number(monthMatch[1]) : 1;
-
-    const paymentId = String(
-  body.payment_id || body.invoice_id || body.order_id
-);
-
-const existingPaymentRes = await fetch(
-  `${SUPABASE_URL}/rest/v1/payments?payment_id=eq.${encodeURIComponent(paymentId)}`,
-  {
-    headers: {
-      apikey: SERVICE_KEY,
-      Authorization: `Bearer ${SERVICE_KEY}`
-    }
-  }
-);
-
-let existingPayments = [];
-
-try{
-
-  existingPayments =
-    await existingPaymentRes.json();
-
-}catch(parseError){
-
-  console.error(
-    "Payments parse failed:",
-    parseError
+  const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
-  existingPayments = [];
-}
+  let stripeEvent;
 
-if(existingPayments?.length){
-  return {
-    statusCode: 200,
-    body: "Already processed"
-  };
-}
-
-    const proUntil = new Date();
-
-    proUntil.setMonth(proUntil.getMonth() + months);
-
-    const profileRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/profiles?on_conflict=email`,
-      {
-        method: "POST",
-        headers: {
-          apikey: SERVICE_KEY,
-          Authorization: `Bearer ${SERVICE_KEY}`,
-          "Content-Type": "application/json",
-          Prefer: "resolution=merge-duplicates"
-        },
-        body: JSON.stringify({
-  email,
-  is_pro: true,
-  plan,
-  pro_until: proUntil.toISOString(),
-  usage_count: 0,
-  updated_at: new Date().toISOString()
-})
-      }
+  try {
+    stripeEvent = stripe.webhooks.constructEvent(
+      event.body,
+      event.headers["stripe-signature"],
+      endpointSecret
     );
+  } catch (err) {
+    console.error("Webhook signature verification failed:", err.message);
 
-    if (!profileRes.ok) {
-      const detail = await profileRes.text();
-      return {
-        statusCode: 500,
-        body: "Profile update failed: " + detail
-      };
-    }
-
-    const paymentPayload = {
-      email,
-      order_id: body.order_id,
-      payment_id: paymentId,
-      amount: body.price_amount,
-      currency: body.price_currency,
-      status: body.payment_status,
-      plan,
-      raw: body,
-      created_at: new Date().toISOString()
+    return {
+      statusCode: 400,
+      body: `Webhook Error: ${err.message}`
     };
+  }
 
-    const paymentRes = await fetch(`${SUPABASE_URL}/rest/v1/payments`, {
-      method: "POST",
-      headers: {
-        apikey: SERVICE_KEY,
-        Authorization: `Bearer ${SERVICE_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(paymentPayload)
-    });
+  try {
+    if (stripeEvent.type === "checkout.session.completed") {
+      const session = stripeEvent.data.object;
 
-    if (!paymentRes.ok) {
-      const detail = await paymentRes.text();
-      console.log("Payment record failed:", detail);
+      const email =
+        session.customer_email ||
+        session.customer_details?.email;
+
+      if (!email) {
+        return {
+          statusCode: 400,
+          body: "Missing customer email"
+        };
+      }
+
+      const proUntil = new Date();
+      proUntil.setMonth(proUntil.getMonth() + 1);
+
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .upsert(
+          {
+            email: email.toLowerCase(),
+            is_pro: true,
+            plan: "pro",
+            pro_until: proUntil.toISOString(),
+            usage_count: 0,
+            updated_at: new Date().toISOString()
+          },
+          {
+            onConflict: "email"
+          }
+        );
+
+      if (profileError) {
+        console.error("Profile update failed:", profileError);
+
+        return {
+          statusCode: 500,
+          body: "Profile update failed"
+        };
+      }
+
+      const { error: paymentError } = await supabase
+        .from("payments")
+        .insert({
+          email: email.toLowerCase(),
+          order_id: session.id,
+          payment_id: session.payment_intent || session.subscription || session.id,
+          amount: session.amount_total ? session.amount_total / 100 : null,
+          currency: session.currency,
+          status: "paid",
+          plan: "pro",
+          raw: session,
+          created_at: new Date().toISOString()
+        });
+
+      if (paymentError) {
+        console.error("Payment record failed:", paymentError);
+      }
     }
 
     return {
       statusCode: 200,
       body: "OK"
     };
-
   } catch (err) {
+    console.error("Webhook server error:", err);
+
     return {
       statusCode: 500,
       body: "Server error: " + err.message
