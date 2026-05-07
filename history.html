@@ -208,7 +208,10 @@ function renderHistory(){
   const list=document.getElementById("historyList");
   const query=document.getElementById("searchInput").value.trim().toLowerCase();
 
-  let history=getHistory();
+  let history=getHistory().map((item,index)=>({
+  ...item,
+  originalIndex:index
+}));
 
   if(query){
     history=history.filter(item=>{
@@ -227,7 +230,7 @@ function renderHistory(){
 
   list.innerHTML="";
 
-  history.forEach((item,index)=>{
+  history.forEach((item)=>{
     const card=document.createElement("div");
     card.className="card";
 
@@ -245,9 +248,9 @@ function renderHistory(){
       <div class="text">${escapeHTML(item.result||"")}</div>
 
       <div class="item-actions">
-        <button class="small" onclick="copyItem(${index},'result')">Copy Result</button>
-        <button class="small" onclick="copyItem(${index},'source')">Copy Source</button>
-        <button class="small danger" onclick="deleteItem(${index})">Delete</button>
+        <button class="small" onclick="copyItem(${item.originalIndex},'result')">Copy Result</button>
+        <button class="small" onclick="copyItem(${item.originalIndex},'source')">Copy Source</button>
+        <button class="small danger" onclick="deleteItem(${item.originalIndex})">Delete</button>
       </div>
     `;
 
