@@ -750,7 +750,7 @@ async function buyPro(plan = "pro"){
   paymentCreating = true;
 
   try{
-    const res = await fetch("/.netlify/functions/create-payment",{
+    const res = await fetch("/.netlify/functions/checkout",{
       method:"POST",
       headers:{
         "Content-Type":"application/json"
