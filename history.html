@@ -385,9 +385,10 @@ async function deleteItem(id){
       localStorage.getItem("history_folded_tools") || "[]"
     );
 
-    history = history.filter(
-      item => String(item.id) !== String(id)
-    );
+    history = history.filter((item,index) => {
+  const itemId = item.id || index;
+  return String(itemId) !== String(id);
+});
 
     localStorage.setItem(
       "history_folded_tools",
