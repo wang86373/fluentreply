@@ -196,19 +196,48 @@ function applyTheme(){
   );
 }
 
-function getHistory(){
-  return JSON.parse(localStorage.getItem("history_folded_tools")||"[]");
+async function getHistory(){
+
+  if(currentUser?.email){
+
+    const { data,error } =
+      await supabaseClient
+      .from("translation_history")
+      .select("*")
+      .eq("email", currentUser.email.toLowerCase())
+      .order("created_at",{ ascending:false });
+
+    if(!error && data){
+
+      return data.map(item => ({
+        sourceText: item.source_text,
+        translatedText: item.translated_text,
+        targetLang: item.target_lang,
+        rewriteTone: item.rewrite_tone,
+        createdAt: item.created_at
+      }));
+
+    }
+
+  }
+
+  return JSON.parse(
+    localStorage.getItem("history_folded_tools") || "[]"
+  );
+
 }
 
 function saveHistory(list){
   localStorage.setItem("history_folded_tools",JSON.stringify(list));
 }
 
-function renderHistory(){
+async function renderHistory(){
   const list=document.getElementById("historyList");
   const query=document.getElementById("searchInput").value.trim().toLowerCase();
 
-  let history=getHistory().map((item,index)=>({
+  const rawHistory = await getHistory();
+
+let history = rawHistory.map((item,index)=>({
   ...item,
   originalIndex:index
 }));
