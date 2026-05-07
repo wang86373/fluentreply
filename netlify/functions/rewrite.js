@@ -199,20 +199,32 @@ try{
     ]
   };
 }
-
-    let alternatives = parsed.alternatives || [];
     
-alternatives = alternatives
-  .filter(item => item && item.text)
-  .map((item, index) => ({
+// ✅ fallback：当 AI 返回 alternatives 为空时，使用原文本
+if (!parsed.alternatives || parsed.alternatives.length === 0) {
+    parsed.alternatives = [
+        {
+            label: "Natural",
+            text: text, // 原文本 fallback
+            meaning: "Original sentence preserved because AI returned empty"
+        }
+    ];
+}
+
+let alternatives = parsed.alternatives || [];
+
+alternatives = (alternatives || []).map((item, index) => ({
     label:
-      item.label ||
-      ["Closest", "Natural", "Casual", "Professional", "Friendly", "Concise", "Fluent"][index] ||
-      `Option ${index + 1}`,
+        item.label ||
+        [
+            "Closest", "Natural", "Casual", "Professional", "Friendly",
+            "Concise", "Fluent", "Short", "Warm", "Confident",
+            "Luxury", "GenZ"
+        ][index] ||
+        `Option ${index + 1}`,
     text: String(item.text || "").trim(),
     meaning: item.meaning || "Alternative rewrite"
-  }))
-  .filter(item => item.text);
+})).filter(item => item.text);
 
     const seen = new Set();
 
