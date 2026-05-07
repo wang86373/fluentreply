@@ -234,9 +234,39 @@ async function getHistory(){
 
   }
 
-  return JSON.parse(
-    localStorage.getItem("history_folded_tools") || "[]"
-  );
+  const localHistory = JSON.parse(
+  localStorage.getItem("history_folded_tools") || "[]"
+);
+
+return localHistory.map((item,index)=>({
+
+  id: item.id || index,
+
+  sourceText:
+    item.sourceText ||
+    item.source ||
+    "",
+
+  translatedText:
+    item.translatedText ||
+    item.result ||
+    "",
+
+  targetLang:
+    item.targetLang ||
+    item.to ||
+    "",
+
+  rewriteTone:
+    item.rewriteTone ||
+    "",
+
+  createdAt:
+    item.createdAt ||
+    item.time ||
+    ""
+
+}));
 
 }
 
