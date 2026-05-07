@@ -589,7 +589,13 @@ JSON format:
     body: JSON.stringify({
       model: process.env.OPENAI_MODEL || "gpt-4o-mini",
       input: prompt,
-      temperature: 0.2
+      temperature: 0.2,
+      text:{
+  format:{
+    type:"json_object"
+  }
+}
+      }
     })
   });
 
