@@ -246,6 +246,31 @@ alternatives = alternatives.filter(item => {
       alternatives = alternatives.slice(0,3);
     }
 
+    if(
+  !isPro &&
+  profile &&
+  email
+){
+
+  await fetch(
+    `${SUPABASE_URL}/rest/v1/profiles?email=eq.${encodeURIComponent(email.toLowerCase())}`,
+    {
+      method:"PATCH",
+      headers:{
+        "Content-Type":"application/json",
+        apikey:SERVICE_KEY,
+        Authorization:`Bearer ${SERVICE_KEY}`,
+        Prefer:"return=minimal"
+      },
+      body:JSON.stringify({
+        usage_count:
+          Number(profile.usage_count || 0) + 1
+      })
+    }
+  );
+
+}
+
     return {
   statusCode: 200,
   headers: corsHeaders,
