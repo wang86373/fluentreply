@@ -40,6 +40,16 @@ exports.handler = async function (event) {
     const email = (body.email || "").trim().toLowerCase();
     const plan = body.plan || "pro";
 
+    if (!["pro", "pro_plus"].includes(plan)) {
+  return {
+    statusCode: 400,
+    headers: corsHeaders,
+    body: JSON.stringify({
+      error: "Invalid plan"
+    })
+  };
+}
+
     if (!email || !email.includes("@")) {
       return {
         statusCode: 400,
