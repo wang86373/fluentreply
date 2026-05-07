@@ -656,38 +656,64 @@ async function logout(){
   updateProBadge();
 }
 
-async function buyPro(plan="pro"){
-  let email=currentUser?.email||"";
+let paymentCreating = false;
+
+async function buyPro(plan = "pro"){
+  if(paymentCreating) return;
+
+  let email = currentUser?.email || "";
 
   if(!email){
-    email=prompt("Please enter your email to activate Pro after payment:");
+    email = prompt("Please enter your email to activate Pro after payment:");
   }
 
-  if(!email) return;
+  email = (email || "").trim().toLowerCase();
+
+  if(!email){
+    alert("Email is required to activate Pro.");
+    return;
+  }
+
+  paymentCreating = true;
 
   try{
-    const res=await fetch("/.netlify/functions/create-payment",{
+    const res = await fetch("/.netlify/functions/create-payment",{
       method:"POST",
-      headers:{"Content-Type":"application/json"},
+      headers:{
+        "Content-Type":"application/json"
+      },
       body:JSON.stringify({
-        email:email.trim().toLowerCase(),
+        email,
         plan
       })
     });
 
-    const data=await res.json();
+    let data = {};
+
+    try{
+      data = await res.json();
+    }catch(jsonError){
+      throw new Error("Invalid payment server response.");
+    }
+
+    if(!res.ok){
+      throw new Error(data.error || "Payment server error.");
+    }
 
     if(data.invoice_url){
-      window.location.href=data.invoice_url;
-    }else{
-      alert(data.error||"Payment creation failed");
-      console.log(data);
+      window.location.href = data.invoice_url;
+      return;
     }
+
+    throw new Error(data.error || "Payment creation failed.");
+
   }catch(err){
-    alert("Payment function error");
-    console.error(err);
+    console.error("Payment error:", err);
+    alert(err.message || "Payment creation failed. Please try again.");
+  }finally{
+    paymentCreating = false;
   }
-}
+  }
 
 function getUsage(){
   if(currentUser?.email){
