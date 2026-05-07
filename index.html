@@ -855,8 +855,10 @@ function swapLanguages(){
 }
 
 function getGlossary(){
-  return JSON.parse(localStorage.getItem("custom_glossary")||"[]");
-}
+  return safeJSONParse(
+  localStorage.getItem("custom_glossary") || "[]",
+  []
+);
 
 function saveGlossary(list){
   localStorage.setItem("custom_glossary",JSON.stringify(list));
@@ -1269,7 +1271,10 @@ function copyText(event){
 function feedback(isGood){
   if(!currentText) return;
 
-  const feedback=JSON.parse(localStorage.getItem("feedback")||"[]");
+  const feedback=safeJSONParse(
+  localStorage.getItem("feedback") || "[]",
+  []
+);
   feedback.push({
     input:input.value,
     output:currentText,
