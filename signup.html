@@ -367,10 +367,35 @@ async function verifySignupCode(){
 }
 
 function init(){
-  supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
+
+  try{
+
+    if(!window.supabase){
+      setStatus(
+        "Signup system failed to load. Please refresh.",
+        "error"
+      );
+      return;
+    }
+
+    supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+  }catch(e){
+
+    console.error(
+      "Signup init failed:",
+      e
+    );
+
+    setStatus(
+      "Signup system failed to load. Please refresh.",
+      "error"
+    );
+
+  }
 }
 
 document.addEventListener("DOMContentLoaded",init);
