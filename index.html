@@ -1523,7 +1523,26 @@ const cacheKey =
 })
     });
 
-    const data = await res.json();
+    let rawText = "";
+let data = {};
+
+try{
+  rawText = await res.text();
+  data = JSON.parse(rawText);
+}catch(parseError){
+
+  console.error(
+    "rewrite response parse failed:",
+    parseError
+  );
+
+  console.log(
+    "rewrite raw response:",
+    rawText
+  );
+
+  throw new Error("Invalid rewrite server response");
+}
 
     console.log("rewrite response:", data);
 
