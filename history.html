@@ -264,6 +264,7 @@ function copyItem(index,type){
   if(!item)return;
 
   navigator.clipboard.writeText(type==="source" ? item.source || "" : item.result || "");
+  alert("Copied");
 }
 
 function deleteItem(index){
