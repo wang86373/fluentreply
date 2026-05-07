@@ -308,13 +308,6 @@ ANTI GPT DETECTION RULES:
 - Avoid repetitive punctuation or formatting patterns.
 - Prefer realistic texting cadence for casual messages.
 
-NATIVE COMPRESSION RULES:
-- Prefer shorter native expressions when meaning stays the same.
-- Avoid unnecessarily long or repetitive wording.
-- Use contractions naturally when appropriate.
-- Remove robotic filler phrases.
-- Sound like a real native speaker in real conversation.
-
 DYNAMIC STYLE ROUTING:
 - If the input is a business email, use clear professional language.
 - If the input is casual chat or texting, use natural conversational language.
