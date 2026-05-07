@@ -443,7 +443,20 @@ summary{cursor:pointer;font-weight:900}
 <script>
 const SUPABASE_URL = "https://smwclefrunxnzzjammnu.supabase.co";
 const SUPABASE_KEY = "sb_publishable_DWI3c__Tq7P9z7GSJqhT6g_dzKxwMrb";
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let supabaseClient = null;
+
+try{
+  if(window.supabase){
+    supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+  }else{
+    console.error("Supabase CDN failed to load");
+  }
+}catch(e){
+  console.error("Supabase init failed:", e);
+}
 
 const LOCAL_FREE_LIMIT = 300;
 
