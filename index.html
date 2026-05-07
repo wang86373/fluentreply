@@ -1746,6 +1746,9 @@ if(rewriteToneSelect){
     rewriteToneSelect.value
   );
 
+  if(input.value.trim()){
+  translate();
+}
 }
     if(tone === "formal"){
       toneResult.textContent =
