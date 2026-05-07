@@ -1528,7 +1528,10 @@ const cacheKey =
 
   if(cached){
     try{
-      const parsed = JSON.parse(cached);
+      const parsed = safeJSONParse(
+  cached,
+  []
+);
 
       if(Array.isArray(parsed) && parsed.length){
 
