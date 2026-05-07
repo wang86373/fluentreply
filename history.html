@@ -412,27 +412,49 @@ async function clearHistory(){
     return;
   }
 
-  if(currentUser?.email){
+  try{
 
-    const { error } = await supabaseClient
-      .from("translation_history")
-      .delete()
-      .eq("email", currentUser.email.toLowerCase());
+    if(currentUser?.email){
 
-    if(error){
-      alert("Clear failed");
-      return;
+      const { error } = await supabaseClient
+        .from("translation_history")
+        .delete()
+        .eq("email", currentUser.email.toLowerCase());
+
+      if(error){
+
+        console.error(
+          "Clear history failed:",
+          error
+        );
+
+        alert("Clear failed");
+        return;
+      }
+
+    }else{
+
+      localStorage.removeItem(
+        "history_folded_tools"
+      );
+
     }
 
-  }else{
+    await renderHistory();
 
-    localStorage.removeItem("history_folded_tools");
+    alert("History cleared");
 
+  }catch(e){
+
+    console.error(
+      "Clear history error:",
+      e
+    );
+
+    alert(
+      "Clear failed. Please try again."
+    );
   }
-
-  await renderHistory();
-
-  alert("History cleared");
 }
   
 function escapeHTML(str){
