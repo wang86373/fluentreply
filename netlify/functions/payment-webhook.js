@@ -36,18 +36,20 @@ exports.handler = async function (event) {
       .update(event.body || "")
       .digest("hex");
 
-    if (
-  !crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expectedSignature)
-  )
-) {
-      return {
-        statusCode: 401,
-        body: "Invalid signature"
-      };
-    }
+  const sigBuffer = Buffer.from(signature, "hex");
+const expectedBuffer = Buffer.from(expectedSignature, "hex");
 
+if(
+  sigBuffer.length !== expectedBuffer.length ||
+  !crypto.timingSafeEqual(sigBuffer, expectedBuffer)
+){
+  return {
+    statusCode: 401,
+    body: "Invalid signature"
+  };
+}
+    
+  
     const body = JSON.parse(event.body || "{}");
 
     const validPaidStatuses = ["finished", "confirmed"];
