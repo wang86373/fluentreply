@@ -179,6 +179,17 @@ h1{
 </main>
 
 <script>
+const SUPABASE_URL = "https://smwclefrunxnzzjammnu.supabase.co";
+const SUPABASE_KEY = "sb_publishable_DWI3c__Tq7P9z7GSJqhT6g_dzKxwMrb";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+
+async function initAuth(){
+  const { data } = await supabaseClient.auth.getUser();
+  currentUser = data?.user || null;
+}
+
 function changeTheme(){
   localStorage.setItem("theme_mode",document.getElementById("themeSelect").value);
   applyTheme();
@@ -403,7 +414,10 @@ window.matchMedia("(prefers-color-scheme: dark)")
   .addEventListener?.("change",applyTheme);
 
 applyTheme();
-renderHistory();
+
+initAuth().then(()=>{
+  renderHistory();
+});
 </script>
 </body>
 </html>
