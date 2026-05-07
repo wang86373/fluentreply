@@ -595,7 +595,6 @@ JSON format:
     type:"json_object"
   }
 }
-      }
     })
   });
 
