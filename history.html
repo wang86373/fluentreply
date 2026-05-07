@@ -302,7 +302,7 @@ let history = rawHistory.map((item,index)=>({
 
   <button
     class="small danger"
-    onclick="deleteItem('${item.id}')"
+    onclick='deleteItem("${item.id}")'
   >
     Delete
   </button>
@@ -319,11 +319,43 @@ function copyText(text){
   alert("Copied");
 }
 
-function deleteItem(index){
-  const history=getHistory();
-  history.splice(index,1);
-  saveHistory(history);
-  renderHistory();
+async function deleteItem(id){
+
+  if(!confirm("Delete this history item?")){
+    return;
+  }
+
+  if(currentUser?.email){
+
+    const { error } = await supabaseClient
+      .from("translation_history")
+      .delete()
+      .eq("id", id);
+
+    if(error){
+      alert("Delete failed");
+      return;
+    }
+
+  }else{
+
+    let history = JSON.parse(
+      localStorage.getItem("history_folded_tools") || "[]"
+    );
+
+    history = history.filter(
+      item => String(item.id) !== String(id)
+    );
+
+    localStorage.setItem(
+      "history_folded_tools",
+      JSON.stringify(history)
+    );
+  }
+
+  await renderHistory();
+
+  alert("Deleted");
 }
 
 function clearHistory(){
