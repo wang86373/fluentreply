@@ -91,7 +91,22 @@ const existingPaymentRes = await fetch(
   }
 );
 
-const existingPayments = await existingPaymentRes.json();
+let existingPayments = [];
+
+try{
+
+  existingPayments =
+    await existingPaymentRes.json();
+
+}catch(parseError){
+
+  console.error(
+    "Payments parse failed:",
+    parseError
+  );
+
+  existingPayments = [];
+}
 
 if(existingPayments?.length){
   return {
