@@ -859,6 +859,7 @@ function getGlossary(){
   localStorage.getItem("custom_glossary") || "[]",
   []
 );
+  }
 
 function saveGlossary(list){
   localStorage.setItem("custom_glossary",JSON.stringify(list));
