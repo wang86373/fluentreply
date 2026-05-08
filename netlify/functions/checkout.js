@@ -101,12 +101,16 @@ exports.handler = async function (event) {
       })
     };
 
-  } catch (err) {
+    } catch (err) {
+    console.log("ENV CHECK", {
+      hasSecret: !!process.env.STRIPE_SECRET_KEY,
+      hasPrice: !!process.env.STRIPE_PRICE_ID,
+      priceId: process.env.STRIPE_PRICE_ID,
+      hasSiteUrl: !!process.env.SITE_URL,
+      siteUrl: process.env.SITE_URL
+    });
 
-    console.error(
-      "Stripe checkout error:",
-      err
-    );
+    console.error("STRIPE ERROR:", err);
 
     return {
       statusCode: 500,
@@ -117,4 +121,5 @@ exports.handler = async function (event) {
       })
     };
   }
+};
 };
