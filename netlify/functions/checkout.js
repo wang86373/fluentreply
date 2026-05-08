@@ -50,7 +50,21 @@ exports.handler = async function (event) {
     }
 
     const stripe =
-      new Stripe(STRIPE_SECRET_KEY);
+  new Stripe(STRIPE_SECRET_KEY);
+
+const account =
+  await stripe.accounts.retrieve();
+
+console.log(
+  "STRIPE ACCOUNT CHECK:",
+  {
+    accountId: account.id,
+    businessName:
+      account.settings?.dashboard?.display_name ||
+      account.business_profile?.name,
+    priceId: STRIPE_PRICE_ID
+  }
+);
 
     const body =
       JSON.parse(event.body || "{}");
